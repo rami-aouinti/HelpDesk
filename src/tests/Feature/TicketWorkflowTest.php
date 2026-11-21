@@ -66,6 +66,24 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_customer_cannot_view_another_customers_ticket(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $otherCustomer = User::factory()->create();
+
+        $ticket = Ticket::create([
+            'subject' => 'Private customer request',
+            'description' => 'This request belongs to another customer account.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $otherCustomer->id,
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('tickets.show', $ticket))
+            ->assertForbidden();
+    }
+
     public function test_customer_cannot_update_a_ticket(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

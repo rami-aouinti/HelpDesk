@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\TicketController;
@@ -18,7 +19,10 @@ Route::get('/api/openapi.yaml', function () {
 })->name('api.openapi');
 
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');\n    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');\n    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');\n    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::view('/appearance', 'appearance.index')->name('appearance.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

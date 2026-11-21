@@ -73,7 +73,7 @@ class TicketController extends Controller
                     }
                 });
             })
-            ->with(['customer', 'assignedAgent', 'team', 'project'])
+            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint'])
             ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_direction'] ?? 'desc')
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
@@ -105,6 +105,7 @@ class TicketController extends Controller
             'assignedAgent',
             'team',
             'project',
+            'sprint',
             'messages' => function (Builder $query) use ($request): void {
                 $query->with(['user', 'attachments'])->oldest();
 
@@ -128,7 +129,7 @@ class TicketController extends Controller
             $request->user()->id,
         );
 
-        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project']));
+        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint']));
     }
 
     public function storeMessage(

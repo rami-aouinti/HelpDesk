@@ -106,7 +106,7 @@ class TicketController extends Controller
 
                 $storedPaths[] = $path;
 
-                $originalName = basename(str_replace('\\\\', '/', $file->getClientOriginalName()));
+                $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
 
                 $message->attachments()->create([
                     'ticket_id' => $ticket->id,

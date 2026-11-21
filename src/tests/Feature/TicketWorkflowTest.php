@@ -31,7 +31,9 @@ class TicketWorkflowTest extends TestCase
             ])
             ->assertRedirect(route('tickets.index'));
 
-        $ticket = Ticket::firstOrFail();
+        $ticket = Ticket::where('subject', 'Cannot access my account')
+            ->where('user_id', $customer->id)
+            ->firstOrFail();
         $this->assertSame($customer->id, $ticket->user_id);
 
         $this->actingAs($customer)
@@ -167,6 +169,6 @@ class TicketWorkflowTest extends TestCase
             ->assertForbidden();
 
         $this->assertSame('open', $ticket->fresh()->status);
-        $this->assertSame(0, TicketHistory::count());
+        $this->assertSame(0, TicketHistory::where('ticket_id', $ticket->id)->count());
     }
 }

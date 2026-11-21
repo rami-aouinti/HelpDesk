@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Closure;
 use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
 use App\Http\Controllers\Controller;
@@ -75,9 +76,7 @@ class TicketController extends Controller
                     }
                 });
             })
-            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
-                ->withCount('tickets')
-                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),])
+            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),])
             ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_direction'] ?? 'desc')
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
@@ -95,9 +94,7 @@ class TicketController extends Controller
 
         event(new TicketCreated($ticket));
 
-        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
-                ->withCount('tickets')
-                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),])))
+        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),])))
             ->response()
             ->setStatusCode(201);
     }
@@ -111,9 +108,7 @@ class TicketController extends Controller
             'assignedAgent',
             'team',
             'project',
-            'sprint' => fn (Builder $query) => $query
-                ->withCount('tickets')
-                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),
+            'sprint' => $this->sprintWithProgress(),
             'messages' => function (Builder $query) use ($request): void {
                 $query->with(['user', 'attachments'])->oldest();
 
@@ -137,9 +132,7 @@ class TicketController extends Controller
             $request->user()->id,
         );
 
-        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
-                ->withCount('tickets')
-                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),]));
+        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),]));
     }
 
     public function storeMessage(
@@ -224,6 +217,17 @@ class TicketController extends Controller
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
+    }
+
+
+    private function sprintWithProgress(): Closure
+    {
+        return static function (Builder $query): void {
+            $query->withCount('tickets')
+                ->withCount([
+                    'tickets as unfinished_tickets_count' => static fn (Builder $tickets) => $tickets->where('status', '!=', 'closed'),
+                ]);
+        };
     }
 
     /**

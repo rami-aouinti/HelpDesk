@@ -7,6 +7,7 @@ use App\Models\TicketAttachment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -18,6 +19,12 @@ class TicketAttachmentTest extends TestCase
     {
         parent::setUp();
         $this->seed();
+
+        // These tests cover private file storage and authorization, not mail delivery.
+        // The testing environment uses the synchronous queue, so fake notifications
+        // to keep queued mail jobs out of the attachment test lifecycle.
+        Notification::fake();
+
         Storage::fake('local');
     }
 

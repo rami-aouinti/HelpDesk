@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Livewire\\Teams\\Index as TeamsIndex;
-use App\\Models\\Team;
-use App\\Models\\Ticket;
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Livewire\\Livewire;
-use Tests\\TestCase;
+use App\Livewire\Teams\Index as TeamsIndex;
+use App\Models\Team;
+use App\Models\Ticket;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
 
 class TeamsManagementTest extends TestCase
 {

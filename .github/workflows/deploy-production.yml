@@ -28,6 +28,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
           SSH_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          HOST_KEYS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         run: |
@@ -36,6 +37,7 @@ jobs:
           test -n "$DEPLOY_USER"
           test -n "$DEPLOY_PATH"
           test -n "$SSH_KEY"
+          test -n "$HOST_KEYS"
           test -n "$GHCR_USERNAME"
           test -n "$GHCR_READ_TOKEN"
 
@@ -43,11 +45,13 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           SSH_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          HOST_KEYS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/helpdesk_deploy
           chmod 600 ~/.ssh/helpdesk_deploy
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          printf '%s\n' "$HOST_KEYS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Log in to GHCR on deployment host
         env:

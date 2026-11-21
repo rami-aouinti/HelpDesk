@@ -18,7 +18,7 @@ class StoreTicketRequest extends FormRequest
         return [
             'subject' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['required', 'string', 'min:10'],
-            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
+            'project_id' => ['nullable', 'integer', \\Illuminate\\Validation\\Rule::exists('project_user', 'project_id')->where('user_id', $this->user()->id)],
             'priority' => ['required', Rule::in(['low', 'normal', 'high', 'urgent'])],
         ];
     }

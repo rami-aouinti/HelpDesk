@@ -42,7 +42,8 @@
     </section>
 
     <section class="content-card" style="margin-top:20px;">
-        <h2>Conversation and internal notes</h2>
+        <h2>Conversation</h2>
+        <h3 style="margin-top:14px;">Internal notes</h3>
         <p>Use the conversation area on a ticket to communicate with the other side. Normal replies are visible to the customer and support team.</p>
         <p style="margin-top:10px;">Agents and administrators can select <strong>Internal note</strong> for information intended only for the support team. Customers cannot view internal notes.</p>
     </section>

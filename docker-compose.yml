@@ -22,6 +22,7 @@ services:
       MAIL_PORT: 1025
       MAIL_FROM_ADDRESS: hello@helpdesk.test
       MAIL_FROM_NAME: HelpDesk
+      QUEUE_CONNECTION: database
     volumes:
       - ./src:/var/www/html
     depends_on:

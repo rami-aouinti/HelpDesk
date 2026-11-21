@@ -38,7 +38,7 @@
                     <input id="profile-avatar-upload" class="profile-avatar-file" type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp" required>
                     <label for="profile-avatar-upload" class="profile-avatar-trigger" title="Change profile photo" aria-label="Change profile photo">
                         @if ($user->profile_photo_path)
-                            <img class="profile-photo-large" src="{{ \\Illuminate\\Support\\Facades\\Storage::disk('public')->url($user->profile_photo_path) }}" alt="Profile photo">
+                            <img class="profile-photo-large" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->profile_photo_path) }}" alt="Profile photo">
                         @else
                             <span class="profile-photo-placeholder">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                         @endif

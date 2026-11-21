@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @package App\Models
  * @author Rami Aouinti
  */
 class TicketHistory extends Model

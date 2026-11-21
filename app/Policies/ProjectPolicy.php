@@ -1,3 +1,39 @@
 <?php
-namespace App\Policies; use App\Models\Project; use App\Models\User;
-class ProjectPolicy { public function viewAny(User $u):bool{return $u->can('projects.view');} public function view(User $u,Project $p):bool{return $u->can('projects.view.all')||($u->can('projects.view')&&$p->members()->whereKey($u->id)->exists());} public function create(User $u):bool{return $u->can('projects.create');} public function update(User $u,Project $p):bool{return $u->can('projects.update');} public function delete(User $u,Project $p):bool{return $u->can('projects.delete');} public function manageDocuments(User $u,Project $p):bool{return $this->view($u,$p)&&($u->can('projects.update')||$p->members()->whereKey($u->id)->exists());} }
+
+namespace App\Policies;
+
+use App\Models\Project;
+use App\Models\User;
+
+class ProjectPolicy
+{
+    public function viewAny(User $u): bool
+    {
+        return $u->can('projects.view');
+    }
+
+    public function view(User $u, Project $p): bool
+    {
+        return $u->can('projects.view.all') || ($u->can('projects.view') && $p->members()->whereKey($u->id)->exists());
+    }
+
+    public function create(User $u): bool
+    {
+        return $u->can('projects.create');
+    }
+
+    public function update(User $u, Project $p): bool
+    {
+        return $u->can('projects.update');
+    }
+
+    public function delete(User $u, Project $p): bool
+    {
+        return $u->can('projects.delete');
+    }
+
+    public function manageDocuments(User $u, Project $p): bool
+    {
+        return $this->view($u, $p) && ($u->can('projects.update') || $p->members()->whereKey($u->id)->exists());
+    }
+}

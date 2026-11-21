@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
-use App\Models\Team;
 use App\Models\User;
 use App\Notifications\TicketActivityNotification;
 use Illuminate\Support\Collection;
@@ -68,7 +68,7 @@ class TicketNotificationService
     }
 
     /**
-     * @param array<string, array{old: mixed, new: mixed}> $changes
+     * @param  array<string, array{old: mixed, new: mixed}>  $changes
      */
     public function ticketUpdated(Ticket $ticket, User $actor, array $changes): void
     {
@@ -167,8 +167,8 @@ class TicketNotificationService
     }
 
     /**
-     * @param iterable<User> $recipients
-     * @param array<string, string> $changes
+     * @param  iterable<User>  $recipients
+     * @param  array<string, string>  $changes
      */
     private function send(
         iterable $recipients,

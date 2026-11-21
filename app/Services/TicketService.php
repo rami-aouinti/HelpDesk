@@ -3,17 +3,17 @@
 namespace App\Services;
 
 use App\Events\TicketUpdated;
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
-use App\Models\Team;
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Throwable;
 
 /**
- * @package App\Services
  * @author Rami Aouinti
  */
 class TicketService
@@ -54,7 +54,7 @@ class TicketService
                 array_intersect(['team_id', 'assigned_to'], array_keys($data)) !== []
                 && (! $actor || ! $actor->hasRole('admin'))
             ) {
-                throw new \Illuminate\Auth\Access\AuthorizationException(
+                throw new AuthorizationException(
                     'Only administrators can assign or reassign tickets.'
                 );
             }
@@ -234,9 +234,13 @@ class TicketService
      */
     private function validateProjectMembership(array $data, Ticket $ticket, ?int $userId): void
     {
-        if ($userId === null) { return; }
+        if ($userId === null) {
+            return;
+        }
         $user = User::query()->findOrFail($userId);
-        if ($user->can('projects.view.all')) { return; }
+        if ($user->can('projects.view.all')) {
+            return;
+        }
         $projectId = array_key_exists('project_id', $data) ? $data['project_id'] : $ticket->project_id;
         if ($projectId !== null && ! $user->projects()->whereKey($projectId)->exists()) {
             throw ValidationException::withMessages(['project_id' => 'You must be a member of the selected project.']);
@@ -246,7 +250,7 @@ class TicketService
     /**
      * Agents may only assign tickets to one of their own teams.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function validateAgentTeamAccess(array $data, Ticket $ticket, ?int $userId): void
     {
@@ -272,7 +276,7 @@ class TicketService
     /**
      * Ensure an assigned agent is active and belongs to the selected team.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function validateAssignment(array $data, Ticket $ticket): void
     {

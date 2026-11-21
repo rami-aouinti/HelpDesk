@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,9 +18,6 @@ class TicketWorkflowTest extends TestCase
         parent::setUp();
         $this->seed();
     }
-
-
-
 
     public function test_customer_can_create_a_ticket_and_only_sees_their_own_tickets(): void
     {

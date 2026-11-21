@@ -4,15 +4,16 @@ namespace App\Notifications;
 
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TicketActivityNotification extends Notification implements \Illuminate\Contracts\Queue\ShouldQueue
+class TicketActivityNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
-     * @param array<string, string> $changes
+     * @param  array<string, string>  $changes
      */
     public function __construct(
         public Ticket $ticket,
@@ -53,7 +54,7 @@ class TicketActivityNotification extends Notification implements \Illuminate\Con
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage())
+        $mail = (new MailMessage)
             ->subject($this->subject)
             ->greeting('Hello '.$notifiable->name.',')
             ->line($this->message)

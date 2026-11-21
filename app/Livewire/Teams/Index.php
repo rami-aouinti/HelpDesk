@@ -18,15 +18,27 @@ class Index extends Component
     use WithPagination;
 
     public ?int $teamId = null;
+
     public string $name = '';
+
     public string $description = '';
+
     public array $members = [];
+
     public bool $showForm = false;
 
-    #[Url] public string $search = '';
-    #[Url] public string $membership = '';
-    #[Url] public string $sortBy = 'name';
-    #[Url] public string $sortDirection = 'asc';
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public string $membership = '';
+
+    #[Url]
+    public string $sortBy = 'name';
+
+    #[Url]
+    public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     public function mount(): void
@@ -60,10 +72,17 @@ class Index extends Component
     }
 
     #[On('teams-search-updated')]
-    public function updateSearch(string $search): void { $this->search = $search; $this->resetPage(); }
+    public function updateSearch(string $search): void
+    {
+        $this->search = $search;
+        $this->resetPage();
+    }
 
     #[On('teams-create')]
-    public function createFromTopbar(): void { $this->create(); }
+    public function createFromTopbar(): void
+    {
+        $this->create();
+    }
 
     public function create(): void
     {
@@ -113,7 +132,10 @@ class Index extends Component
         session()->flash('success', 'Team deleted successfully.');
     }
 
-    public function cancel(): void { $this->resetForm(); }
+    public function cancel(): void
+    {
+        $this->resetForm();
+    }
 
     private function resetForm(): void
     {

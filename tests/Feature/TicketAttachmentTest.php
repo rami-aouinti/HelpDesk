@@ -5,10 +5,10 @@ namespace Tests\Feature;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
+use App\Services\TicketNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use App\Services\TicketNotificationService;
 use Tests\TestCase;
 
 class TicketAttachmentTest extends TestCase
@@ -26,7 +26,6 @@ class TicketAttachmentTest extends TestCase
 
         Storage::fake('local');
     }
-
 
     public function test_customer_can_upload_and_download_an_attachment_on_their_ticket(): void
     {

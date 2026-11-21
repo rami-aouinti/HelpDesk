@@ -41,7 +41,6 @@ class SprintManagementTest extends TestCase
         ]);
     }
 
-
     public function test_admin_can_update_sprint_details_and_dates(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
@@ -140,8 +139,6 @@ class SprintManagementTest extends TestCase
         $second->update(['status' => 'closed']);
         $this->assertTrue($sprint->fresh()->is_completed);
     }
-
-
 
     public function test_admin_can_open_sprint_management_and_kanban_pages(): void
     {

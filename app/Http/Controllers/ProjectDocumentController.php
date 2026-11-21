@@ -1,5 +1,28 @@
 <?php
-namespace App\Http\Controllers; use App\Models\ProjectDocument;
-use App\Models\Project; use Illuminate\Support\Facades\Gate; use Illuminate\Support\Facades\Storage; use Symfony\Component\HttpFoundation\StreamedResponse;
-class ProjectDocumentController extends Controller {
- public function cover(Project $project) { Gate::authorize('view',$project); abort_unless($project->cover_image_path && Storage::disk('local')->exists($project->cover_image_path),404); return response()->file(Storage::disk('local')->path($project->cover_image_path),['X-Content-Type-Options'=>'nosniff']); } public function download(ProjectDocument $document):StreamedResponse{Gate::authorize('view',$document->project);abort_unless(Storage::disk($document->disk)->exists($document->path),404);return Storage::disk($document->disk)->download($document->path,basename($document->original_name),['X-Content-Type-Options'=>'nosniff']);} }
+
+namespace App\Http\Controllers;
+
+use App\Models\Project;
+use App\Models\ProjectDocument;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class ProjectDocumentController extends Controller
+{
+    public function cover(Project $project)
+    {
+        Gate::authorize('view', $project);
+        abort_unless($project->cover_image_path && Storage::disk('local')->exists($project->cover_image_path), 404);
+
+        return response()->file(Storage::disk('local')->path($project->cover_image_path), ['X-Content-Type-Options' => 'nosniff']);
+    }
+
+    public function download(ProjectDocument $document): StreamedResponse
+    {
+        Gate::authorize('view', $document->project);
+        abort_unless(Storage::disk($document->disk)->exists($document->path), 404);
+
+        return Storage::disk($document->disk)->download($document->path, basename($document->original_name), ['X-Content-Type-Options' => 'nosniff']);
+    }
+}

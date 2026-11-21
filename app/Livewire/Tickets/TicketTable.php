@@ -15,12 +15,24 @@ class TicketTable extends Component
 {
     use WithPagination;
 
-    #[Url] public string $search = '';
-    #[Url] public string $status = '';
-    #[Url] public string $priority = '';
-    #[Url] public string $team = '';
-    #[Url] public string $sortBy = 'created_at';
-    #[Url] public string $sortDirection = 'desc';
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public string $status = '';
+
+    #[Url]
+    public string $priority = '';
+
+    #[Url]
+    public string $team = '';
+
+    #[Url]
+    public string $sortBy = 'created_at';
+
+    #[Url]
+    public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     public function mount(): void
@@ -29,7 +41,11 @@ class TicketTable extends Component
     }
 
     #[On('tickets-search-updated')]
-    public function updateSearch(string $search): void { $this->search = $search; $this->resetPage(); }
+    public function updateSearch(string $search): void
+    {
+        $this->search = $search;
+        $this->resetPage();
+    }
 
     public function updated($property): void
     {
@@ -67,7 +83,9 @@ class TicketTable extends Component
 
         $query = Ticket::query()
             ->with(['customer', 'assignedAgent', 'team', 'project'])
-            ->when(! $isGlobalViewer && $user->hasRole('customer'), fn ($builder) => $builder->where('user_id', $user->id)->where(function ($scope) use ($user): void { $scope->whereNull('project_id')->orWhereIn('project_id', $user->projects()->select('projects.id')); }))
+            ->when(! $isGlobalViewer && $user->hasRole('customer'), fn ($builder) => $builder->where('user_id', $user->id)->where(function ($scope) use ($user): void {
+                $scope->whereNull('project_id')->orWhereIn('project_id', $user->projects()->select('projects.id'));
+            }))
             ->when(! $isGlobalViewer && $user->hasRole('agent'), function ($builder) use ($teamIds, $user): void {
                 $builder->where(function ($scope) use ($teamIds): void {
                     $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds);

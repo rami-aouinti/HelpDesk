@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
     }
 
     /**
-     * @param array<int, array{name: string, email: string}> $users
+     * @param  array<int, array{name: string, email: string}>  $users
      */
     private function seedUsers(array $users, Role $role, string $password): void
     {

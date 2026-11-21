@@ -6,10 +6,11 @@ use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
+use App\Models\Project;
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\TicketMessage;
-use App\Models\Team;
 use App\Models\User;
 use App\Services\TicketService;
 use Illuminate\Contracts\View\View;
@@ -34,7 +35,8 @@ class TicketController extends Controller
         abort_unless(auth()->user()->can('create', Ticket::class), 403);
 
         $user = auth()->user();
-        $projects = $user->can('projects.view.all') ? \App\Models\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
+        $projects = $user->can('projects.view.all') ? Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
+
         return view('tickets.create', compact('projects'));
     }
 
@@ -85,7 +87,7 @@ class TicketController extends Controller
             'messages' => $messagesQuery->get(),
             'teams' => $teams->get(),
             'agents' => $agents->get(),
-            'projects' => $user->can('projects.view.all') ? \App\Models\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
+            'projects' => $user->can('projects.view.all') ? Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
         ]);
     }
 

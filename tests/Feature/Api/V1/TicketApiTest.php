@@ -2,8 +2,9 @@
 
 namespace Tests\Feature\Api\V1;
 
-use App\Models\Ticket;
+use App\Models\Sprint;
 use App\Models\Team;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -187,7 +188,6 @@ class TicketApiTest extends TestCase
             ->assertJsonMissing(['body' => 'Confidential internal note']);
     }
 
-
     public function test_customer_can_post_a_public_reply_to_their_ticket(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
@@ -257,7 +257,7 @@ class TicketApiTest extends TestCase
             'attachments' => [
                 UploadedFile::fake()->createWithContent(
                     'evidence.pdf',
-                    "%PDF-1.4\\n1 0 obj\\n<< /Type /Catalog >>\\nendobj\\n%%EOF",
+                    '%PDF-1.4\\n1 0 obj\\n<< /Type /Catalog >>\\nendobj\\n%%EOF',
                 ),
             ],
         ], ['Accept' => 'application/json'])->assertCreated()
@@ -328,7 +328,6 @@ class TicketApiTest extends TestCase
             ->assertJsonValidationErrors('status');
     }
 
-
     public function test_ticket_list_supports_assignment_and_date_filters_and_sorting(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
@@ -372,7 +371,6 @@ class TicketApiTest extends TestCase
         ]);
     }
 
-
     public function test_swagger_ui_and_openapi_spec_are_publicly_accessible(): void
     {
         $this->get('/api/documentation')
@@ -399,12 +397,11 @@ class TicketApiTest extends TestCase
             ->assertJsonPath('data.0.id', $assigned->id);
     }
 
-
     public function test_ticket_list_can_be_filtered_by_sprint(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
-        $sprint = \App\Models\Sprint::create([
+        $sprint = Sprint::create([
             'name' => 'API Sprint',
             'description' => null,
             'start_date' => '2026-12-01',

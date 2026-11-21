@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Closure;
 use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
 use App\Http\Controllers\Controller;
@@ -16,6 +15,7 @@ use App\Models\TicketAttachment;
 use App\Models\TicketMessage;
 use App\Models\User;
 use App\Services\TicketService;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -76,7 +76,7 @@ class TicketController extends Controller
                     }
                 });
             })
-            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),])
+            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])
             ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_direction'] ?? 'desc')
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
@@ -94,7 +94,7 @@ class TicketController extends Controller
 
         event(new TicketCreated($ticket));
 
-        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),])))
+        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])))
             ->response()
             ->setStatusCode(201);
     }
@@ -132,7 +132,7 @@ class TicketController extends Controller
             $request->user()->id,
         );
 
-        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress(),]));
+        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()]));
     }
 
     public function storeMessage(
@@ -218,7 +218,6 @@ class TicketController extends Controller
             ],
         );
     }
-
 
     private function sprintWithProgress(): Closure
     {

@@ -16,11 +16,21 @@ class Index extends Component
 {
     use WithPagination;
 
-    #[Url] public string $search = '';
-    #[Url] public string $role = '';
-    #[Url] public string $status = '';
-    #[Url] public string $sortBy = 'created_at';
-    #[Url] public string $sortDirection = 'desc';
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public string $role = '';
+
+    #[Url]
+    public string $status = '';
+
+    #[Url]
+    public string $sortBy = 'created_at';
+
+    #[Url]
+    public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     public function mount(): void
@@ -29,7 +39,11 @@ class Index extends Component
     }
 
     #[On('users-search-updated')]
-    public function updateSearch(string $search): void { $this->search = $search; $this->resetPage(); }
+    public function updateSearch(string $search): void
+    {
+        $this->search = $search;
+        $this->resetPage();
+    }
 
     public function updated($property): void
     {

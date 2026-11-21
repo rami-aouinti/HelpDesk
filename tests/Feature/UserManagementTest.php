@@ -137,7 +137,6 @@ class UserManagementTest extends TestCase
         $this->assertTrue($admin->fresh()->hasRole('admin'));
     }
 
-
     public function test_admin_can_search_and_filter_users_with_livewire(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
@@ -163,5 +162,4 @@ class UserManagementTest extends TestCase
 
         $this->assertFalse($agent->fresh()->is_active);
     }
-
 }

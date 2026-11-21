@@ -49,7 +49,7 @@ class TeamManagementService
     }
 
     /**
-     * @param array<int, int|string> $memberIds
+     * @param  array<int, int|string>  $memberIds
      * @return array<int, int>
      */
     private function validatedAgentIds(array $memberIds): array

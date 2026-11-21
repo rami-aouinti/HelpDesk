@@ -9,10 +9,10 @@ use App\Listeners\SendTicketCreatedNotifications;
 use App\Listeners\SendTicketMessageNotifications;
 use App\Listeners\SendTicketUpdatedNotifications;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 

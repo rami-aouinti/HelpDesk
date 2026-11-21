@@ -18,13 +18,20 @@ class Index extends Component
     use WithPagination;
 
     public ?int $sprintId = null;
+
     public string $name = '';
+
     public string $description = '';
+
     public string $startDate = '';
+
     public string $endDate = '';
+
     public bool $showForm = false;
 
-    #[Url] public string $search = '';
+    #[Url]
+    public string $search = '';
+
     public int $perPage = 10;
 
     public function mount(): void

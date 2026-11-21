@@ -1,7 +1,6 @@
 <div>
     <section class="content-card data-table-card">
         <div class="table-toolbar">
-            <div class="table-search"><label for="ticket-search">Search tickets</label><input id="ticket-search" wire:model.live.debounce.300ms="search" type="search" placeholder="Subject or description..."></div>
             <div class="table-filter"><label for="ticket-status">Status</label><select id="ticket-status" wire:model.live="status"><option value="">All statuses</option>@foreach (['open','in_progress','waiting_for_customer','resolved','closed'] as $option)<option value="{{ $option }}">{{ ucfirst(str_replace('_',' ',$option)) }}</option>@endforeach</select></div>
             <div class="table-filter"><label for="ticket-priority">Priority</label><select id="ticket-priority" wire:model.live="priority"><option value="">All priorities</option>@foreach (['low','normal','high','urgent'] as $option)<option value="{{ $option }}">{{ ucfirst($option) }}</option>@endforeach</select></div>
             @if (!auth()->user()->hasRole('customer'))

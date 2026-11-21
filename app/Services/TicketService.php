@@ -50,7 +50,7 @@ class TicketService
                 $allowedValues = match ($field) {
                     'status' => self::STATUSES,
                     'priority' => self::PRIORITIES,
-                    'team_id', 'assigned_to' => null,
+                    'team_id', 'assigned_to', 'project_id' => null,
                     default => throw new InvalidArgumentException(
                         "Unsupported ticket field: {$field}"
                     ),

@@ -48,10 +48,12 @@
                         <td><span class="status {{ $user->is_active ? 'status-resolved' : 'status-in_progress' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></td>
                         <td>{{ $user->created_at->format('d M Y') }}</td>
                         <td class="actions">
-                            <a class="btn btn-secondary" href="{{ route('users.edit', $user) }}">Edit</a>
-                            @if (auth()->id() !== $user->id)
+                            @can('update', $user)
+                                <a class="btn btn-secondary" href="{{ route('users.edit', $user) }}">Edit</a>
+                            @endcan
+                            @can('toggleActive', $user)
                                 <button type="button" class="btn {{ $user->is_active ? 'btn-danger' : 'btn-primary' }}" wire:click="toggleActive({{ $user->id }})" wire:confirm="Are you sure you want to {{ $user->is_active ? 'deactivate' : 'activate' }} this user?" wire:loading.attr="disabled">{{ $user->is_active ? 'Deactivate' : 'Activate' }}</button>
-                            @endif
+                            @endcan
                         </td>
                     </tr>
                 @empty <tr><td colspan="6" class="empty-state">No users match your filters.</td></tr> @endforelse

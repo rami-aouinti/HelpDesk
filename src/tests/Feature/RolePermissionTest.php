@@ -96,7 +96,7 @@ class RolePermissionTest extends TestCase
         $ownTeam = $agent->teams()->firstOrFail();
         $otherTeam = Team::query()->create(['name' => 'Private Team', 'description' => 'Not accessible to this agent.']);
 
-        $ownTicket = $this->makeTicket($customer, $ownTeam);
+        $ownTicket = $this->makeTicket($otherCustomer, $ownTeam);
         $ownTicket->update(['subject' => 'My team ticket']);
         $unassignedTicket = $this->makeTicket($otherCustomer);
         $unassignedTicket->update(['subject' => 'Unassigned ticket']);

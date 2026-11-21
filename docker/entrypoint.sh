@@ -13,22 +13,22 @@ fi
 set_env() {
     key="$1"
     value="$2"
-    if grep -q "^\${key}=" .env; then
-        sed -i "s|^\${key}=.*|\${key}=\${value}|" .env
+    if grep -q "^${key}=" .env; then
+        sed -i "s|^${key}=.*|${key}=${value}|" .env
     else
         printf '%s=%s\n' "$key" "$value" >> .env
     fi
 }
 
-set_env APP_ENV "\${APP_ENV:-local}"
-set_env APP_DEBUG "\${APP_DEBUG:-true}"
-set_env APP_URL "\${APP_URL:-http://localhost:8080}"
+set_env APP_ENV "${APP_ENV:-local}"
+set_env APP_DEBUG "${APP_DEBUG:-true}"
+set_env APP_URL "${APP_URL:-http://localhost:8080}"
 set_env DB_CONNECTION pgsql
-set_env DB_HOST "\${DB_HOST:-db}"
-set_env DB_PORT "\${DB_PORT:-5432}"
-set_env DB_DATABASE "\${DB_DATABASE:-helpdesk}"
-set_env DB_USERNAME "\${DB_USERNAME:-helpdesk}"
-set_env DB_PASSWORD "\${DB_PASSWORD:-secret}"
+set_env DB_HOST "${DB_HOST:-db}"
+set_env DB_PORT "${DB_PORT:-5432}"
+set_env DB_DATABASE "${DB_DATABASE:-helpdesk}"
+set_env DB_USERNAME "${DB_USERNAME:-helpdesk}"
+set_env DB_PASSWORD "${DB_PASSWORD:-secret}"
 
 if ! grep -q '^APP_KEY=base64:' .env; then
     php artisan key:generate --force

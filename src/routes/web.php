@@ -15,6 +15,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/messages', [TicketController::class, 'storeMessage'])->name('tickets.messages.store');
+    Route::get('/tickets/{ticket}/attachments/{attachment}', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
 
     Route::view('/teams', 'teams.index')->name('teams.index');

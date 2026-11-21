@@ -4,11 +4,7 @@
 @section('page-title', 'User management')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <h1>Users</h1>
-            <p>Manage HelpDesk accounts, roles and access.</p>
-        </div>
+    <div class="page-actions">
         <a href="{{ route('users.create') }}" class="btn btn-primary">+ Add user</a>
     </div>
 

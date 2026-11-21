@@ -16,6 +16,8 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
 
+    Route::view('/teams', 'teams.index')->name('teams.index');
+
     Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::patch('/users/{user}/active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
 });

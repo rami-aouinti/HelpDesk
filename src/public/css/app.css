@@ -429,3 +429,34 @@ th {
     .filters { grid-template-columns: 1fr; }
     .filter-actions { flex-wrap: wrap; }
 }
+
+
+/* Team management */
+.team-form-card {
+    margin-bottom: 24px;
+}
+.team-form-card h2 {
+    margin: 0 0 22px;
+    font-size: 19px;
+}
+.team-member-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin: 8px 0;
+    cursor: pointer;
+}
+.team-member-option input {
+    width: auto;
+}
+.team-member-option small {
+    display: block;
+    color: #8993a5;
+    margin-top: 3px;
+}
+.field-error {
+    color: #b91c1c;
+}

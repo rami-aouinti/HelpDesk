@@ -16,14 +16,7 @@ class UpdateTicketRequest extends FormRequest
         }
 
         // Assignment and reassignment are administrative responsibilities.
-        if (
-            ($this->exists('team_id') || $this->exists('assigned_to'))
-            && ! $user->hasRole('admin')
-        ) {
-            return false;
-        }
-
-        return true;
+        return !$this->exists('team_id') && !$this->exists('assigned_to') || $user->hasRole('admin');
     }
 
     public function rules(): array

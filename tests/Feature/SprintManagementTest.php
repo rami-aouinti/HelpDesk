@@ -142,6 +142,22 @@ class SprintManagementTest extends TestCase
     }
 
 
+
+    public function test_admin_can_open_sprint_management_and_kanban_pages(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('sprints.index'))
+            ->assertOk()
+            ->assertSee('All sprints');
+
+        $this->actingAs($admin)
+            ->get(route('kanban.index'))
+            ->assertOk()
+            ->assertSee('No sprint available');
+    }
+
     public function test_customer_cannot_access_sprint_planning(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

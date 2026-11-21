@@ -82,11 +82,11 @@
         "rector": "@php vendor/bin/rector process --dry-run",
         "rector:fix": "@php vendor/bin/rector process",
         "quality": [
-            "@php vendor/bin/pint --test",
             "@php vendor/bin/phpcs",
             "@php vendor/bin/phpstan analyse --memory-limit=1G",
             "@php artisan insights",
-            "@php vendor/bin/rector process --dry-run"
+            "@php vendor/bin/rector process --dry-run",
+            "@php vendor/bin/pint --test"
         ]
     },
     "extra": {

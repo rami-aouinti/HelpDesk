@@ -16,7 +16,7 @@ The smoke test checks the health endpoint and, when an API token is supplied, th
 Run from the project root with database environment variables available:
 
 ```bash
-DB_HOST=localhost DB_DATABASE=helpdesk DB_USERNAME=helpdesk DB_PASSWORD='<secret>' ./scripts/backup.sh
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_DATABASE=helpdesk DB_USERNAME=helpdesk DB_PASSWORD='<secret>' UPLOADS_DIR=./storage/app ./scripts/backup.sh
 ```
 
 The script creates a custom-format PostgreSQL dump, archives `storage/app/public`, writes SHA-256 checksums and removes backups older than the configured retention period. Store backups encrypted and off-host; local files alone are not disaster recovery.
@@ -26,7 +26,7 @@ The script creates a custom-format PostgreSQL dump, archives `storage/app/public
 Restore is destructive and requires typing `RESTORE`:
 
 ```bash
-DB_HOST=localhost DB_DATABASE=helpdesk DB_USERNAME=helpdesk DB_PASSWORD='<secret>' ./scripts/restore.sh backups/helpdesk-db-<timestamp>.dump backups/helpdesk-uploads-<timestamp>.tar.gz
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_DATABASE=helpdesk DB_USERNAME=helpdesk DB_PASSWORD='<secret>' UPLOADS_DIR=./storage/app ./scripts/restore.sh backups/helpdesk-db-<timestamp>.dump backups/helpdesk-uploads-<timestamp>.tar.gz
 ```
 
 Perform restore drills against an isolated database and directory first. A successful dump is not proof of recoverability.

@@ -9,6 +9,7 @@
     <file>tests</file>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/storage/*</exclude-pattern>
+    <exclude-pattern>bootstrap/cache/*</exclude-pattern>
     <arg name="basepath" value="."/>
     <arg name="colors"/>
     <arg value="sp"/>

@@ -1,25 +1,33 @@
 # HelpDesk Elasticsearch strategy
 
-Elasticsearch stores operational telemetry, not business records.
+Elasticsearch has two explicit responsibilities:
 
-## Indexed events
+1. **Operational telemetry**: Filebeat indexes container output in `helpdesk-logs-YYYY.MM.DD`. Laravel emits structured `http.request`, `http.request.exception`, and queue lifecycle events.
+2. **Ticket search**: the queued `IndexTicketInElasticsearch` listener maintains one document per ticket in the `helpdesk-tickets` index. The document contains ticket text, status, priority and relation IDs only. It deliberately excludes customer names, email addresses, message bodies, attachments, tokens and other personal data.
 
-- `http.request`: every dynamic HTTP request (method, route/path, status, duration, environment).
-- `http.request.exception`: request exceptions and exception class.
-- `queue.job.started`, `queue.job.completed`, `queue.job.failed`: worker lifecycle, queue, connection, attempt and exception metadata.
-- Container stdout/stderr: Nginx, PHP-FPM, queue, Redis and infrastructure logs collected by Filebeat.
+## Ticket indexing
 
-Request query values, request bodies, cookies, authorization headers, session identifiers and user PII are deliberately excluded. Static health/favicon/robots requests are excluded from application request events.
+Set `ELASTICSEARCH_URL=http://elasticsearch:9200`. The local Compose Elasticsearch service is connected to the application network. Ticket create/update events enqueue indexing work; failures are retried by Laravel's queue worker. The SQL database remains the source of truth. Elasticsearch is a rebuildable search projection, not a transactional database.
+
+To inspect the projection in Kibana Dev Tools:
+
+```http
+GET _cat/indices/helpdesk-*?v
+GET helpdesk-tickets/_count
+GET helpdesk-tickets/_search
+```
+
+A full rebuild can be performed by replaying the ticket indexing listener for each ticket from a one-off Artisan command; never edit Elasticsearch documents as the source of truth.
 
 ## Kibana
 
-Create a data view named `helpdesk-logs-*` with `@timestamp` as the time field. Useful dashboards:
-- HTTP traffic: request count by method/path/status, p95 duration, 4xx/5xx trends.
-- Workers: started/completed/failed jobs by queue and job class, attempts and exception messages.
-- Runtime: container logs and correlated errors.
+Create a data view named `helpdesk-logs-*` with `@timestamp` as the time field, and another named `helpdesk-tickets`. Useful saved searches:
+- HTTP traffic: request count by method/path/status and latency.
+- Workers: started/completed/failed jobs by queue and job class.
+- Ticket search: subject and description with status/priority filters.
 
 Filebeat ships Docker container logs to Elasticsearch. Keep retention bounded in production with an ILM policy and enable Elasticsearch authentication/TLS before exposing it outside localhost.
 
 ## Cache
 
-Redis is the Laravel cache store. Use `Cache::remember($key, now()->addSeconds(config('cache.default_ttl')), $callback)` for read-through caches; the default TTL is 300 seconds. Do not cache authorization decisions or user-specific data under shared keys.
+Redis is the Laravel cache store. Use a five-minute TTL for suitable read-through queries. Never cache authorization decisions or user-specific data under shared keys.

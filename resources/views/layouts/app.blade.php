@@ -17,8 +17,8 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261121-2">
+    <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-2">
     @livewireStyles
 </head>
 <body>
@@ -149,6 +149,43 @@
             debounce = window.setTimeout(function () {
                 if (window.Livewire && eventName) window.Livewire.dispatch(eventName, { search: value });
             }, 300);
+        });
+    })();
+</script>
+
+
+<script>
+    (function () {
+        var accents = ['indigo', 'blue', 'emerald', 'rose', 'amber', 'violet', 'cyan'];
+        var storageKey = 'helpdesk-accent';
+
+        function applyAccent(value) {
+            var accent = accents.indexOf(value) !== -1 ? value : 'indigo';
+            document.documentElement.setAttribute('data-accent', accent);
+            document.querySelectorAll('[data-accent-option]').forEach(function (button) {
+                button.setAttribute('aria-pressed', String(button.getAttribute('data-accent-option') === accent));
+            });
+        }
+
+        try {
+            applyAccent(localStorage.getItem(storageKey) || 'indigo');
+        } catch (error) {
+            applyAccent('indigo');
+        }
+
+        document.addEventListener('click', function (event) {
+            var button = event.target.closest('[data-accent-option]');
+            if (!button) return;
+
+            var accent = button.getAttribute('data-accent-option');
+            if (accents.indexOf(accent) === -1) return;
+
+            try {
+                localStorage.setItem(storageKey, accent);
+            } catch (error) {
+                // The selected palette still applies for the current page.
+            }
+            applyAccent(accent);
         });
     })();
 </script>

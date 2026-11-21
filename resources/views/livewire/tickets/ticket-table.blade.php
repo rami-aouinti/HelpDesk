@@ -1,15 +1,19 @@
-<div>
+<div class="ticket-list-workspace">
+    <div class="ticket-list-intro">
+        <div><span class="eyebrow">SUPPORT WORKSPACE</span><h2>All tickets</h2><p>Find, prioritize and track support requests across your workspace.</p></div>
+        <div class="ticket-list-total"><strong>{{ number_format($tickets->total()) }}</strong><span>matching tickets</span></div>
+    </div>
     <section class="content-card data-table-card">
+        <div class="ticket-filter-heading"><div><strong>Filters</strong><span>Narrow down the ticket list by status, priority or team.</span></div><button type="button" class="btn btn-secondary toolbar-reset" wire:click="resetFilters" @disabled($search === '' && $status === '' && $priority === '' && $team === '')>↺ Clear filters</button></div>
         <div class="table-toolbar">
             <div class="table-filter"><label for="ticket-status">Status</label><select id="ticket-status" wire:model.live="status"><option value="">All statuses</option>@foreach (['open','in_progress','waiting_for_customer','resolved','closed'] as $option)<option value="{{ $option }}">{{ ucfirst(str_replace('_',' ',$option)) }}</option>@endforeach</select></div>
             <div class="table-filter"><label for="ticket-priority">Priority</label><select id="ticket-priority" wire:model.live="priority"><option value="">All priorities</option>@foreach (['low','normal','high','urgent'] as $option)<option value="{{ $option }}">{{ ucfirst($option) }}</option>@endforeach</select></div>
             @if (!auth()->user()->hasRole('customer'))
                 <div class="table-filter"><label for="ticket-team">Team</label><select id="ticket-team" wire:model.live="team"><option value="">All teams</option>@foreach ($teams as $option)<option value="{{ $option->id }}">{{ $option->name }}</option>@endforeach</select></div>
             @endif
-            <button type="button" class="btn btn-secondary toolbar-reset" wire:click="resetFilters">Reset</button>
-        </div>
-        <div class="table-meta"><span>{{ $tickets->total() }} tickets</span><label>Rows per page <select wire:model.live="perPage"><option value="10">10</option><option value="15">15</option><option value="25">25</option><option value="50">50</option></select></label></div>
-        <div class="table-wrapper" wire:loading.class="table-loading" wire:target="search,status,priority,team,perPage,sort,gotoPage,nextPage,previousPage">
+         </div>
+        <div class="table-meta"><span>Showing {{ $tickets->firstItem() ?? 0 }}–{{ $tickets->lastItem() ?? 0 }} of {{ number_format($tickets->total()) }} tickets</span><label>Rows per page <select wire:model.live="perPage"><option value="10">10</option><option value="15">15</option><option value="25">25</option><option value="50">50</option></select></label></div>
+        <div class="table-wrapper" wire:loading.class="table-loading" wire:target="search,status,priority,team,perPage,sort,gotoPage,nextPage,previousPage"><div class="ticket-table-loading-indicator" wire:loading wire:target="search,status,priority,team,perPage,sort,gotoPage,nextPage,previousPage">Updating ticket list…</div>
             <table class="admin-data-table">
                 <thead><tr>
                     <th><button wire:click="sort('id')" class="sort-button">ID <span>{{ $sortBy === 'id' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
@@ -28,7 +32,7 @@
                         <td><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></td>
                         <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>
                     </tr>
-                @empty <tr><td colspan="10" class="empty-state">No tickets match your filters.</td></tr> @endforelse
+                @empty <tr><td colspan="10" class="empty-state"><div class="ticket-empty-state"><strong>No tickets found</strong><span>Try changing your search or removing one or more filters.</span><button type="button" class="btn btn-secondary" wire:click="resetFilters">Clear all filters</button></div></td></tr> @endforelse
                 </tbody>
             </table>
         </div>

@@ -139,17 +139,43 @@
                         <small style="display: inline-block; margin-top: 6px; color: #92400e; font-weight: 600;">Internal note · visible to support team only</small>
                     @endif
                     <p style="margin-top: 10px; white-space: pre-wrap;">{{ $message->body }}</p>
+
+                    @if ($message->attachments->isNotEmpty())
+                        <ul style="margin-top: 12px; padding-left: 20px; list-style: disc;">
+                            @foreach ($message->attachments as $attachment)
+                                <li style="margin-bottom: 6px;">
+                                    <a href="{{ route('tickets.attachments.download', [$ticket, $attachment]) }}"
+                                       style="color: #2563eb; text-decoration: underline;">
+                                        {{ $attachment->original_name }}
+                                    </a>
+                                    <small style="color: #64748b;">({{ number_format($attachment->size / 1024, 1) }} KB)</small>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </article>
             @empty
                 <p>No replies yet. Start the conversation below.</p>
             @endforelse
         </div>
 
-        <form method="POST" action="{{ route('tickets.messages.store', $ticket) }}">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('tickets.messages.store', $ticket) }}">
             @csrf
             <div class="form-group">
                 <label for="message-body">Your message</label>
-                <textarea id="message-body" name="body" rows="5" maxlength="10000" required>{{ old('body') }}</textarea>
+                <textarea id="message-body" name="body" rows="5" maxlength="10000">{{ old('body') }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="attachments">Attachments</label>
+                <input
+                    id="attachments"
+                    type="file"
+                    name="attachments[]"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.txt,.csv,.doc,.docx,.xls,.xlsx"
+                >
+                <small>Up to 5 files, 10 MB each. Allowed: PDF, images, text, CSV, Word and Excel files. You may send files without a message.</small>
             </div>
 
             @can('update', $ticket)

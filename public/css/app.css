@@ -1160,3 +1160,32 @@ html[data-theme="dark"] .ticket-detail-item { border-color:var(--hd-border); }
     .ticket-composer-actions .btn { width:100%; }
     .ticket-composer-footer { font-size:8px; }
 }
+
+
+/* Ticket list workspace */
+.ticket-list-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin:4px 0 20px; }
+.ticket-list-intro h2 { margin:5px 0 4px; color:var(--hd-ink); font-size:21px; letter-spacing:-.5px; }
+.ticket-list-intro p { margin:0; color:var(--hd-muted); font-size:11px; }
+.ticket-list-total { display:grid; justify-items:end; gap:2px; }
+.ticket-list-total strong { color:var(--hd-ink); font-size:23px; line-height:1; font-variant-numeric:tabular-nums; }
+.ticket-list-total span { color:var(--hd-muted); font-size:9px; }
+.ticket-filter-heading { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:0 0 15px; border-bottom:1px solid var(--hd-border); }
+.ticket-filter-heading > div { display:grid; gap:4px; }
+.ticket-filter-heading strong { color:var(--hd-ink); font-size:11px; }
+.ticket-filter-heading span { color:var(--hd-muted); font-size:9px; }
+.ticket-filter-heading .toolbar-reset { flex:0 0 auto; }
+.ticket-filter-heading .toolbar-reset:disabled { opacity:.45; cursor:not-allowed; }
+.ticket-list-workspace .table-toolbar { padding-top:15px; }
+.ticket-list-workspace .table-meta { align-items:center; }
+.ticket-table-loading-indicator { position:absolute; z-index:2; top:8px; right:10px; padding:7px 10px; border:1px solid var(--hd-border); border-radius:8px; background:var(--hd-surface); color:var(--hd-muted); font-size:9px; box-shadow:0 3px 12px rgb(15 23 42 / 8%); }
+.table-wrapper { position:relative; }
+.ticket-empty-state { display:grid; justify-items:center; gap:8px; padding:28px 12px; }
+.ticket-empty-state strong { color:var(--hd-ink); font-size:12px; }
+.ticket-empty-state span { color:var(--hd-muted); font-size:10px; }
+.ticket-empty-state .btn { margin-top:5px; }
+@media(max-width:560px) {
+    .ticket-list-intro { align-items:flex-start; }
+    .ticket-list-intro h2 { font-size:18px; }
+    .ticket-filter-heading { align-items:flex-start; flex-direction:column; }
+    .ticket-list-total { justify-items:start; }
+}

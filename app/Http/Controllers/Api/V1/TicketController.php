@@ -222,7 +222,7 @@ class TicketController extends Controller
 
     private function sprintWithProgress(): Closure
     {
-        return static function (Builder $query): void {
+        return static function ($query): void {
             $query->withCount('tickets')
                 ->withCount([
                     'tickets as unfinished_tickets_count' => static fn (Builder $tickets) => $tickets->where('status', '!=', 'closed'),

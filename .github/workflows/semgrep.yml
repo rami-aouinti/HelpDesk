@@ -1,0 +1,40 @@
+name: Semgrep Security Scan
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: PHP static security analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pipx
+          pipx ensurepath
+          pipx install semgrep
+
+      - name: Scan PHP security rules
+        run: |
+          semgrep scan \
+            --config p/php \
+            --config p/security-audit \
+            --error \
+            --metrics=off

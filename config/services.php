@@ -36,6 +36,7 @@ return [
     ],
 
     'elasticsearch' => [
+        'enabled' => env('ELASTICSEARCH_ENABLED', false),
         'url' => env('ELASTICSEARCH_URL', 'http://elasticsearch:9200'),
     ],
 

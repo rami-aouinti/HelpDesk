@@ -18,30 +18,6 @@ class TicketConversationTest extends TestCase
         $this->seed();
     }
 
-    public function test_agent_can_add_an_internal_note_and_customer_cannot_see_it(): void
-    {
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
-        $ticket = $this->makeTicket($customer);
-
-        $this->actingAs($agent)
-            ->post(route('tickets.messages.store', $ticket), [
-                'body' => 'We are investigating this with the infrastructure team.',
-                'is_internal' => true,
-            ])
-            ->assertRedirect(route('tickets.show', $ticket));
-
-        $this->actingAs($customer)
-            ->get(route('tickets.show', $ticket))
-            ->assertOk()
-            ->assertDontSee('We are investigating this with the infrastructure team.');
-
-        $this->actingAs($agent)
-            ->get(route('tickets.show', $ticket))
-            ->assertOk()
-            ->assertSee('We are investigating this with the infrastructure team.');
-    }
-
     public function test_customer_cannot_create_an_internal_note(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

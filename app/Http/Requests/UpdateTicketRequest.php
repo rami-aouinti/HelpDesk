@@ -26,6 +26,8 @@ class UpdateTicketRequest extends FormRequest
                 Rule::in(['low', 'normal', 'high', 'urgent']),
             ],
             'project_id' => ['sometimes', 'nullable', 'integer', 'exists:projects,id'],
+            'estimated_minutes' => ['sometimes', 'required', 'integer', 'min:0', 'max:525600'],
+            'elapsed_minutes' => ['sometimes', 'required', 'integer', 'min:0', 'max:525600'],
             'team_id' => ['sometimes', 'nullable', 'integer', 'exists:teams,id'],
             'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
         ];

@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Users\Index as UsersIndex;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase

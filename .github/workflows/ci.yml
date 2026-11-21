@@ -39,6 +39,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Run PHP quality checks
+        run: composer quality --no-interaction
+
       - name: Install frontend dependencies
         run: npm ci
 

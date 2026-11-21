@@ -33,6 +33,7 @@ jobs:
           GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         run: |
           test -n "$IMAGE_TAG"
+          [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_.-]+$ ]]
           test -n "$DEPLOY_HOST"
           test -n "$DEPLOY_USER"
           test -n "$DEPLOY_PATH"

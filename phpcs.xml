@@ -12,7 +12,10 @@
     <arg name="basepath" value="."/>
     <arg name="colors"/>
     <arg value="sp"/>
-    <rule ref="PSR12"/>
+    <rule ref="PSR12">
+        <!-- Laravel/PHPUnit test methods conventionally use snake_case. -->
+        <exclude name="PSR1.Methods.CamelCapsMethodName"/>
+    </rule>
     <rule ref="Generic.Files.LineLength">
         <properties>
             <property name="lineLimit" value="140"/>

@@ -62,7 +62,7 @@ class TicketTable extends Component
         $teamIds = $user->teams()->pluck('teams.id');
 
         $query = Ticket::query()
-            ->with(['customer', 'assignedAgent', 'team'])
+            ->with(['customer', 'assignedAgent', 'team', 'project'])
             ->when(! $isGlobalViewer && $user->hasRole('customer'), fn ($builder) => $builder->where('user_id', $user->id)->where(function ($scope) use ($user): void { $scope->whereNull('project_id')->orWhereIn('project_id', $user->projects()->select('projects.id')); }))
             ->when(! $isGlobalViewer && $user->hasRole('agent'), function ($builder) use ($teamIds, $user): void {
                 $builder->where(function ($scope) use ($teamIds): void {

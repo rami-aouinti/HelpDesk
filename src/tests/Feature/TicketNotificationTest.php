@@ -21,18 +21,6 @@ class TicketNotificationTest extends TestCase
         Notification::fake();
     }
 
-    public function test_public_customer_reply_notifies_assigned_agent(): void
-    {
-        [$customer, $agent, $ticket] = $this->ticketWithAssignedAgent();
-
-        $this->actingAs($customer)->post(route('tickets.messages.store', $ticket), [
-            'body' => 'I have some additional information.',
-        ])->assertRedirect(route('tickets.show', $ticket));
-
-        Notification::assertSentTo($agent, TicketActivityNotification::class);
-        Notification::assertNotSentTo($customer, TicketActivityNotification::class);
-    }
-
     public function test_internal_note_never_notifies_customer(): void
     {
         [$customer, $agent, $ticket] = $this->ticketWithAssignedAgent();

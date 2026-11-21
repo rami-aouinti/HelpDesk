@@ -4,16 +4,11 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-    <div class="page-heading">
-        <div>
-            <h1>Good morning 👋</h1>
-            <p>Here's what's happening with your support desk today.</p>
+    @can('tickets.create')
+        <div class="page-actions">
+            <a href="{{ route('tickets.create') }}" class="button-primary">+ Create ticket</a>
         </div>
-
-        @can('tickets.create')
-        <a href="{{ route('tickets.create') }}" class="button-primary">+ Create ticket</a>
-        @endcan
-    </div>
+    @endcan
 
     <div class="stats-grid">
         @foreach ([

@@ -21,7 +21,7 @@ class IndexTicketInElasticsearch implements ShouldQueue
         $ticket = $event->ticket;
         $endpoint = rtrim((string) config('services.elasticsearch.url'), '/');
 
-        if ($endpoint === '') {
+        if ($endpoint === '' || app()->environment('testing')) {
             return;
         }
 

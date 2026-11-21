@@ -2,12 +2,17 @@
 namespace App\Livewire\Projects;
 use App\Models\Project; use App\Models\ProjectDocument; use App\Models\User;
 use Illuminate\Contracts\View\View; use Illuminate\Support\Facades\DB; use Illuminate\Support\Facades\Gate; use Illuminate\Support\Facades\Storage; use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url; use Livewire\Component; use Livewire\WithFileUploads; use Livewire\WithPagination;
 class Index extends Component {
  use WithFileUploads,WithPagination;
  public ?int $projectId=null; public string $name=''; public string $description=''; public string $budget=''; public string $startDate=''; public string $endDate=''; public string $status='planned'; public array $members=[]; public $coverImage=null; public $document=null; public bool $showForm=false; public bool $showDetails=false;
  #[Url] public string $search=''; public int $perPage=12;
  public function mount():void{Gate::authorize('viewAny',Project::class);}
+ #[On('projects-search-updated')]
+ public function updateSearch(string $search):void{$this->search=$search;$this->resetPage();}
+ #[On('projects-create')]
+ public function createFromTopbar():void{$this->create();}
  public function updatedSearch():void{$this->resetPage();}
  public function create():void{Gate::authorize('create',Project::class);$this->resetForm();$this->showForm=true;}
  public function edit(int $id):void{$p=Project::with('members')->findOrFail($id);Gate::authorize('update',$p);$this->projectId=$p->id;$this->name=$p->name;$this->description=$p->description??'';$this->budget=(string)($p->budget??'');$this->startDate=$p->start_date?->format('Y-m-d')??'';$this->endDate=$p->end_date?->format('Y-m-d')??'';$this->status=$p->status;$this->members=$p->members->modelKeys();$this->showForm=true;}

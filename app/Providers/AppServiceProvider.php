@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\TicketCreated;
+use App\Events\TicketMessageCreated;
+use App\Events\TicketUpdated;
+use App\Listeners\SendTicketCreatedNotifications;
+use App\Listeners\SendTicketMessageNotifications;
+use App\Listeners\SendTicketUpdatedNotifications;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
@@ -18,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
+        Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);
+        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);
+
         Fortify::authenticateUsing(function (Request $request): ?User {
             $user = User::query()
                 ->where('email', Str::lower(trim((string) $request->input('email'))))

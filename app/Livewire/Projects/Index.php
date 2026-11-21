@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -107,8 +108,8 @@ class Index extends Component
             $p->name = $this->name;
             $p->description = $this->description ?: null;
             $p->budget = $this->budget !== '' ? $this->budget : null;
-            $p->start_date = $this->startDate ?: null;
-            $p->end_date = $this->endDate ?: null;
+            $p->start_date = $this->startDate !== '' ? Carbon::parse($this->startDate) : null;
+            $p->end_date = $this->endDate !== '' ? Carbon::parse($this->endDate) : null;
             $p->status = $this->status;
             if (! $p->exists) {
                 $p->created_by = auth()->id();

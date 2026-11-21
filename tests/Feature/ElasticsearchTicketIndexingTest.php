@@ -65,5 +65,4 @@ class ElasticsearchTicketIndexingTest extends TestCase
 
         Http::assertSentCount(2);
     }
-
 }

@@ -19,7 +19,7 @@ class ElasticsearchTicketIndexingTest extends TestCase
 
     public function test_ticket_created_event_indexes_a_search_document_without_customer_personal_data(): void
     {
-        $this->app['env'] = 'local';
+        config(['app.env' => 'local']);
         config(['services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);
         Http::fake();
 

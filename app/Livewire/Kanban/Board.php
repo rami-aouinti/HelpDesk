@@ -172,7 +172,7 @@ class Board extends Component
             });
         }
 
-        if ($this->onlyMine && ! $user->hasRole('admin')) {
+        if ($this->onlyMine) {
             $backlogQuery->where('assigned_to', $user->id);
         }
 

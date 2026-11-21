@@ -52,6 +52,55 @@ The application source is bind-mounted into the containers, so PHP changes are a
 docker compose up -d --build
 ```
 
+
+## REST API v1
+
+All v1 endpoints require an authenticated, active, email-verified user. Authenticate with a Sanctum personal access token:
+
+```http
+Authorization: Bearer YOUR_TOKEN
+Accept: application/json
+```
+
+### Sanctum
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/api/v1/tokens` | Create a personal access token (requires an authenticated session) |
+| DELETE | `/api/v1/tokens/current` | Revoke the current bearer token |
+| GET | `/api/v1/user` | Return the authenticated user |
+
+The original `/api/tokens` and `/api/user` endpoints remain available for backwards compatibility.
+
+### Tickets
+
+| Method | Endpoint | Permission |
+| --- | --- | --- |
+| GET | `/api/v1/tickets` | `tickets.view` |
+| POST | `/api/v1/tickets` | `tickets.create` |
+| GET | `/api/v1/tickets/{ticket}` | Ticket policy: `view` |
+| PATCH | `/api/v1/tickets/{ticket}` | Ticket policy: `update` |
+
+The list is automatically scoped to the authenticated user's visibility: customers see their own tickets, agents see tickets belonging to their teams and projects, and administrators with `tickets.view.all` can see all tickets. Customer ticket resources never expose internal notes. Assignment fields remain administrator-only, and status transitions are enforced by the same domain service used by the web application.
+
+Ticket lists are paginated (15 per page by default). Use `?page=2&per_page=30`; `per_page` is capped at 100.
+
+Example create request:
+
+```http
+POST /api/v1/tickets
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN
+
+{
+  "subject": "Cannot access my account",
+  "description": "The password reset link is not working for me.",
+  "priority": "normal"
+}
+```
+
+Successful creation returns HTTP 201 and a JSON ticket resource. Validation failures return HTTP 422 with Laravel's standard JSON `message` and `errors` structure; unauthorized requests return HTTP 401 and policy denials return HTTP 403.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

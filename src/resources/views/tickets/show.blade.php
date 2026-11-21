@@ -30,6 +30,37 @@
         <p><strong>Assigned agent:</strong> {{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</p>
         <p><strong>Created:</strong> {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
 
+        @if (auth()->user()->hasRole('agent') && $ticket->assigned_to === null)
+            <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <h3 class="font-semibold text-blue-900">Take ownership</h3>
+                <p class="mt-1 text-sm text-blue-800">This ticket is waiting for a support agent.</p>
+
+                @if ($errors->has('ticket') || $errors->has('team_id'))
+                    <div class="alert alert-error mt-3">
+                        {{ $errors->first('ticket') ?: $errors->first('team_id') }}
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('tickets.claim', $ticket) }}" class="mt-3">
+                    @csrf
+                    @if ($ticket->team_id === null)
+                        <div class="form-group">
+                            <label for="claim-team-id">Choose your team</label>
+                            <select name="team_id" id="claim-team-id" required>
+                                <option value="">Select a team</option>
+                                @foreach ($teams as $team)
+                                    <option value="{{ $team->id }}" @selected((string) old('team_id') === (string) $team->id)>
+                                        {{ $team->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                    <button type="submit" class="btn btn-primary">Claim ticket</button>
+                </form>
+            </div>
+        @endif
+
         <hr>
 
         @can('update', $ticket)

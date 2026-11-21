@@ -43,6 +43,13 @@
                 <strong>@yield('page-title', 'Dashboard')</strong>
             </div>
 
+            <div class="topbar-actions">
+                <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">
+                    <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+                    <span class="theme-toggle-label">Dark mode</span>
+                </button>
+            </div>
+
             <details class="account-menu">
                 <summary class="account-menu-trigger">
                     @if (auth()->user()->profile_photo_path)

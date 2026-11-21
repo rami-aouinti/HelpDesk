@@ -70,9 +70,7 @@ class TicketController extends Controller
 
     public function storeMessage(Request $request, Ticket $ticket): RedirectResponse
     {
-        fwrite(STDERR, "CTRL 1: entered storeMessage\\n");
         abort_unless($request->user()->can('view', $ticket), 403);
-        fwrite(STDERR, "CTRL 2: authorization passed\\n");
 
         $data = $request->validate([
             'body' => ['nullable', 'required_without:attachments', 'string', 'min:2', 'max:10000'],
@@ -86,8 +84,6 @@ class TicketController extends Controller
                 'extensions:pdf,jpg,jpeg,png,txt,csv,doc,docx,xls,xlsx',
             ],
         ]);
-
-        fwrite(STDERR, "CTRL 3: validation passed\\n");
         $isInternal = $request->boolean('is_internal');
         if ($isInternal) {
             abort_unless($request->user()->can('update', $ticket), 403);
@@ -99,15 +95,11 @@ class TicketController extends Controller
             'body' => trim((string) ($data['body'] ?? '')) ?: 'Shared attachments.',
             'is_internal' => $isInternal,
         ]);
-
-        fwrite(STDERR, "CTRL 4: message created\\n");
         $storedPaths = [];
 
         try {
             foreach ($request->file('attachments', []) as $file) {
-                fwrite(STDERR, "CTRL 5: before file store\\n");
                 $path = $file->store("ticket-attachments/{$ticket->id}", 'local');
-                fwrite(STDERR, "CTRL 6: after file store\\n");
 
                 if ($path === false) {
                     throw new \RuntimeException('The attachment could not be stored.');
@@ -116,8 +108,6 @@ class TicketController extends Controller
                 $storedPaths[] = $path;
 
                 $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
-
-                fwrite(STDERR, "CTRL 7: before attachment model create\\n");
                 $message->attachments()->create([
                     'ticket_id' => $ticket->id,
                     'user_id' => $request->user()->id,
@@ -127,7 +117,6 @@ class TicketController extends Controller
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
                 ]);
-                fwrite(STDERR, "CTRL 8: attachment model created\\n");
             }
         } catch (Throwable $exception) {
             Storage::disk('local')->delete($storedPaths);
@@ -135,10 +124,7 @@ class TicketController extends Controller
 
             throw $exception;
         }
-
-        fwrite(STDERR, "CTRL 9: before notification\\n");
         app(TicketNotificationService::class)->messageCreated($message);
-        fwrite(STDERR, "CTRL 10: after notification\\n");
 
         return redirect()
             ->route('tickets.show', $ticket)

@@ -16,11 +16,8 @@ export PGPASSWORD="${DB_PASSWORD:?DB_PASSWORD is required}"
 pg_dump --host="$DB_HOST" --username="$DB_USERNAME" --dbname="$DB_DATABASE" --format=custom --no-owner --file="$database_file"
 unset PGPASSWORD
 
-if [[ -d storage/app/public ]]; then
-  tar -czf "$uploads_file" -C storage/app public
-else
-  echo "Uploads directory storage/app/public does not exist; database backup completed without uploads." >&2
-fi
+mkdir -p storage/app/private storage/app/public
+tar -czf "$uploads_file" -C storage/app private public
 
 find "$BACKUP_DIR" -type f -mtime +"$BACKUP_RETENTION_DAYS" -name 'helpdesk-*' -delete
 if [[ -f "$uploads_file" ]]; then sha256sum "$database_file" "$uploads_file"; else sha256sum "$database_file"; fi

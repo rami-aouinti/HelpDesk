@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Providers;
+namespace App\Providers;
 
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\Hash;
-use Illuminate\\Support\\ServiceProvider;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Str;
-use Laravel\\Fortify\\Fortify;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
 {

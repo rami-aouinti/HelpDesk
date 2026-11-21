@@ -51,6 +51,7 @@ class TicketPolicy
         }
 
         return $user->hasRole('agent')
-            && ($ticket->team_id === null || $user->teams()->whereKey($ticket->team_id)->exists());
+            && ($ticket->team_id === null || $user->teams()->whereKey($ticket->team_id)->exists())
+            && ($ticket->project_id === null || $ticket->project->members()->whereKey($user->id)->exists());
     }
 }

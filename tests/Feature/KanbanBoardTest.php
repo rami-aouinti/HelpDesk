@@ -227,6 +227,45 @@ class KanbanBoardTest extends TestCase
         $this->assertDatabaseHas('sprints', ['id' => $sprint->id]);
     }
 
+
+    public function test_agent_cannot_skip_ticket_workflow_from_kanban(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint();
+        $ticket = $this->makeTicket($customer, $sprint, ['assigned_to' => $agent->id]);
+
+        Livewire::actingAs($agent)->test(Board::class)
+            ->call('moveTicketStatus', $ticket->id, 'closed')
+            ->assertHasErrors('board');
+
+        $this->assertSame('open', $ticket->fresh()->status);
+        $this->assertDatabaseMissing('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'status',
+        ]);
+    }
+
+    public function test_admin_can_add_an_unassigned_backlog_ticket_to_a_sprint(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint();
+        $ticket = Ticket::create([
+            'subject' => 'Unassigned backlog ticket',
+            'description' => 'An unassigned ticket can be planned by an administrator.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        Livewire::actingAs($admin)->test(Board::class)
+            ->call('addTicketToSprint', $ticket->id)
+            ->assertHasNoErrors();
+
+        $this->assertSame($sprint->id, $ticket->fresh()->sprint_id);
+    }
+
     private function makeSprint(array $attributes = []): Sprint
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();

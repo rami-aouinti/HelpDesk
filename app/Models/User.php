@@ -20,6 +20,11 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class)->withTimestamps();
+    }
+
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class)->withTimestamps();

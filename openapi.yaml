@@ -2,23 +2,75 @@ openapi: 3.1.0
 info:
   title: HelpDesk REST API
   version: 1.0.0
-  description: Versioned HelpDesk API. All endpoints require an active, verified user authenticated with a Laravel Sanctum bearer token.
+  description: >
+    Versioned HelpDesk API. All endpoints require an authenticated, active,
+    email-verified user. Ticket endpoints use Laravel Sanctum bearer tokens.
 servers:
   - url: /api/v1
 security:
   - bearerAuth: []
+tags:
+  - name: Authentication
+  - name: Tickets
+  - name: Conversations
 paths:
+  /tokens:
+    post:
+      tags: [Authentication]
+      summary: Create a personal access token
+      description: Requires an already authenticated Sanctum session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 255 }
+      responses:
+        '201':
+          description: Token created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  token_type: { type: string, example: Bearer }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Authentication]
+      summary: Revoke the current bearer token
+      responses:
+        '200':
+          description: Token revoked
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /user:
     get:
+      tags: [Authentication]
       summary: Get the authenticated user
       responses:
         '200':
           description: Authenticated user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: integer }
+                  name: { type: string }
+                  email: { type: string, format: email }
         '401':
           $ref: '#/components/responses/Unauthorized'
   /tickets:
     get:
-      summary: List visible tickets
+      tags: [Tickets]
+      summary: List tickets visible to the authenticated user
       parameters:
         - in: query
           name: status
@@ -28,21 +80,21 @@ paths:
           schema: { type: string, enum: [low, normal, high, urgent] }
         - in: query
           name: team_id
-          schema: { type: integer }
+          schema: { type: integer, minimum: 1 }
         - in: query
           name: project_id
-          schema: { type: integer }
+          schema: { type: integer, minimum: 1 }
         - in: query
           name: assigned_to
-          schema: { type: integer }
-        - in: query
-          name: search
-          description: Search subject, description, or ticket ID
-          schema: { type: string, maxLength: 100 }
+          schema: { type: integer, minimum: 1 }
         - in: query
           name: unassigned
-          description: Return only unassigned tickets when true, or assigned tickets when false
+          description: true returns unassigned tickets; false returns assigned tickets
           schema: { type: boolean }
+        - in: query
+          name: search
+          description: Search subject, description, or numeric ticket ID
+          schema: { type: string, maxLength: 100 }
         - in: query
           name: created_from
           schema: { type: string, format: date }
@@ -62,17 +114,24 @@ paths:
           name: sort_direction
           schema: { type: string, enum: [asc, desc], default: desc }
         - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
           name: per_page
           schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
-        - in: query
-          name: page
-          schema: { type: integer, minimum: 1 }
       responses:
         '200':
           description: Paginated ticket resources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTickets'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
     post:
+      tags: [Tickets]
       summary: Create a ticket
       requestBody:
         required: true
@@ -83,60 +142,91 @@ paths:
       responses:
         '201':
           description: Ticket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           $ref: '#/components/responses/ValidationError'
   /tickets/{ticket}:
     parameters:
       - $ref: '#/components/parameters/TicketId'
     get:
+      tags: [Tickets]
       summary: Show a ticket and its visible conversation
       responses:
         '200':
-          description: Ticket resource
+          description: Ticket detail including nested messages and attachments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Not found
+          $ref: '#/components/responses/NotFound'
     patch:
+      tags: [Tickets]
       summary: Update ticket fields
+      description: Assignment fields are administrator-only. Status changes follow the ticket workflow.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketUpdate'
       responses:
         '200':
           description: Updated ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
         '422':
           $ref: '#/components/responses/ValidationError'
   /tickets/{ticket}/messages:
     parameters:
       - $ref: '#/components/parameters/TicketId'
     post:
+      tags: [Conversations]
       summary: Reply to a ticket or add an internal note
-      description: Customers may only create public replies. Staff with ticket update permission may create internal notes.
+      description: Customers may only create public replies. Staff with ticket update permission may create internal notes. Maximum five attachments, 10 MB each.
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                body: { type: string, maxLength: 10000 }
-                is_internal: { type: boolean, default: false }
-                attachments:
-                  type: array
-                  maxItems: 5
-                  items: { type: string, format: binary }
+              $ref: '#/components/schemas/TicketMessageInput'
           application/json:
             schema:
               type: object
+              required: [body]
               properties:
                 body: { type: string, minLength: 2, maxLength: 10000 }
                 is_internal: { type: boolean, default: false }
-              required: [body]
       responses:
         '201':
           description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketMessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/ValidationError'
   /tickets/{ticket}/attachments/{attachment}:
@@ -145,8 +235,9 @@ paths:
       - name: attachment
         in: path
         required: true
-        schema: { type: integer }
+        schema: { type: integer, minimum: 1 }
     get:
+      tags: [Conversations]
       summary: Download a ticket attachment
       description: Downloads are private and checked against ticket visibility and internal-note visibility.
       responses:
@@ -155,10 +246,12 @@ paths:
           content:
             application/octet-stream:
               schema: { type: string, format: binary }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Not found
+          $ref: '#/components/responses/NotFound'
 components:
   securitySchemes:
     bearerAuth:
@@ -170,7 +263,7 @@ components:
       name: ticket
       in: path
       required: true
-      schema: { type: integer }
+      schema: { type: integer, minimum: 1 }
   schemas:
     TicketInput:
       type: object
@@ -179,9 +272,110 @@ components:
         subject: { type: string, minLength: 5, maxLength: 255 }
         description: { type: string, minLength: 10 }
         priority: { type: string, enum: [low, normal, high, urgent] }
-        project_id: { type: integer, nullable: true }
+        project_id: { type: [integer, 'null'] }
+    TicketUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [open, in_progress, waiting_for_customer, resolved, closed] }
+        priority: { type: string, enum: [low, normal, high, urgent] }
+        team_id: { type: [integer, 'null'], description: Administrator-only }
+        assigned_to: { type: [integer, 'null'], description: Administrator-only }
+        project_id: { type: [integer, 'null'] }
+        estimated_minutes: { type: [integer, 'null'], minimum: 0 }
+        elapsed_minutes: { type: [integer, 'null'], minimum: 0 }
+    TicketMessageInput:
+      type: object
+      properties:
+        body: { type: string, minLength: 2, maxLength: 10000 }
+        is_internal: { type: boolean, default: false }
+        attachments:
+          type: array
+          maxItems: 5
+          items: { type: string, format: binary }
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer }
+        subject: { type: string }
+        description: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        customer:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        assigned_agent:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        team:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        project:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketMessage'
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    TicketMessage:
+      type: object
+      properties:
+        id: { type: integer }
+        body: { type: string }
+        is_internal: { type: boolean }
+        author:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketAttachment'
+        created_at: { type: string, format: date-time }
+    TicketAttachment:
+      type: object
+      properties:
+        id: { type: integer }
+        file_name: { type: string }
+        mime_type: { type: [string, 'null'] }
+        size: { type: integer }
+        download_url: { type: string, format: uri }
+        created_at: { type: string, format: date-time }
+    TicketResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Ticket'
+    TicketMessageResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/TicketMessage'
+    PaginatedTickets:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        links: { type: object }
+        meta: { type: object }
   responses:
     Unauthorized:
       description: Unauthenticated
+    Forbidden:
+      description: The authenticated user is not allowed to perform this action
+    NotFound:
+      description: Resource not found
     ValidationError:
       description: Validation failed

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class TokenController extends Controller
 {
@@ -25,10 +24,22 @@ class TokenController extends Controller
 
     public function destroy(Request $request): JsonResponse
     {
-        $token = $request->user()->currentAccessToken();
+        $plainTextToken = $request->bearerToken();
 
-        if ($token instanceof PersonalAccessToken) {
-            $token->delete();
+        if (! $plainTextToken || ! str_contains($plainTextToken, '|')) {
+            return response()->json(['message' => 'A bearer token is required.'], 422);
+        }
+
+        [$tokenId, $plainTextSecret] = explode('|', $plainTextToken, 2);
+
+        $deleted = $request->user()
+            ->tokens()
+            ->whereKey($tokenId)
+            ->where('token', hash('sha256', $plainTextSecret))
+            ->delete();
+
+        if ($deleted === 0) {
+            return response()->json(['message' => 'Token not found.'], 404);
         }
 
         return response()->json(['message' => 'Token revoked.']);

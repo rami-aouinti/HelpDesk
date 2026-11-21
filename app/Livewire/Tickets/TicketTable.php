@@ -6,6 +6,7 @@ use App\Models\Team;
 use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,6 +27,9 @@ class TicketTable extends Component
     {
         Gate::authorize('viewAny', Ticket::class);
     }
+
+    #[On('tickets-search-updated')]
+    public function updateSearch(string $search): void { $this->search = $search; $this->resetPage(); }
 
     public function updated($property): void
     {

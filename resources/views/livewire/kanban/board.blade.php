@@ -40,7 +40,7 @@
                         @php $canAddToSprint = auth()->user()->hasRole('admin') || (int) $backlogTicket->assigned_to === (int) auth()->id(); @endphp
                         <article class="kanban-backlog-ticket" wire:key="backlog-ticket-{{ $backlogTicket->id }}">
                             <div><span class="kanban-ticket-id">#{{ $backlogTicket->id }}</span><a href="{{ route('tickets.show', $backlogTicket) }}">{{ $backlogTicket->subject }}</a><small>{{ $backlogTicket->assignedAgent?->name ?? 'Unassigned' }} · {{ ucfirst($backlogTicket->priority) }}</small></div>
-                            @if ($canAddToSprint)
+                            @if ($canAddToSprint && ! $sprint->is_completed)
                                 <button type="button" class="btn btn-primary" wire:click="addTicketToSprint({{ $backlogTicket->id }})" wire:loading.attr="disabled">Add to sprint</button>
                             @else
                                 <small class="kanban-readonly-hint">Assigned to another agent</small>
@@ -74,7 +74,7 @@
                                     <label class="kanban-move-label">Move to sprint
                                         <select wire:change="moveTicketToSprint({{ $ticket->id }}, Number($event.target.value))" aria-label="Move ticket {{ $ticket->id }} to another sprint">
                                             <option value="" selected>Current sprint</option>
-                                            @foreach ($sprints->where('id', '!=', $sprint->id) as $otherSprint)
+                                            @foreach ($sprints->where('id', '!=', $sprint->id)->filter(fn ($candidate) => ! $candidate->is_completed) as $otherSprint)
                                                 <option value="{{ $otherSprint->id }}">{{ $otherSprint->name }}</option>
                                             @endforeach
                                         </select>

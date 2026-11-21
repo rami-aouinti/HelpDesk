@@ -73,6 +73,25 @@ class Board extends Component
         }
     }
 
+    public function addTicketToSprint(int $ticketId, SprintManagementService $sprints): void
+    {
+        abort_if($this->sprintId === null, 422, 'Select a sprint first.');
+
+        $ticket = Ticket::query()->findOrFail($ticketId);
+        abort_unless($ticket->sprint_id === null, 409);
+        Gate::authorize('update', $ticket);
+        $this->authorizeTicketMove($ticket);
+
+        $destination = Sprint::query()->findOrFail($this->sprintId);
+
+        try {
+            $sprints->moveTicket($ticket, $destination, auth()->user());
+            $this->resetErrorBag('board');
+        } catch (ValidationException $exception) {
+            $this->addError('board', $exception->errors()['sprint'][0] ?? 'The ticket could not be added to this sprint.');
+        }
+    }
+
     public function moveTicketToSprint(
         int $ticketId,
         int $destinationSprintId,
@@ -133,6 +152,27 @@ class Board extends Component
             $tickets = $query->orderBy('created_at')->get();
         }
 
+        $backlogQuery = Ticket::query()
+            ->whereNull('sprint_id')
+            ->with(['customer:id,name', 'assignedAgent:id,name', 'team:id,name']);
+
+        if (! $user->hasRole('admin')) {
+            $teamIds = $user->teams()->pluck('teams.id');
+            $projectIds = $user->projects()->pluck('projects.id');
+
+            $backlogQuery->where(function ($scope) use ($teamIds): void {
+                $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds);
+            })->where(function ($scope) use ($projectIds): void {
+                $scope->whereNull('project_id')->orWhereIn('project_id', $projectIds);
+            });
+        }
+
+        if ($this->onlyMine && ! $user->hasRole('admin')) {
+            $backlogQuery->where('assigned_to', $user->id);
+        }
+
+        $backlog = $backlogQuery->orderByDesc('created_at')->limit(50)->get();
+
         $columns = [];
         foreach (self::STATUSES as $status => $label) {
             $columns[] = [
@@ -148,6 +188,7 @@ class Board extends Component
             'columns' => $columns,
             'totalTickets' => $tickets->count(),
             'doneTickets' => $tickets->where('status', 'closed')->count(),
+            'backlog' => $backlog,
         ]);
     }
 }

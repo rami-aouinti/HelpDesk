@@ -90,7 +90,7 @@
             "@php artisan vendor:publish --provider=\"NunoMaduro\\PhpInsights\\Application\\Adapters\\Laravel\\InsightsServiceProvider\" --force --no-interaction",
             "@php artisan insights",
             "@php vendor/bin/rector process --dry-run",
-            "@php vendor/bin/pint --preset=psr12 --test"
+            "@php vendor/bin/pint --test"
         ]
     },
     "extra": {

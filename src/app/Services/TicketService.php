@@ -155,7 +155,6 @@ class TicketService
             }
 
             $lockedTicket->assigned_to = $agent->id;
-            $lockedTicket->save();
             $changes['assigned_to'] = ['old' => null, 'new' => $agent->id];
 
             TicketHistory::create([
@@ -165,6 +164,21 @@ class TicketService
                 'old_value' => null,
                 'new_value' => (string) $agent->id,
             ]);
+
+            if ($lockedTicket->status === 'open') {
+                $lockedTicket->status = 'in_progress';
+                $changes['status'] = ['old' => 'open', 'new' => 'in_progress'];
+
+                TicketHistory::create([
+                    'ticket_id' => $lockedTicket->id,
+                    'user_id' => $agent->id,
+                    'action' => 'status',
+                    'old_value' => 'open',
+                    'new_value' => 'in_progress',
+                ]);
+            }
+
+            $lockedTicket->save();
 
             return $lockedTicket->refresh()->load(['customer', 'assignedAgent', 'team']);
         });

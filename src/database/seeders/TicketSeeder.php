@@ -60,8 +60,12 @@ class TicketSeeder extends Seeder
             if ($agent) {
                 $this->history($ticket, $agent->id, 'assigned_to', null, (string) $agent->id, $createdAt->copy()->addMinutes(10));
             }
-            $this->history($ticket, $agent?->id, 'priority', 'normal', $definition['priority'], $createdAt->copy()->addMinutes(15));
-            $this->history($ticket, $agent?->id, 'status', 'open', $definition['status'], $createdAt->copy()->addHours(2));
+            if ($definition['priority'] !== 'normal') {
+                $this->history($ticket, $agent?->id, 'priority', 'normal', $definition['priority'], $createdAt->copy()->addMinutes(15));
+            }
+            if ($definition['status'] !== 'open') {
+                $this->history($ticket, $agent?->id, 'status', 'open', $definition['status'], $createdAt->copy()->addHours(2));
+            }
         }
     }
 

@@ -185,6 +185,145 @@ class TicketApiTest extends TestCase
             ->assertJsonMissing(['body' => 'Confidential internal note']);
     }
 
+
+    public function test_customer_can_post_a_public_reply_to_their_ticket(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        Sanctum::actingAs($customer);
+
+        $response = $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+            'body' => 'I can provide more information.',
+        ])->assertCreated()
+            ->assertJsonPath('data.body', 'I can provide more information.')
+            ->assertJsonPath('data.is_internal', false)
+            ->assertJsonPath('data.author.id', $customer->id);
+
+        $this->assertDatabaseHas('ticket_messages', [
+            'id' => $response->json('data.id'),
+            'ticket_id' => $ticket->id,
+            'is_internal' => false,
+        ]);
+    }
+
+    public function test_customer_cannot_create_an_internal_note_through_the_api(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        Sanctum::actingAs($customer);
+
+        $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+            'body' => 'This must remain private.',
+            'is_internal' => true,
+        ])->assertForbidden();
+
+        $this->assertDatabaseMissing('ticket_messages', [
+            'ticket_id' => $ticket->id,
+            'body' => 'This must remain private.',
+        ]);
+    }
+
+    public function test_agent_can_create_an_internal_note_through_the_api(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        Sanctum::actingAs($agent);
+
+        $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+            'body' => 'Internal troubleshooting note.',
+            'is_internal' => true,
+        ])->assertCreated()
+            ->assertJsonPath('data.is_internal', true);
+
+        $this->getJson("/api/v1/tickets/{$ticket->id}")
+            ->assertOk()
+            ->assertJsonMissing(['body' => 'Internal troubleshooting note.']);
+    }
+
+    public function test_customer_can_upload_and_download_a_public_attachment(): void
+    {
+        Storage::fake('local');
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        Sanctum::actingAs($customer);
+
+        $response = $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+            'body' => 'Please see the attached document.',
+            'attachments' => [
+                UploadedFile::fake()->createWithContent(
+                    'evidence.pdf',
+                    "%PDF-1.4\\n1 0 obj\\n<< /Type /Catalog >>\\nendobj\\n%%EOF",
+                ),
+            ],
+        ])->assertCreated()
+            ->assertJsonPath('data.attachments.0.file_name', 'evidence.pdf');
+
+        $attachmentId = $response->json('data.attachments.0.id');
+        $this->get("/api/v1/tickets/{$ticket->id}/attachments/{$attachmentId}")
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+
+        $this->assertDatabaseHas('ticket_attachments', [
+            'id' => $attachmentId,
+            'ticket_id' => $ticket->id,
+            'original_name' => 'evidence.pdf',
+        ]);
+    }
+
+    public function test_customer_cannot_download_an_attachment_from_an_internal_note(): void
+    {
+        Storage::fake('local');
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        $path = 'ticket-attachments/'.$ticket->id.'/secret.pdf';
+        Storage::disk('local')->put($path, '%PDF-1.4');
+        $message = $ticket->messages()->create([
+            'user_id' => $agent->id,
+            'body' => 'Internal file.',
+            'is_internal' => true,
+        ]);
+        $attachment = $message->attachments()->create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'secret.pdf',
+            'mime_type' => 'application/pdf',
+            'size' => 8,
+        ]);
+        Sanctum::actingAs($customer);
+
+        $this->get("/api/v1/tickets/{$ticket->id}/attachments/{$attachment->id}")
+            ->assertNotFound();
+    }
+
+    public function test_ticket_list_supports_status_priority_and_search_filters(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $matching = $this->makeTicket($customer);
+        $matching->update(['status' => 'in_progress', 'priority' => 'urgent', 'subject' => 'VPN connection issue']);
+        $this->makeTicket($customer);
+
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?status=in_progress&priority=urgent&search=VPN')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $matching->id);
+    }
+
+    public function test_ticket_filters_reject_invalid_values(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?status=unknown')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('status');
+    }
+
     private function makeTicket(User $customer): Ticket
     {
         return Ticket::create([

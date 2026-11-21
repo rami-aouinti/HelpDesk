@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Ticket;
+use App\Services\TicketService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Throwable;
 
 /**
  * @package App\Http\Controllers
@@ -40,5 +43,32 @@ class TicketController extends Controller
         return redirect()
             ->route('tickets.index')
             ->with('success', "Ticket #{$ticket->id} created successfully.");
+    }
+    public function show(Ticket $ticket): View
+    {
+        $ticket->load(['customer', 'assignedAgent', 'histories.user']);
+
+        return view('tickets.show', [
+            'ticket' => $ticket,
+        ]);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function update(
+        UpdateTicketRequest $request,
+        Ticket $ticket,
+        TicketService $ticketService
+    ): RedirectResponse {
+        $ticketService->update(
+            $ticket,
+            $request->validated(),
+            auth()->id()
+        );
+
+        return redirect()
+            ->route('tickets.show', $ticket)
+            ->with('success', 'Ticket updated successfully.');
     }
 }

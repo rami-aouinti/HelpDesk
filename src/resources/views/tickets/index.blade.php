@@ -46,7 +46,11 @@
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td>#{{ $ticket->id }}</td>
-                            <td>{{ $ticket->subject }}</td>
+                            <td>
+                                <a href="{{ route('tickets.show', $ticket) }}">
+                                    {{ $ticket->subject }}
+                                </a>
+                            </td>
                             <td>{{ $ticket->customer?->name ?? 'Unassigned' }}</td>
                             <td>{{ ucfirst($ticket->priority) }}</td>
                             <td>{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</td>

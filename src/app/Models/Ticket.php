@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @package App\Models
@@ -28,5 +29,11 @@ class Ticket extends Model
     public function assignedAgent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(TicketHistory::class)
+            ->latest();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\Team;
 use App\Models\User;
 use App\Notifications\TicketActivityNotification;
 use Illuminate\Support\Collection;
@@ -125,7 +126,7 @@ class TicketNotificationService
 
             $oldTeamId = $changes['team_id']['old'];
             if ($oldTeamId && (int) $oldTeamId !== (int) $ticket->team_id) {
-                $oldTeam = \\App\\Models\\Team::query()->with('members')->find($oldTeamId);
+                $oldTeam = Team::query()->with('members')->find($oldTeamId);
                 if ($oldTeam) {
                     $supportRecipients = $supportRecipients->merge(
                         $oldTeam->members->where('is_active', true)

@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'HelpDesk')</title>
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('helpdesk-theme');
+                if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (error) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @livewireStyles
@@ -89,5 +100,27 @@
     </main>
 </div>
 @livewireScripts
+<script>
+    (function () {
+        var button = document.getElementById('theme-toggle');
+        if (!button) return;
+        function syncThemeButton() {
+            var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+            var icon = button.querySelector('.theme-toggle-icon');
+            var label = button.querySelector('.theme-toggle-label');
+            button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+            button.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+            if (icon) icon.textContent = dark ? '☀' : '☾';
+            if (label) label.textContent = dark ? 'Light mode' : 'Dark mode';
+        }
+        syncThemeButton();
+        button.addEventListener('click', function () {
+            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('helpdesk-theme', next); } catch (error) {}
+            syncThemeButton();
+        });
+    })();
+</script>
 </body>
 </html>

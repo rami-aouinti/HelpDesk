@@ -57,7 +57,6 @@
             <div class="topbar-actions">
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">
                     <span class="theme-toggle-icon" aria-hidden="true">☾</span>
-                    <span class="theme-toggle-label">Dark mode</span>
                 </button>
             </div>
 
@@ -68,8 +67,6 @@
                     @else
                         <span class="topbar-avatar avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
                     @endif
-                    <span class="account-menu-name">{{ auth()->user()->name }}</span>
-                    <span class="account-menu-chevron">⌄</span>
                 </summary>
                 <div class="account-menu-panel">
                     <div class="account-menu-user">
@@ -107,11 +104,9 @@
         function syncThemeButton() {
             var dark = document.documentElement.getAttribute('data-theme') === 'dark';
             var icon = button.querySelector('.theme-toggle-icon');
-            var label = button.querySelector('.theme-toggle-label');
             button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
             button.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
             if (icon) icon.textContent = dark ? '☀' : '☾';
-            if (label) label.textContent = dark ? 'Light mode' : 'Dark mode';
         }
         syncThemeButton();
         button.addEventListener('click', function () {

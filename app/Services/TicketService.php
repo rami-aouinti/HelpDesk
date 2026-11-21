@@ -53,7 +53,7 @@ class TicketService
                 array_intersect(['team_id', 'assigned_to'], array_keys($data)) !== []
                 && (! $actor || ! $actor->hasRole('admin'))
             ) {
-                throw new \\Illuminate\\Auth\\Access\\AuthorizationException(
+                throw new \Illuminate\Auth\Access\AuthorizationException(
                     'Only administrators can assign or reassign tickets.'
                 );
             }

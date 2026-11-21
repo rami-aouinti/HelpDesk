@@ -11,7 +11,7 @@ class UserManagementService
 {
     public function create(array $data): User
     {
-        return DB::transaction(function () use ($data): User {
+        $user = DB::transaction(function () use ($data): User {
             $role = Role::query()->where('name', $data['role'])->where('guard_name', 'web')->firstOrFail();
 
             $user = User::create([
@@ -25,6 +25,10 @@ class UserManagementService
 
             return $user;
         });
+
+        event(new Registered($user));
+
+        return $user;
     }
 
     public function update(User $user, array $data): User
@@ -64,7 +68,7 @@ class UserManagementService
     private function ensureAnotherActiveAdministratorExists(User $user): void
     {
         $otherActiveAdministrators = User::query()
-            ->whereKeyNot($user->getKey())
+            ->where('id', '!=', $user->getKey())
             ->where('is_active', true)
             ->role('admin')
             ->exists();

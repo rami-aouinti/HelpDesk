@@ -43,9 +43,7 @@
                 <button
                     type="button"
                     class="btn btn-secondary"
-                    wire:click="$set('search', '')"
-                    wire:click="$set('role', '')"
-                    wire:click="$set('status', '')"
+                    wire:click="resetFilters"
                 >Reset</button>
             </div>
         </div>

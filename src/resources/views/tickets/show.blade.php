@@ -113,6 +113,58 @@
         @endcan
     </div>
 
+
+    <div class="content-card" style="margin-top: 24px;">
+        <h2>Conversation</h2>
+        <p class="text-sm text-slate-500">Replies are visible to the customer and the support team.</p>
+
+        @if ($errors->any())
+            <div class="alert alert-error">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div style="margin: 20px 0;">
+            @forelse ($messages as $message)
+                <article style="padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: {{ $message->is_internal ? '#fffbeb' : '#ffffff' }};">
+                    <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                        <strong>{{ $message->user->name }}</strong>
+                        <small>{{ $message->created_at->format('d.m.Y H:i') }}</small>
+                    </div>
+                    @if ($message->is_internal)
+                        <small style="display: inline-block; margin-top: 6px; color: #92400e; font-weight: 600;">Internal note · visible to support team only</small>
+                    @endif
+                    <p style="margin-top: 10px; white-space: pre-wrap;">{{ $message->body }}</p>
+                </article>
+            @empty
+                <p>No replies yet. Start the conversation below.</p>
+            @endforelse
+        </div>
+
+        <form method="POST" action="{{ route('tickets.messages.store', $ticket) }}">
+            @csrf
+            <div class="form-group">
+                <label for="message-body">Your message</label>
+                <textarea id="message-body" name="body" rows="5" maxlength="10000" required>{{ old('body') }}</textarea>
+            </div>
+
+            @can('update', $ticket)
+                <div class="form-group">
+                    <label style="display: inline-flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="is_internal" value="1" @checked(old('is_internal'))>
+                        Add as an internal note (customer cannot see this)
+                    </label>
+                </div>
+            @endcan
+
+            <button type="submit" class="btn btn-primary">Send message</button>
+        </form>
+    </div>
+
     <div class="content-card" style="margin-top: 24px;">
         <h2>Activity history</h2>
 

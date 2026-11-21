@@ -63,6 +63,10 @@ class Index extends Component
 
     public function render(): View
     {
+        $sortColumn = in_array($this->sortBy, ['name', 'email', 'created_at'], true) ? $this->sortBy : 'created_at';
+        $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+        $perPage = min(max($this->perPage, 5), 50);
+
         $users = User::query()
             ->with('roles')
             ->when(trim($this->search) !== '', function ($query): void {
@@ -73,8 +77,8 @@ class Index extends Component
             ->when($this->role !== '', fn ($query) => $query->role($this->role))
             ->when($this->status === 'active', fn ($query) => $query->where('is_active', true))
             ->when($this->status === 'inactive', fn ($query) => $query->where('is_active', false))
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+            ->orderBy($sortColumn, $sortDirection)
+            ->paginate($perPage);
 
         return view('livewire.users.index', [
             'users' => $users,

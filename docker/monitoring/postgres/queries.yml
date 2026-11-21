@@ -1,0 +1,13 @@
+helpdesk_queue_pending:
+  query: "SELECT COUNT(*) AS pending_jobs FROM jobs"
+  metrics:
+    - pending_jobs:
+        usage: "GAUGE"
+        description: "Number of pending Laravel queue jobs"
+
+helpdesk_queue_failed:
+  query: "SELECT COUNT(*) AS failed_jobs FROM failed_jobs"
+  metrics:
+    - failed_jobs:
+        usage: "GAUGE"
+        description: "Number of failed Laravel queue jobs"

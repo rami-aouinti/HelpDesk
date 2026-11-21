@@ -136,15 +136,30 @@ class UserManagementTest extends TestCase
     }
 
 
-    public function test_admin_can_search_and_filter_users(): void
+    public function test_admin_can_search_and_filter_users_with_livewire(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
 
-        $this->actingAs($admin)
-            ->get(route('users.index', ['search' => 'agent', 'role' => 'agent', 'status' => 'active']))
-            ->assertOk()
+        Livewire::actingAs($admin)
+            ->test(UsersIndex::class)
+            ->set('search', 'agent')
+            ->set('role', 'agent')
+            ->set('status', 'active')
             ->assertSee('agent@helpdesk.test')
             ->assertDontSee('customer@helpdesk.test');
+    }
+
+    public function test_admin_can_change_user_status_from_livewire_table(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        Livewire::actingAs($admin)
+            ->test(UsersIndex::class)
+            ->call('toggleActive', $agent->id)
+            ->assertSee('User status updated successfully.');
+
+        $this->assertFalse($agent->fresh()->is_active);
     }
 
 }

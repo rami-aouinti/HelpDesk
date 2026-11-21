@@ -182,6 +182,51 @@ class KanbanBoardTest extends TestCase
         $this->assertSame($current->id, $ticket->fresh()->sprint_id);
     }
 
+
+    public function test_agent_can_add_their_assigned_backlog_ticket_to_a_sprint(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint();
+        $ticket = Ticket::create([
+            'subject' => 'Backlog ticket assigned to me',
+            'description' => 'An unscheduled ticket that I own.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        Livewire::actingAs($agent)->test(Board::class)
+            ->call('addTicketToSprint', $ticket->id)
+            ->assertHasNoErrors();
+
+        $this->assertSame($sprint->id, $ticket->fresh()->sprint_id);
+    }
+
+    public function test_agent_cannot_add_another_agents_backlog_ticket_to_a_sprint(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $otherAgent = User::where('email', 'sarah.agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint();
+        $ticket = Ticket::create([
+            'subject' => 'Backlog ticket assigned elsewhere',
+            'description' => 'An unscheduled ticket owned by another agent.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'assigned_to' => $otherAgent->id,
+        ]);
+
+        Livewire::actingAs($agent)->test(Board::class)
+            ->call('addTicketToSprint', $ticket->id)
+            ->assertForbidden();
+
+        $this->assertNull($ticket->fresh()->sprint_id);
+        $this->assertDatabaseHas('sprints', ['id' => $sprint->id]);
+    }
+
     private function makeSprint(array $attributes = []): Sprint
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();

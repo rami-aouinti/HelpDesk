@@ -52,7 +52,7 @@ class TicketTimeTrackingTest extends TestCase
         $this->assertSame(0, $ticket->remaining_minutes);
     }
 
-    public function test_agent_can_update_estimated_and_elapsed_time_values(): void
+    public function test_ticket_estimated_and_elapsed_time_values_can_be_updated(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
 

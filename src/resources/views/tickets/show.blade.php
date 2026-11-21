@@ -30,6 +30,7 @@
 
         <hr>
 
+        @can('update', $ticket)
         <h2>Update ticket</h2>
 
         @if ($errors->any())
@@ -80,6 +81,9 @@
                 Save changes
             </button>
         </form>
+        @else
+            <p class="text-sm text-slate-500">Only support agents and administrators can update this ticket.</p>
+        @endcan
     </div>
 
     <div class="content-card" style="margin-top: 24px;">

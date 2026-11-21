@@ -9,7 +9,7 @@ class UpdateTicketRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', $this->route('ticket')) ?? false;
     }
 
     public function rules(): array
@@ -18,13 +18,7 @@ class UpdateTicketRequest extends FormRequest
             'status' => [
                 'sometimes',
                 'required',
-                Rule::in([
-                    'open',
-                    'in_progress',
-                    'waiting_for_customer',
-                    'resolved',
-                    'closed',
-                ]),
+                Rule::in(['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed']),
             ],
             'priority' => [
                 'sometimes',

@@ -10,26 +10,19 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Throwable;
 
-/**
- * @package App\Http\Controllers
- * @author Rami Aouinti
- */
 class TicketController extends Controller
 {
     public function index(): View
     {
-        $tickets = Ticket::query()
-            ->with(['customer', 'assignedAgent'])
-            ->latest()
-            ->paginate(10);
+        abort_unless(auth()->user()->can('viewAny', Ticket::class), 403);
 
-        return view('tickets.index', [
-            'tickets' => $tickets,
-        ]);
+        return view('tickets.index');
     }
 
     public function create(): View
     {
+        abort_unless(auth()->user()->can('create', Ticket::class), 403);
+
         return view('tickets.create');
     }
 
@@ -38,19 +31,21 @@ class TicketController extends Controller
         $ticket = Ticket::create([
             ...$request->validated(),
             'status' => 'open',
+            'user_id' => $request->user()->id,
         ]);
 
         return redirect()
             ->route('tickets.index')
             ->with('success', "Ticket #{$ticket->id} created successfully.");
     }
+
     public function show(Ticket $ticket): View
     {
+        abort_unless(auth()->user()->can('view', $ticket), 403);
+
         $ticket->load(['customer', 'assignedAgent', 'histories.user']);
 
-        return view('tickets.show', [
-            'ticket' => $ticket,
-        ]);
+        return view('tickets.show', ['ticket' => $ticket]);
     }
 
     /**
@@ -61,11 +56,7 @@ class TicketController extends Controller
         Ticket $ticket,
         TicketService $ticketService
     ): RedirectResponse {
-        $ticketService->update(
-            $ticket,
-            $request->validated(),
-            auth()->id()
-        );
+        $ticketService->update($ticket, $request->validated(), $request->user()->id);
 
         return redirect()
             ->route('tickets.show', $ticket)

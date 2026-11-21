@@ -10,7 +10,9 @@
             <p>Here's what's happening with your support desk today.</p>
         </div>
 
-        <a href="#" class="button-primary">+ Create ticket</a>
+        @can('tickets.create')
+        <a href="{{ route('tickets.create') }}" class="button-primary">+ Create ticket</a>
+        @endcan
     </div>
 
     <div class="stats-grid">

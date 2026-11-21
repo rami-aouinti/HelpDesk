@@ -5,22 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
 
-/**
- * @package App\Http\Controllers
- * @author Rami Aouinti
- */
 class DashboardController extends Controller
 {
     public function index(): View
     {
+        $tickets = Ticket::query()
+            ->when(auth()->user()->hasRole('customer'), fn ($query) => $query->where('user_id', auth()->id()));
+
         $statistics = [
-            'total' => Ticket::count(),
-            'open' => Ticket::where('status', 'open')->count(),
-            'in_progress' => Ticket::where('status', 'in_progress')->count(),
-            'resolved' => Ticket::where('status', 'resolved')->count(),
+            'total' => (clone $tickets)->count(),
+            'open' => (clone $tickets)->where('status', 'open')->count(),
+            'in_progress' => (clone $tickets)->where('status', 'in_progress')->count(),
+            'resolved' => (clone $tickets)->where('status', 'resolved')->count(),
         ];
 
-        $recentTickets = Ticket::query()
+        $recentTickets = (clone $tickets)
             ->with(['customer', 'assignedAgent'])
             ->latest()
             ->limit(8)

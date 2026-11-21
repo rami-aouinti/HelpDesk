@@ -21,7 +21,22 @@ class Ticket extends Model
         'assigned_to',
         'team_id',
         'project_id',
+        'estimated_minutes',
+        'elapsed_minutes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'estimated_minutes' => 'integer',
+            'elapsed_minutes' => 'integer',
+        ];
+    }
+
+    public function getRemainingMinutesAttribute(): int
+    {
+        return max(0, (int) $this->estimated_minutes - (int) $this->elapsed_minutes);
+    }
 
     public function customer(): BelongsTo
     {

@@ -58,7 +58,7 @@ class TicketController extends Controller
     {
         abort_unless(auth()->user()->can('view', $ticket), 403);
 
-        $ticket->load(['customer', 'assignedAgent', 'team', 'project', 'histories.user']);
+        $ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint', 'histories.user']);
 
         $messagesQuery = $ticket->messages()->with(['user', 'attachments'])->oldest();
         if (auth()->user()->hasRole('customer')) {

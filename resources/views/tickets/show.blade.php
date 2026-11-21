@@ -111,6 +111,7 @@
                 </select>
             </div>
 
+            @if (auth()->user()->hasRole('admin'))
             <div class="form-group">
                 <label for="team_id">Team</label>
                 <select name="team_id" id="team_id">
@@ -122,6 +123,7 @@
                     @endforeach
                 </select>
             </div>
+            @endif
 
             <div class="form-group">
                 <label for="estimated_minutes">Estimated time (minutes)</label>
@@ -133,6 +135,7 @@
                 <small>Remaining time is calculated automatically.</small>
             </div>
             <div class="form-group"><label for="project_id">Project</label><select name="project_id" id="project_id"><option value="">No project</option>@foreach ($projects as $project)<option value="{{ $project->id }}" @selected((string) old('project_id', $ticket->project_id) === (string) $project->id)>{{ $project->name }}</option>@endforeach</select></div>
+            @if (auth()->user()->hasRole('admin'))
             <div class="form-group">
                 <label for="assigned_to">Assigned agent</label>
                 <select name="assigned_to" id="assigned_to">
@@ -145,6 +148,7 @@
                 </select>
                 <small>The agent must belong to the selected team.</small>
             </div>
+            @endif
 
             <div class="form-group">
                 <label for="priority">Priority</label>

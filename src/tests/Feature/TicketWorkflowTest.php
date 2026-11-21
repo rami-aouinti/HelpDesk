@@ -21,6 +21,95 @@ class TicketWorkflowTest extends TestCase
 
 
 
+
+    public function test_customer_can_create_a_ticket_and_only_sees_their_own_tickets(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->post(route('tickets.store'), [
+                'subject' => 'Cannot access my account',
+                'description' => 'The password reset page does not work for me.',
+                'priority' => 'high',
+            ])
+            ->assertRedirect(route('tickets.index'));
+
+        $ticket = Ticket::where('subject', 'Cannot access my account')
+            ->where('user_id', $customer->id)
+            ->firstOrFail();
+        $this->assertSame($customer->id, $ticket->user_id);
+
+        $this->actingAs($customer)
+            ->get(route('tickets.index'))
+            ->assertOk()
+            ->assertSee('Cannot access my account');
+    }
+
+    public function test_agent_can_update_a_ticket_and_the_change_is_recorded(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Printer is offline',
+            'description' => 'The office printer cannot be reached.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['status' => 'in_progress'])
+            ->assertRedirect(route('tickets.show', $ticket));
+
+        $this->assertDatabaseHas('tickets', ['id' => $ticket->id, 'status' => 'in_progress']);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'status',
+            'old_value' => 'open',
+            'new_value' => 'in_progress',
+        ]);
+    }
+
+    public function test_agent_can_assign_ticket_to_a_team_and_its_member(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'VPN connection issue',
+            'description' => 'The VPN disconnects frequently.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), [
+                'team_id' => $team->id,
+                'assigned_to' => $agent->id,
+            ])
+            ->assertRedirect(route('tickets.show', $ticket));
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'team_id',
+            'new_value' => (string) $team->id,
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'assigned_to',
+            'new_value' => (string) $agent->id,
+        ]);
+    }
+
     public function test_ticket_cannot_be_assigned_to_an_agent_outside_the_selected_team(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

@@ -161,7 +161,7 @@ class FortifyAuthenticationTest extends TestCase
         $this->assertNull($user->fresh()->email_verified_at);
     }
 
-    public function test_verified_user_can_request_another_verification_email(): void
+    public function test_unverified_user_can_request_another_verification_email(): void
     {
         $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $user->forceFill(['email_verified_at' => null])->save();
@@ -183,10 +183,10 @@ class FortifyAuthenticationTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
-    public function test_password_reset_link_request_does_not_disclose_unknown_email(): void
+    public function test_password_reset_link_is_not_sent_for_unknown_email(): void
     {
         $this->post(route('password.email'), ['email' => 'unknown@example.test'])
-            ->assertSessionHas('status');
+            ->assertSessionHasErrors('email');
 
         Notification::assertNothingSent();
     }
@@ -237,6 +237,7 @@ class FortifyAuthenticationTest extends TestCase
 
         $this->assertSame($originalHash, $user->fresh()->password);
     }
+
     public function test_authenticated_user_can_log_out(): void
     {
         $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();

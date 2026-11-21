@@ -50,6 +50,10 @@
                 >{{ old('description') }}</textarea>
             </div>
 
+            @if ($projects->isNotEmpty())
+                <div class="form-group"><label for="project_id">Project (optional)</label><select id="project_id" name="project_id"><option value="">No project</option>@foreach ($projects as $project)<option value="{{ $project->id }}" @selected((string) old('project_id') === (string) $project->id)>{{ $project->name }}</option>@endforeach</select></div>
+            @endif
+
             <div class="form-group">
                 <label for="priority">Priority</label>
                 <select id="priority" name="priority" required>

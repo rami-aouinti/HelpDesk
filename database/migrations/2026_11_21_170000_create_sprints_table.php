@@ -23,7 +23,6 @@ return new class extends Migration
         Schema::table('tickets', function (Blueprint $table): void {
             $table->foreignId('sprint_id')
                 ->nullable()
-                ->after('project_id')
                 ->constrained('sprints')
                 ->nullOnDelete();
 

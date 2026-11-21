@@ -372,6 +372,33 @@ class TicketApiTest extends TestCase
         ]);
     }
 
+
+    public function test_swagger_ui_and_openapi_spec_are_publicly_accessible(): void
+    {
+        $this->get('/api/documentation')
+            ->assertOk()
+            ->assertSee('SwaggerUIBundle');
+
+        $this->get('/api/openapi.yaml')
+            ->assertOk()
+            ->assertSee('openapi: 3.1.0');
+    }
+
+    public function test_ticket_list_can_filter_assigned_tickets_with_false_boolean_value(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $unassigned = $this->makeTicket($customer);
+        $assigned = $this->makeTicket($customer);
+        $assigned->update(['assigned_to' => User::where('email', 'agent@helpdesk.test')->value('id')]);
+
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?unassigned=false')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $assigned->id);
+    }
+
     private function makeTicket(User $customer): Ticket
     {
         return Ticket::create([

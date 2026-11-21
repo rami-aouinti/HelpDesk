@@ -37,7 +37,7 @@ class TicketController extends Controller
         $user = auth()->user();
         $projects = $user->can('projects.view.all') ? Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
 
-        return view('tickets.create', compact('projects'));
+        return view('tickets.create', ['projects' => $projects]);
     }
 
     public function store(StoreTicketRequest $request): RedirectResponse

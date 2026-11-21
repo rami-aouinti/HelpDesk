@@ -125,12 +125,12 @@ class TicketController extends Controller
                     $path = $file->store("ticket-attachments/{$ticket->id}", 'local');
 
                     if ($path === false) {
-                        throw new \\RuntimeException('The attachment could not be stored.');
+                        throw new \RuntimeException('The attachment could not be stored.');
                     }
 
                     $storedPaths[] = $path;
 
-                    $originalName = basename(str_replace('\\\\', '/', $file->getClientOriginalName()));
+                    $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
                     $message->attachments()->create([
                         'ticket_id' => $ticket->id,
                         'user_id' => $request->user()->id,

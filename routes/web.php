@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
+Route::view('/api/documentation', 'api.documentation')->name('api.documentation');
+Route::get('/api/openapi.yaml', function () {
+    return response()->file(base_path('openapi.yaml'), [
+        'Content-Type' => 'application/yaml; charset=UTF-8',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->name('api.openapi');
+
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

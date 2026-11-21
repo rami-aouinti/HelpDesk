@@ -91,7 +91,7 @@ class TicketController extends Controller
 
         event(new TicketCreated($ticket));
 
-        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project'])))
+        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint'])))
             ->response()
             ->setStatusCode(201);
     }

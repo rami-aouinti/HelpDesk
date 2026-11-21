@@ -28,14 +28,14 @@ class TeamsManagementTest extends TestCase
         Livewire::actingAs($admin)
             ->test(TeamsIndex::class)
             ->call('create')
-            ->set('name', 'Technical Support')
+            ->set('name', 'QA Support Test')
             ->set('description', 'Handles technical issues.')
             ->set('members', [$agent->id])
             ->call('save')
             ->assertHasNoErrors()
             ->assertSee('Team created successfully.');
 
-        $team = Team::query()->where('name', 'Technical Support')->firstOrFail();
+        $team = Team::query()->where('name', 'QA Support Test')->firstOrFail();
 
         $this->assertTrue($team->members()->whereKey($agent->id)->exists());
     }
@@ -86,7 +86,7 @@ class TeamsManagementTest extends TestCase
     public function test_team_with_tickets_cannot_be_deleted(): void
     {
         $admin = User::query()->where('email', 'admin@helpdesk.test')->firstOrFail();
-        $team = Team::query()->create(['name' => 'Billing Support']);
+        $team = Team::query()->create(['name' => 'Deletion Test Team']);
 
         Ticket::query()->create([
             'subject' => 'Payment issue',

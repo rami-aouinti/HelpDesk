@@ -47,6 +47,6 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-pagination">{{ $teams->links() }}</div>
+        <div class="table-pagination">{{ $teams->links('vendor.pagination.helpdesk') }}</div>
     </section>
 </div>

@@ -85,6 +85,34 @@ The list is automatically scoped to the authenticated user's visibility: custome
 
 Ticket lists are paginated (15 per page by default). Use `?page=2&per_page=30`; `per_page` is capped at 100.
 
+Supported list filters:
+
+| Query parameter | Description |
+| --- | --- |
+| `status`, `priority` | Filter by ticket status or priority |
+| `team_id`, `project_id`, `assigned_to` | Filter by team, project, or assigned agent |
+| `unassigned=true/false` | Filter unassigned or assigned tickets |
+| `search` | Search subject, description, or numeric ticket ID |
+| `created_from`, `created_to` | Filter by creation date |
+| `updated_from`, `updated_to` | Filter by last update date |
+| `sort_by` | `created_at`, `updated_at`, `priority`, `status`, or `subject` |
+| `sort_direction` | `asc` or `desc` |
+
+### Conversations and attachments
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/api/v1/tickets/{ticket}/messages` | Add a reply or staff-only internal note; supports multipart attachments |
+| GET | `/api/v1/tickets/{ticket}/attachments/{attachment}` | Securely download an attachment |
+
+Customers can only post public replies and only see/download public conversation content. Staff with update permission may add internal notes. Uploads are limited to five files per message, 10 MB per file, and an allowlist of document/image formats. Files are stored on the private local disk; storage paths are never exposed in API resources.
+
+The message and attachment resources are nested in the ticket detail response. Download links are generated through the authenticated API route.
+
+### Interactive documentation
+
+Open [Swagger UI](/api/documentation) to explore and try the API. The OpenAPI 3.1 document is available at [openapi.yaml](/api/openapi.yaml).
+
 Example create request:
 
 ```http

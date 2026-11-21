@@ -84,6 +84,7 @@ class KanbanBoardTest extends TestCase
         $ticket = $this->makeTicket($customer, $current, ['assigned_to' => $otherAgent->id]);
 
         Livewire::actingAs($agent)->test(Board::class)
+            ->set('sprintId', $current->id)
             ->call('moveTicketToSprint', $ticket->id, $destination->id)
             ->assertForbidden();
 

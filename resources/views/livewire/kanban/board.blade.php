@@ -20,9 +20,7 @@
                         @endforelse
                     </select>
                 </label>
-                @if (! auth()->user()->hasRole('admin'))
-                    <label class="kanban-mine-toggle"><input type="checkbox" wire:model.live="onlyMine"> <span>Only my assigned tickets</span></label>
-                @endif
+                <label class="kanban-mine-toggle"><input type="checkbox" wire:model.live="onlyMine"> <span>Only my assigned tickets</span></label>
                 <a href="{{ route('sprints.index') }}" class="btn btn-secondary">Manage sprints</a>
             </div>
         </div>

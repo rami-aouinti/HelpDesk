@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', User::class);
+        abort_unless($request->user()->can('viewAny', User::class), 403);
 
         $users = User::query()
             ->with('roles')
@@ -41,7 +41,7 @@ class UserController extends Controller
 
     public function create(): View
     {
-        $this->authorize('create', User::class);
+        abort_unless(auth()->user()->can('create', User::class), 403);
 
         return view('users.create', [
             'roles' => Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name'),
@@ -57,7 +57,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        $this->authorize('update', $user);
+        abort_unless(auth()->user()->can('update', $user), 403);
 
         return view('users.edit', [
             'managedUser' => $user->load('roles'),
@@ -74,7 +74,7 @@ class UserController extends Controller
 
     public function toggleActive(User $user, UserManagementService $users): RedirectResponse
     {
-        $this->authorize('toggleActive', $user);
+        abort_unless(auth()->user()->can('toggleActive', $user), 403);
         $users->toggleActive($user);
 
         return redirect()->route('users.index')->with('success', 'User status updated successfully.');

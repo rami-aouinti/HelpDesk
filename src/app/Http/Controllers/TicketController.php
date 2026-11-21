@@ -174,6 +174,22 @@ class TicketController extends Controller
         );
     }
 
+    public function claim(Request $request, Ticket $ticket, TicketService $ticketService): RedirectResponse
+    {
+        abort_unless($request->user()->hasRole('agent'), 403);
+        abort_unless($request->user()->can('update', $ticket), 403);
+
+        $data = $request->validate([
+            'team_id' => ['nullable', 'integer', 'exists:teams,id'],
+        ]);
+
+        $ticketService->claim($ticket, $request->user(), isset($data['team_id']) ? (int) $data['team_id'] : null);
+
+        return redirect()
+            ->route('tickets.show', $ticket)
+            ->with('success', 'Ticket claimed successfully.');
+    }
+
     /**
      * @throws Throwable
      */

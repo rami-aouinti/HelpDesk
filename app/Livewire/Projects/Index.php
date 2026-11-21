@@ -38,9 +38,9 @@ class Index extends Component
 
     public array $members = [];
 
-    public $coverImage = null;
+    public $coverImage;
 
-    public $document = null;
+    public $document;
 
     public bool $showForm = false;
 
@@ -197,6 +197,6 @@ class Index extends Component
             }$selectedProject->setRelation('tickets', $ticketQuery->latest()->get());
         }
 
-        return view('livewire.projects.index', compact('projects', 'users', 'selectedProject'));
+        return view('livewire.projects.index', ['projects' => $projects, 'users' => $users, 'selectedProject' => $selectedProject]);
     }
 }

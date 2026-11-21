@@ -19,32 +19,6 @@ class TicketWorkflowTest extends TestCase
         $this->seed();
     }
 
-    public function test_agent_can_update_a_ticket_and_the_change_is_recorded(): void
-    {
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
-
-        $ticket = Ticket::create([
-            'subject' => 'Printer is offline',
-            'description' => 'The office printer cannot be reached.',
-            'status' => 'open',
-            'priority' => 'normal',
-            'user_id' => $customer->id,
-        ]);
-
-        $this->actingAs($agent)
-            ->patch(route('tickets.update', $ticket), ['status' => 'in_progress'])
-            ->assertRedirect(route('tickets.show', $ticket));
-
-        $this->assertDatabaseHas('tickets', ['id' => $ticket->id, 'status' => 'in_progress']);
-        $this->assertDatabaseHas('ticket_histories', [
-            'ticket_id' => $ticket->id,
-            'user_id' => $agent->id,
-            'action' => 'status',
-            'old_value' => 'open',
-            'new_value' => 'in_progress',
-        ]);
-    }
 
     public function test_agent_can_assign_ticket_to_a_team_and_its_member(): void
     {

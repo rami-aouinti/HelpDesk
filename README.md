@@ -109,6 +109,19 @@ Customers can only post public replies and only see/download public conversation
 
 The message and attachment resources are nested in the ticket detail response. Download links are generated through the authenticated API route.
 
+### Sprint planning and Kanban
+
+The web application includes Sprint Management and a Livewire Kanban board:
+
+- Sprints have a name, goal, start date and end date. A ticket belongs to at most one sprint.
+- A sprint is automatically considered completed when it contains at least one ticket and every ticket has status `closed` (the workflow's final `done` state).
+- Administrators can create, edit and delete empty sprints, and move any ticket.
+- Agents can move only tickets assigned to themselves, and status changes still respect the ticket workflow.
+- The Kanban board opens the latest sprint by default and offers an "Only my assigned tickets" filter to agents.
+- A sprint containing tickets cannot be deleted; move its tickets to another sprint first.
+
+Pages: [Sprints](/sprints) and [Kanban](/kanban).
+
 ### Interactive documentation
 
 Open [Swagger UI](/api/documentation) to explore and try the API. The OpenAPI 3.1 document is available at [openapi.yaml](/api/openapi.yaml).

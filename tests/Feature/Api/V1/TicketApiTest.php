@@ -399,6 +399,30 @@ class TicketApiTest extends TestCase
             ->assertJsonPath('data.0.id', $assigned->id);
     }
 
+
+    public function test_ticket_list_can_be_filtered_by_sprint(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $sprint = \App\Models\Sprint::create([
+            'name' => 'API Sprint',
+            'description' => null,
+            'start_date' => '2026-12-01',
+            'end_date' => '2026-12-14',
+            'created_by' => $admin->id,
+        ]);
+        $ticket = $this->makeTicket($customer);
+        $ticket->update(['sprint_id' => $sprint->id]);
+
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?sprint_id='.$sprint->id)
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.sprint.id', $sprint->id)
+            ->assertJsonPath('data.0.sprint.name', 'API Sprint');
+    }
+
     private function makeTicket(User $customer): Ticket
     {
         return Ticket::create([

@@ -8,5 +8,7 @@ use App\Models\Ticket;
 
 class TicketCreated
 {
-    public function __construct(public readonly Ticket $ticket) {}
+    public function __construct(public readonly Ticket $ticket)
+    {
+    }
 }

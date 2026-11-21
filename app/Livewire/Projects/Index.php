@@ -99,7 +99,7 @@ class Index extends Component
     public function save(): void
     {
         $this->validate(['name' => ['required', 'string', 'min:2', 'max:255', Rule::unique('projects', 'name')->ignore($this->projectId)], 'description' => ['nullable', 'string', 'max:10000'], 'budget' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'], 'startDate' => ['nullable', 'date'], 'endDate' => ['nullable', 'date', 'after_or_equal:startDate'], 'status' => ['required', Rule::in(Project::STATUSES)], 'members' => ['array', 'max:100'], 'members.*' => ['integer', 'distinct', Rule::exists('users', 'id')->where(fn ($q) => $q->where('is_active', true))], 'coverImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
-        $p = $this->projectId ? Project::findOrFail($this->projectId) : new Project;
+        $p = $this->projectId ? Project::findOrFail($this->projectId) : new Project();
         Gate::authorize($this->projectId ? 'update' : 'create', $p);
         foreach ($this->members as $id) {
             $u = User::findOrFail($id);

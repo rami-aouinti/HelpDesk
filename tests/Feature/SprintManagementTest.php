@@ -106,6 +106,15 @@ class SprintManagementTest extends TestCase
         $this->assertTrue($sprint->fresh()->is_completed);
     }
 
+
+    public function test_customer_cannot_access_sprint_planning(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        Livewire::actingAs($customer)->test(Index::class)
+            ->assertForbidden();
+    }
+
     private function makeSprint(User $creator, array $attributes = []): Sprint
     {
         return Sprint::create([

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Spatie\Permission\Models\Role;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -23,7 +24,8 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
         ]);
 
-        Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);\n        $user->assignRole('customer');
+        Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+        $user->assignRole('customer');
 
         return $user;
     }

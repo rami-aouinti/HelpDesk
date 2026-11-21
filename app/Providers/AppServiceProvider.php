@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
             Log::info('queue.job.completed', ['event' => 'queue.job.completed', 'job' => $event->job->resolveName(), 'queue' => $event->job->getQueue(), 'connection' => $event->connectionName, 'attempt' => $event->job->attempts()]);
         });
         Queue::exceptionOccurred(function (\Illuminate\Queue\Events\JobExceptionOccurred $event): void {
-            Log::error('queue.job.failed', ['event' => 'queue.job.failed', 'job' => $event->job->resolveName(), 'queue' => $event->job->getQueue(), 'connection' => $event->connectionName, 'attempt' => $event->job->attempts(), 'exception' => $event->exception::class, 'message' => $event->exception->getMessage()]);
+            Log::error('queue.job.failed', ['event' => 'queue.job.failed', 'job' => $event->job->resolveName(), 'queue' => $event->job->getQueue(), 'connection' => $event->connectionName, 'attempt' => $event->job->attempts(), 'exception' => $event->exception::class]);
         });
         Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);

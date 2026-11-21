@@ -12,9 +12,9 @@
             </div>
             <div class="kanban-controls">
                 <label class="kanban-select-label">Sprint
-                    <select wire:model.live="sprintId" wire:change="selectSprint($event.target.value)">
+                    <select wire:change="selectSprint(Number($event.target.value))">
                         @forelse ($sprints as $option)
-                            <option value="{{ $option->id }}">{{ $option->name }}</option>
+                            <option value="{{ $option->id }}" @selected($sprintId === $option->id)>{{ $option->name }}</option>
                         @empty
                             <option value="">No sprints</option>
                         @endforelse

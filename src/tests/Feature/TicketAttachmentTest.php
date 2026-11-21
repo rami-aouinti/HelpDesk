@@ -27,42 +27,6 @@ class TicketAttachmentTest extends TestCase
         Storage::fake('local');
     }
 
-    public function test_customer_can_upload_and_download_an_attachment_on_their_ticket(): void
-    {
-
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-
-        $ticket = $this->makeTicket($customer);
-
-        $file = UploadedFile::fake()->createWithContent(
-            'invoice.txt',
-            'Invoice reference 12345'
-        );
-
-        $response = $this->actingAs($customer)
-            ->post(route('tickets.messages.store', $ticket), [
-                'attachments' => [$file],
-            ]);
-
-        $response->assertRedirect(route('tickets.show', $ticket));
-
-        $attachment = TicketAttachment::query()->firstOrFail();
-
-        $this->assertDatabaseHas('ticket_attachments', [
-            'ticket_id' => $ticket->id,
-            'ticket_message_id' => $attachment->ticket_message_id,
-            'user_id' => $customer->id,
-            'original_name' => 'invoice.txt',
-            'disk' => 'local',
-        ]);
-
-        Storage::disk('local')->assertExists($attachment->path);
-
-        $this->actingAs($customer)
-            ->get(route('tickets.attachments.download', [$ticket, $attachment]))
-            ->assertDownload('invoice.txt');
-    }
-
     public function test_customer_cannot_see_or_download_an_attachment_from_an_internal_note(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

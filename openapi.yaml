@@ -277,14 +277,6 @@ components:
         description: { type: string, minLength: 10 }
         priority: { type: string, enum: [low, normal, high, urgent] }
         project_id: { type: [integer, 'null'] }
-        sprint:
-          type: [object, 'null']
-          properties:
-            id: { type: integer }
-            name: { type: string }
-            start_date: { type: string, format: date }
-            end_date: { type: string, format: date }
-            is_completed: { type: boolean }
     TicketUpdate:
       type: object
       properties:
@@ -332,6 +324,14 @@ components:
           properties:
             id: { type: integer }
             name: { type: string }
+        sprint:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            start_date: { type: string, format: date }
+            end_date: { type: string, format: date }
+            is_completed: { type: boolean }
         messages:
           type: array
           items:

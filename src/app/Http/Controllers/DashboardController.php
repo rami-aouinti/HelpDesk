@@ -9,8 +9,10 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        $user = auth()->user();
+
         $tickets = Ticket::query()
-            ->when(auth()->user()->hasRole('customer'), fn ($query) => $query->where('user_id', auth()->id()));
+            ->when(! $user->can('tickets.view.all'), fn ($query) => $query->where('user_id', $user->id));
 
         $statistics = [
             'total' => (clone $tickets)->count(),

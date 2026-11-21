@@ -96,13 +96,21 @@
             <div class="form-group">
                 <label for="status">Status</label>
                 <select name="status" id="status">
-                    @foreach ([
-                        'open',
-                        'in_progress',
-                        'waiting_for_customer',
-                        'resolved',
-                        'closed'
-                    ] as $status)
+                    @php
+                        $statusOptions = auth()->user()->hasRole('admin')
+                            ? ['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed']
+                            : array_values(array_unique(array_merge(
+                                [$ticket->status],
+                                match ($ticket->status) {
+                                    'open' => ['in_progress'],
+                                    'in_progress' => ['waiting_for_customer', 'resolved'],
+                                    'waiting_for_customer' => ['in_progress'],
+                                    'resolved' => ['closed'],
+                                    default => [],
+                                },
+                            )));
+                    @endphp
+                    @foreach ($statusOptions as $status)
                         <option value="{{ $status }}"
                             @selected(old('status', $ticket->status) === $status)>
                             {{ ucfirst(str_replace('_', ' ', $status)) }}

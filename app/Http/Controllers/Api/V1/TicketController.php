@@ -15,6 +15,7 @@ use App\Models\TicketAttachment;
 use App\Models\TicketMessage;
 use App\Models\User;
 use App\Services\TicketService;
+use App\Services\TicketSearchService;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -51,7 +52,9 @@ class TicketController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $searchIds = isset($filters['search']) ? $ticketSearch->searchIds(trim($filters['search'])) : null;\n\n        $tickets = $this->visibleTickets($request->user())
+        $searchIds = isset($filters['search']) ? $ticketSearch->searchIds(trim($filters['search'])) : null;
+
+        $tickets = $this->visibleTickets($request->user())
             ->when(isset($filters['status']), fn (Builder $query) => $query->where('status', $filters['status']))
             ->when(isset($filters['priority']), fn (Builder $query) => $query->where('priority', $filters['priority']))
             ->when(isset($filters['team_id']), fn (Builder $query) => $query->where('team_id', $filters['team_id']))

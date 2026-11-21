@@ -86,8 +86,13 @@ class TicketController extends Controller
 
     public function store(StoreTicketRequest $request): JsonResponse
     {
+        $data = $request->validated();
+
         $ticket = Ticket::create([
-            ...$request->validated(),
+            'subject' => (string) $data['subject'],
+            'description' => (string) $data['description'],
+            'priority' => (string) $data['priority'],
+            'project_id' => isset($data['project_id']) ? (int) $data['project_id'] : null,
             'status' => 'open',
             'user_id' => $request->user()->id,
         ]);

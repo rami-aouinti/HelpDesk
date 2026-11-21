@@ -37,6 +37,7 @@ class TicketService
      */
     public function update(Ticket $ticket, array $data, ?int $userId = null): Ticket
     {
+        $this->validateAgentTeamAccess($data, $ticket, $userId);
         $this->validateAssignment($data, $ticket);
         $changes = [];
 
@@ -92,6 +93,32 @@ class TicketService
         }
 
         return $updatedTicket;
+    }
+
+    /**
+     * Agents may only assign tickets to one of their own teams.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function validateAgentTeamAccess(array $data, Ticket $ticket, ?int $userId): void
+    {
+        if ($userId === null) {
+            return;
+        }
+
+        $user = User::query()->findOrFail($userId);
+
+        if (! $user->hasRole('agent') || $user->can('tickets.view.all')) {
+            return;
+        }
+
+        $teamId = array_key_exists('team_id', $data) ? $data['team_id'] : $ticket->team_id;
+
+        if ($teamId !== null && ! $user->teams()->whereKey($teamId)->exists()) {
+            throw ValidationException::withMessages([
+                'team_id' => 'You can only assign tickets to one of your teams.',
+            ]);
+        }
     }
 
     /**

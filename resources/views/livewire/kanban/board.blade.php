@@ -42,8 +42,10 @@
                             <div><span class="kanban-ticket-id">#{{ $backlogTicket->id }}</span><a href="{{ route('tickets.show', $backlogTicket) }}">{{ $backlogTicket->subject }}</a><small>{{ $backlogTicket->assignedAgent?->name ?? 'Unassigned' }} · {{ ucfirst($backlogTicket->priority) }}</small></div>
                             @if ($canAddToSprint && ! $sprint->is_completed)
                                 <button type="button" class="btn btn-primary" wire:click="addTicketToSprint({{ $backlogTicket->id }})" wire:loading.attr="disabled">Add to sprint</button>
-                            @else
+                            @elseif (! $canAddToSprint)
                                 <small class="kanban-readonly-hint">Assigned to another agent</small>
+                            @else
+                                <small class="kanban-readonly-hint">This sprint is already completed</small>
                             @endif
                         </article>
                     @endforeach
@@ -52,7 +54,7 @@
                 <p class="kanban-backlog-empty">No unplanned tickets are visible to you.</p>
             @endif
         </section>
-        <div class="kanban-board" wire:loading.class="kanban-loading" wire:target="sprintId,onlyMine,moveTicketStatus,moveTicketToSprint">
+        <div class="kanban-board" wire:loading.class="kanban-loading" wire:target="sprintId,onlyMine,moveTicketStatus,moveTicketToSprint,addTicketToSprint">
             @foreach ($columns as $column)
                 <section class="kanban-column" wire:key="column-{{ $column['key'] }}" @dragover.prevent @drop.prevent="$wire.moveTicketStatus(Number($event.dataTransfer.getData('text/plain')), '{{ $column['key'] }}')">
                     <header class="kanban-column-header">

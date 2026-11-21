@@ -24,14 +24,18 @@ class SprintManagementService
 
     public function update(Sprint $sprint, array $data): Sprint
     {
-        $sprint->update([
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-            'start_date' => $data['start_date'],
-            'end_date' => $data['end_date'],
-        ]);
+        return DB::transaction(function () use ($sprint, $data): Sprint {
+            $lockedSprint = Sprint::query()->lockForUpdate()->findOrFail($sprint->id);
 
-        return $sprint->refresh();
+            $lockedSprint->update([
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date'],
+            ]);
+
+            return $lockedSprint->refresh();
+        });
     }
 
     public function delete(Sprint $sprint): void

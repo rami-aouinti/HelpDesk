@@ -1113,3 +1113,50 @@ html[data-theme="dark"] .ticket-detail-item { border-color:var(--hd-border); }
     .ticket-message-meta { align-items:flex-start; flex-direction:column; gap:5px; }
     .ticket-history-heading { flex-direction:column; gap:4px; }
 }
+
+
+/* Reply composer and attachment picker */
+.ticket-composer-heading { margin:24px 0 17px; padding-top:20px; border-top:1px solid var(--hd-border); }
+.ticket-composer-heading h3 { margin:5px 0 4px; color:var(--hd-ink); font-size:15px; }
+.ticket-composer-heading p { margin:0; color:var(--hd-muted); font-size:10px; }
+.ticket-composer-field textarea { min-height:130px; resize:vertical; }
+.ticket-composer-field textarea::placeholder { color:var(--hd-muted); opacity:.7; }
+.ticket-composer-footer { display:flex; justify-content:space-between; gap:12px; margin-top:7px; color:var(--hd-muted); font-size:9px; }
+.ticket-optional-label { margin-left:6px; color:var(--hd-muted); font-size:9px; font-weight:500; }
+.ticket-upload-zone { display:flex; align-items:center; gap:13px; min-height:82px; padding:15px; border:1.5px dashed var(--hd-border); border-radius:12px; background:var(--hd-canvas); cursor:pointer; transition:border-color .18s,background .18s,box-shadow .18s; }
+.ticket-upload-zone:hover,.ticket-upload-zone.is-dragging,.ticket-upload-zone.has-files { border-color:var(--hd-primary); background:color-mix(in srgb,var(--hd-primary) 5%,var(--hd-surface)); }
+.ticket-upload-zone.is-dragging { box-shadow:0 0 0 3px var(--hd-focus); }
+.ticket-upload-icon { display:grid; flex:0 0 38px; width:38px; height:38px; place-items:center; border-radius:11px; background:color-mix(in srgb,var(--hd-primary) 12%,var(--hd-surface)); color:var(--hd-primary); font-size:22px; }
+.ticket-upload-zone > span:nth-child(2) { display:grid; flex:1; gap:4px; }
+.ticket-upload-zone strong { color:var(--hd-ink); font-size:11px; }
+.ticket-upload-zone small,.ticket-upload-help { color:var(--hd-muted); font-size:9px; }
+.ticket-upload-browse { padding:8px 10px; border:1px solid var(--hd-border); border-radius:8px; background:var(--hd-surface); color:var(--hd-ink); font-size:9px; font-weight:700; white-space:nowrap; }
+.ticket-file-input { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; clip-path:inset(50%); }
+.ticket-file-input:focus-visible + .ticket-upload-help { outline:2px solid var(--hd-primary); }
+.ticket-upload-help { display:block; margin-top:7px; }
+.ticket-file-list { display:grid; gap:7px; margin-top:9px; }
+.ticket-file-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 11px; border:1px solid var(--hd-border); border-radius:9px; background:var(--hd-surface); }
+.ticket-file-details { display:grid; min-width:0; gap:3px; }
+.ticket-file-details strong { overflow-wrap:anywhere; color:var(--hd-ink); font-size:10px; }
+.ticket-file-details small { color:var(--hd-muted); font-size:9px; }
+.ticket-file-remove { padding:5px 8px; border:0; border-radius:6px; background:transparent; color:#dc2626; font-size:9px; font-weight:700; cursor:pointer; }
+.ticket-file-remove:hover { background:color-mix(in srgb,#dc2626 9%,transparent); }
+.ticket-upload-error { margin:8px 0 0; color:#dc2626; font-size:10px; font-weight:650; }
+.ticket-internal-toggle { margin:18px 0; padding:12px 14px; border:1px solid color-mix(in srgb,#d97706 30%,var(--hd-border)); border-radius:10px; background:color-mix(in srgb,#f59e0b 7%,var(--hd-surface)); }
+.ticket-internal-toggle label { display:flex; align-items:center; gap:10px; cursor:pointer; }
+.ticket-internal-toggle input { accent-color:#d97706; }
+.ticket-internal-toggle label span { display:grid; gap:3px; }
+.ticket-internal-toggle strong { color:var(--hd-ink); font-size:10px; }
+.ticket-internal-toggle small { color:var(--hd-muted); font-size:9px; }
+.ticket-composer-actions { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:17px; }
+.ticket-submit-hint { color:var(--hd-muted); font-size:9px; }
+.ticket-send-icon { margin-right:6px; }
+.ticket-composer-actions button:disabled { opacity:.7; cursor:wait; }
+.ticket-composer-actions button.is-sending { pointer-events:none; }
+@media(max-width:560px) {
+    .ticket-upload-zone { align-items:flex-start; flex-wrap:wrap; }
+    .ticket-upload-browse { margin-left:51px; }
+    .ticket-composer-actions { align-items:stretch; flex-direction:column; }
+    .ticket-composer-actions .btn { width:100%; }
+    .ticket-composer-footer { font-size:8px; }
+}

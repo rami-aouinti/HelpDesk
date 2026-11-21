@@ -16,7 +16,23 @@ class DatabaseSeeder extends Seeder
     {
         app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-        foreach (['tickets.view', 'tickets.create', 'tickets.update', 'tickets.manage'] as $permission) {
+        $permissions = [
+            'tickets.view',
+            'tickets.view.all',
+            'tickets.create',
+            'tickets.update',
+            'tickets.manage',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.deactivate',
+            'teams.view',
+            'teams.create',
+            'teams.update',
+            'teams.delete',
+        ];
+
+        foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
@@ -24,9 +40,16 @@ class DatabaseSeeder extends Seeder
         $agent = Role::firstOrCreate(['name' => 'agent', 'guard_name' => 'web']);
         $customer = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
 
-        $admin->syncPermissions(Permission::all());
-        $agent->syncPermissions(['tickets.view', 'tickets.update']);
-        $customer->syncPermissions(['tickets.view', 'tickets.create']);
+        $admin->syncPermissions(Permission::query()->where('guard_name', 'web')->get());
+        $agent->syncPermissions([
+            'tickets.view',
+            'tickets.view.all',
+            'tickets.update',
+        ]);
+        $customer->syncPermissions([
+            'tickets.view',
+            'tickets.create',
+        ]);
 
         $password = env('HELPDESK_DEMO_PASSWORD', 'password');
 

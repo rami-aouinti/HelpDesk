@@ -57,8 +57,8 @@ class TicketTable extends Component
             ->when(auth()->user()->hasRole('customer'), fn ($builder) => $builder->where('user_id', auth()->id()))
             ->when(trim($this->search) !== '', function ($builder): void {
                 $search = trim($this->search);
-                $builder->where(fn ($nested) => $nested->where('subject', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%"));
+                $builder->where(fn ($nested) => $nested->whereRaw('LOWER(subject) LIKE ?', ['%'.mb_strtolower($search).'%'])
+                    ->orWhereRaw('LOWER(description) LIKE ?', ['%'.mb_strtolower($search).'%']));
             })
             ->when($this->status !== '', fn ($builder) => $builder->where('status', $this->status))
             ->when($this->priority !== '', fn ($builder) => $builder->where('priority', $this->priority))

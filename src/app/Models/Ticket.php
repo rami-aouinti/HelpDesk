@@ -31,6 +31,11 @@ class Ticket extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
     public function histories(): HasMany
     {
         return $this->hasMany(TicketHistory::class)

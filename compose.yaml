@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
-    command: php artisan queue:work database --sleep=3 --tries=3 --timeout=90
+    command: php artisan queue:work database --queue=notifications,default --sleep=3 --tries=3 --timeout=90
     env_file:
       - .env
     volumes:

@@ -31,13 +31,13 @@ groups:
           description: "Prometheus cannot scrape PostgreSQL exporter."
 
       - alert: ContainerHighCpu
-        expr: (sum by (name) (rate(container_cpu_usage_seconds_total{name=~".+"}[5m])) * 100) > 85
+        expr: sum by (name) (rate(container_cpu_usage_seconds_total{name=~".+"}[5m])) > 0.85
         for: 10m
         labels:
           severity: warning
         annotations:
           summary: "Container CPU usage is high"
-          description: "Container {{ $labels.name }} has used more than 85% CPU for 10 minutes."
+          description: "Container {{ $labels.name }} has used more than 0.85 CPU cores for 10 minutes."
 
       - alert: ContainerHighMemory
         expr: (container_memory_working_set_bytes{name=~".+"} / container_spec_memory_limit_bytes{name=~".+"} > 0.9) and container_spec_memory_limit_bytes{name=~".+"} > 0

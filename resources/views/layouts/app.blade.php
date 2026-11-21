@@ -35,6 +35,9 @@
                     <span class="nav-icon">♙</span><span>Users</span>
                 </a>
             @endcan
+            @can('viewAny', \App\Models\Project::class)
+                <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}"><span class="nav-icon">▣</span><span>Projects</span></a>
+            @endcan
             @can('viewAny', \App\Models\Team::class)
                 <a href="{{ route('teams.index') }}" class="nav-link {{ request()->routeIs('teams.*') ? 'active' : '' }}">
                     <span class="nav-icon">♧</span><span>Teams</span>

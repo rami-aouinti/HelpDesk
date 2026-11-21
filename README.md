@@ -115,6 +115,10 @@ Ticket lists support pagination, status/priority filters, team/project/assignee/
 
 GitHub Actions runs on pushes and pull requests targeting `master`. The workflow validates Composer, installs dependencies, runs PHPCS, PHPStan, PHP Insights, Rector dry-run and Pint, builds frontend assets, then runs the Laravel test suite using in-memory SQLite.
 
+## Deployment
+
+The supplied Docker Compose stack is for local development. See the [production deployment guide](docs/production-deployment.md) for environment configuration, release steps, queue workers, backups, health checks and security requirements. A production environment still needs to be configured and verified for its chosen hosting provider.
+
 ## Security notes
 
 - Keep `.env` out of version control and generate a unique `APP_KEY` for every environment.

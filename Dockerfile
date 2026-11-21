@@ -50,3 +50,14 @@ RUN composer dump-autoload --no-interaction --optimize \
 EXPOSE 9000
 
 CMD ["php-fpm"]
+
+
+# Production web tier: shares the same public assets as the PHP-FPM image.
+FROM nginx:1.27-alpine AS nginx
+
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=app /var/www/html/public /var/www/html/public
+
+RUN mkdir -p /var/www/html/storage/app/public
+
+EXPOSE 80

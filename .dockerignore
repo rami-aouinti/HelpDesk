@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+docs
+src
+.env
+.env.*
+!.env.docker.example
+README.md

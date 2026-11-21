@@ -80,7 +80,10 @@ Do not run `docker compose down -v` unless you intentionally want to delete the 
 
 - Customers can create tickets and see only their own tickets.
 - Agents can view and update tickets.
-- Administrators receive all ticket permissions.
+- Administrators receive all ticket permissions and can manage user accounts.
+- Administrators can create users, change roles, update account details, and activate/deactivate accounts.
+- New administrator-created accounts receive an email verification notification.
+- Inactive users cannot sign in or continue using an existing web session or API token.
 - Ticket status and priority changes are stored in `ticket_histories`.
 - API clients authenticate with Sanctum bearer tokens.
 

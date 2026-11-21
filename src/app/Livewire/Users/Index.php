@@ -1,42 +1,49 @@
 <?php
 
-namespace App\Livewire\Users;
+namespace App\\Livewire\\Users;
 
-use App\Models\User;
-use App\Services\UserManagementService;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Gate;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Spatie\Permission\Models\Role;
+use App\\Models\\User;
+use App\\Services\\UserManagementService;
+use Illuminate\\Contracts\\View\\View;
+use Illuminate\\Support\\Facades\\Gate;
+use Livewire\\Attributes\\Url;
+use Livewire\\Component;
+use Livewire\\WithPagination;
+use Spatie\\Permission\\Models\\Role;
 
 class Index extends Component
 {
     use WithPagination;
 
-    public string $search = '';
-
-    public string $role = '';
-
-    public string $status = '';
+    #[Url] public string $search = '';
+    #[Url] public string $role = '';
+    #[Url] public string $status = '';
+    #[Url] public string $sortBy = 'created_at';
+    #[Url] public string $sortDirection = 'desc';
+    public int $perPage = 10;
 
     public function mount(): void
     {
         Gate::authorize('viewAny', User::class);
     }
 
-    public function updatedSearch(): void
+    public function updated($property): void
     {
-        $this->resetPage();
+        if (in_array($property, ['search', 'role', 'status', 'perPage'], true)) {
+            $this->resetPage();
+        }
     }
 
-    public function updatedRole(): void
+    public function sort(string $column): void
     {
-        $this->resetPage();
-    }
+        abort_unless(in_array($column, ['name', 'email', 'created_at'], true), 400);
 
-    public function updatedStatus(): void
-    {
+        if ($this->sortBy === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $column;
+            $this->sortDirection = 'asc';
+        }
         $this->resetPage();
     }
 
@@ -49,11 +56,8 @@ class Index extends Component
     public function toggleActive(int $userId, UserManagementService $users): void
     {
         $user = User::query()->findOrFail($userId);
-
         Gate::authorize('toggleActive', $user);
-
         $users->toggleActive($user);
-
         session()->flash('success', 'User status updated successfully.');
     }
 
@@ -63,24 +67,18 @@ class Index extends Component
             ->with('roles')
             ->when(trim($this->search) !== '', function ($query): void {
                 $search = mb_strtolower(trim($this->search));
-
-                $query->where(function ($query) use ($search): void {
-                    $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
-                });
+                $query->where(fn ($nested) => $nested->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]));
             })
             ->when($this->role !== '', fn ($query) => $query->role($this->role))
             ->when($this->status === 'active', fn ($query) => $query->where('is_active', true))
             ->when($this->status === 'inactive', fn ($query) => $query->where('is_active', false))
-            ->latest()
-            ->paginate(15);
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
 
         return view('livewire.users.index', [
             'users' => $users,
-            'roles' => Role::query()
-                ->where('guard_name', 'web')
-                ->orderBy('name')
-                ->pluck('name'),
+            'roles' => Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name'),
         ]);
     }
 }

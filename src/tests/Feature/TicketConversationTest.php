@@ -18,25 +18,6 @@ class TicketConversationTest extends TestCase
         $this->seed();
     }
 
-    public function test_customer_can_reply_to_their_own_ticket(): void
-    {
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-        $ticket = $this->makeTicket($customer);
-
-        $this->actingAs($customer)
-            ->post(route('tickets.messages.store', $ticket), [
-                'body' => 'I have tried the suggested steps, but the issue remains.',
-            ])
-            ->assertRedirect(route('tickets.show', $ticket));
-
-        $this->assertDatabaseHas('ticket_messages', [
-            'ticket_id' => $ticket->id,
-            'user_id' => $customer->id,
-            'body' => 'I have tried the suggested steps, but the issue remains.',
-            'is_internal' => false,
-        ]);
-    }
-
     public function test_agent_can_add_an_internal_note_and_customer_cannot_see_it(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

@@ -7,6 +7,10 @@ compose=(docker compose --env-file .env -f compose.production.yaml)
 state_file=".last-good-image-tag"
 
 [[ -f .env ]] || { echo "Missing production .env file." >&2; exit 1; }
+storage_path="$(sed -n 's/^HELPDESK_STORAGE_PATH=//p' .env | tail -n 1)"
+storage_path="${storage_path:-./storage/app}"
+mkdir -p "$storage_path/private" "$storage_path/public"
+chown -R 33:33 "$storage_path"
 [[ "$image_tag" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "Invalid image tag." >&2; exit 2; }
 
 previous_tag=""
@@ -20,7 +24,9 @@ export HELPDESK_NGINX_IMAGE="$repo_image-nginx:$image_tag"
 "${compose[@]}" run --rm --no-deps app php artisan migrate --force
 "${compose[@]}" up -d --remove-orphans
 
-health_url="${APP_HEALTH_URL:-http://127.0.0.1:${APP_PORT:-80}/up}"
+app_port="$(sed -n 's/^APP_PORT=//p' .env | tail -n 1)"
+app_port="${app_port:-80}"
+health_url="${APP_HEALTH_URL:-http://127.0.0.1:$app_port/up}"
 healthy=false
 for attempt in $(seq 1 30); do
   if curl --fail --silent --show-error "$health_url" >/dev/null 2>&1; then

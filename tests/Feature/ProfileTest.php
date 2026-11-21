@@ -59,14 +59,21 @@ class ProfileTest extends TestCase
         Storage::disk('public')->assertExists($user->profile_photo_path);
     }
 
-    public function test_authenticated_user_can_change_their_photo_from_the_account_menu(): void
+    public function test_authenticated_user_can_change_their_photo_from_the_profile_avatar(): void
     {
         $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
 
         $this->actingAs($user)
+            ->get(route('profile.edit'))
+            ->assertOk()
+            ->assertSee('profile-avatar-upload')
+            ->assertSee('Click your avatar to change it')
+            ->assertDontSee('quick-profile-photo');
+
+        $this->actingAs($user)
             ->post(route('profile.photo.update'), [
                 'profile_photo' => UploadedFile::fake()->createWithContent(
-                    'menu-avatar.png',
+                    'profile-avatar.png',
                     base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX2sAAAAASUVORK5CYII=')
                 ),
             ])

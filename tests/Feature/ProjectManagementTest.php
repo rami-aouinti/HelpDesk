@@ -16,7 +16,10 @@ class ProjectManagementTest extends TestCase { use RefreshDatabase; protected fu
   $p=Project::create(['name'=>'Documents Project','created_by'=>$admin->id]);
   $p->members()->attach($member);
   Livewire::actingAs($member)->test('projects.index')->call('show',$p->id)
-   ->set('document',UploadedFile::fake()->create('requirements.pdf',120,'application/pdf'))
+   ->set('document',UploadedFile::fake()->createWithContent(
+                'requirements.pdf',
+                "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF"
+            ))
    ->call('uploadDocument')->assertHasNoErrors();
   $doc=$p->documents()->firstOrFail();
   Storage::disk('local')->assertExists($doc->path);

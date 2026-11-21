@@ -23,7 +23,7 @@
             @can('viewAny', \App\Models\User::class)
                 <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a>
             @endcan
-            @can('viewAny', \\App\\Models\\Team::class)
+            @can('viewAny', \App\Models\Team::class)
                 <a href="{{ route('teams.index') }}" class="nav-link {{ request()->routeIs('teams.*') ? 'active' : '' }}">Teams</a>
             @endcan
         </nav>

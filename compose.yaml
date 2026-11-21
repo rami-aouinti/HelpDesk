@@ -96,6 +96,7 @@ services:
       - helpdesk_prometheus:/prometheus
     depends_on:
       - blackbox-exporter
+      - alertmanager
       - postgres-exporter
       - cadvisor
       - node-exporter

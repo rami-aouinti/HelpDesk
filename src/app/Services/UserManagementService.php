@@ -26,7 +26,7 @@ class UserManagementService
             return $user;
         });
 
-        event(new Registered($user));
+        $user->sendEmailVerificationNotification();
 
         return $user;
     }

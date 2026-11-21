@@ -60,11 +60,26 @@ class TicketController extends Controller
             $messagesQuery->where('is_internal', false);
         }
 
+        $user = auth()->user();
+        $teams = Team::query()->with('members')->orderBy('name');
+        $agents = User::query()->role('agent')->where('is_active', true)->orderBy('name');
+
+        if (! $user->can('tickets.view.all')) {
+            if ($user->hasRole('agent')) {
+                $teamIds = $user->teams()->pluck('teams.id');
+                $teams->whereIn('id', $teamIds);
+                $agents->whereHas('teams', fn ($query) => $query->whereIn('teams.id', $teamIds));
+            } else {
+                $teams->whereRaw('1 = 0');
+                $agents->whereRaw('1 = 0');
+            }
+        }
+
         return view('tickets.show', [
             'ticket' => $ticket,
             'messages' => $messagesQuery->get(),
-            'teams' => Team::query()->with('members')->orderBy('name')->get(),
-            'agents' => User::query()->role('agent')->where('is_active', true)->orderBy('name')->get(),
+            'teams' => $teams->get(),
+            'agents' => $agents->get(),
         ]);
     }
 

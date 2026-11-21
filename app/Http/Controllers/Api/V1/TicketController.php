@@ -109,7 +109,7 @@ class TicketController extends Controller
             'team',
             'project',
             'sprint' => $this->sprintWithProgress(),
-            'messages' => function (Builder $query) use ($request): void {
+            'messages' => function ($query) use ($request): void {
                 $query->with(['user', 'attachments'])->oldest();
 
                 if ($request->user()->hasRole('customer')) {

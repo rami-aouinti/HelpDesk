@@ -24,7 +24,7 @@ class TicketSearchService
             return [];
         }
 
-        if (! config('services.elasticsearch.enabled') || $endpoint === '') {
+        if (! config('services.elasticsearch.enabled') || app()->environment('testing') || $endpoint === '') {
             return null;
         }
 

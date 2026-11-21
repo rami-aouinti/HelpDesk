@@ -23,8 +23,8 @@ jobs:
         run: |
           cp .env.example .env
           docker compose --profile monitoring config --quiet
-          docker run --rm -v "$PWD/docker/monitoring/prometheus:/etc/prometheus:ro" prom/prometheus:v3.2.1 promtool check config /etc/prometheus/prometheus.yml
-          docker run --rm -v "$PWD/docker/monitoring/alertmanager:/etc/alertmanager:ro" prom/alertmanager:v0.28.1 amtool check-config /etc/alertmanager/alertmanager.yml
+          docker run --rm --entrypoint /bin/promtool -v "$PWD/docker/monitoring/prometheus:/etc/prometheus:ro" prom/prometheus:v3.2.1 check config /etc/prometheus/prometheus.yml
+          docker run --rm --entrypoint /bin/amtool -v "$PWD/docker/monitoring/alertmanager:/etc/alertmanager:ro" prom/alertmanager:v0.28.1 check-config /etc/alertmanager/alertmanager.yml
           python -m json.tool docker/monitoring/grafana/dashboards/helpdesk-overview.json > /dev/null
 
       - name: Set up PHP

@@ -61,6 +61,48 @@ class RolePermissionTest extends TestCase
         $this->assertFalse(Gate::forUser($customer)->allows('viewAny', Team::class));
     }
 
+    public function test_only_administrators_can_open_user_and_team_management_pages(): void
+    {
+        $admin = User::query()->where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::query()->where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::query()->where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($agent)->get(route('users.index'))->assertForbidden();
+        $this->actingAs($agent)->get(route('teams.index'))->assertForbidden();
+
+        $this->actingAs($customer)->get(route('users.index'))->assertForbidden();
+        $this->actingAs($customer)->get(route('teams.index'))->assertForbidden();
+
+        $this->actingAs($admin)->get(route('users.index'))->assertOk();
+        $this->actingAs($admin)->get(route('teams.index'))->assertOk();
+    }
+
+    public function test_ticket_list_is_scoped_to_the_customer_but_visible_globally_to_agents(): void
+    {
+        $customer = User::query()->where('email', 'customer@helpdesk.test')->firstOrFail();
+        $otherCustomer = User::factory()->create();
+        $otherCustomer->assignRole('customer');
+
+        $ownTicket = $this->makeTicket($customer);
+        $ownTicket->update(['subject' => 'My private ticket']);
+        $otherTicket = $this->makeTicket($otherCustomer);
+        $otherTicket->update(['subject' => 'Another customer ticket']);
+
+        $this->actingAs($customer)
+            ->get(route('tickets.index'))
+            ->assertOk()
+            ->assertSee('My private ticket')
+            ->assertDontSee('Another customer ticket');
+
+        $agent = User::query()->where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($agent)
+            ->get(route('tickets.index'))
+            ->assertOk()
+            ->assertSee('My private ticket')
+            ->assertSee('Another customer ticket');
+    }
+
     private function makeTicket(User $customer): Ticket
     {
         return Ticket::query()->create([

@@ -4,10 +4,6 @@
 
     <section class="content-card data-table-card">
         <div class="table-toolbar">
-            <div class="table-search">
-                <label for="user-search">Search users</label>
-                <input id="user-search" type="search" wire:model.live.debounce.300ms="search" placeholder="Search by name or email..." autocomplete="off">
-            </div>
             <div class="table-filter">
                 <label for="user-role">Role</label>
                 <select id="user-role" wire:model.live="role">

@@ -25,6 +25,8 @@ class UpdateTicketRequest extends FormRequest
                 'required',
                 Rule::in(['low', 'normal', 'high', 'urgent']),
             ],
+            'team_id' => ['sometimes', 'nullable', 'integer', 'exists:teams,id'],
+            'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

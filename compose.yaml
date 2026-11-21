@@ -16,6 +16,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - helpdesk
 
@@ -46,6 +48,8 @@ services:
       - helpdesk_vendor:/var/www/html/vendor
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       app:
         condition: service_started
@@ -296,6 +300,9 @@ services:
 
 volumes:
   helpdesk_postgres:
+  helpdesk_redis:
+  helpdesk_elasticsearch:
+  helpdesk_filebeat:
   helpdesk_vendor:
   helpdesk_public_build:
   helpdesk_prometheus:

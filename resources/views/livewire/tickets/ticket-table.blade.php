@@ -15,7 +15,7 @@
                 <thead><tr>
                     <th><button wire:click="sort('id')" class="sort-button">ID <span>{{ $sortBy === 'id' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
                     <th><button wire:click="sort('subject')" class="sort-button">Subject <span>{{ $sortBy === 'subject' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
-                    <th>Customer</th><th>Team</th><th>Assigned agent</th>
+                    <th>Customer</th><th>Project</th><th>Team</th><th>Assigned agent</th>
                     <th><button wire:click="sort('priority')" class="sort-button">Priority <span>{{ $sortBy === 'priority' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
                     <th><button wire:click="sort('status')" class="sort-button">Status <span>{{ $sortBy === 'status' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
                     <th><button wire:click="sort('created_at')" class="sort-button">Created <span>{{ $sortBy === 'created_at' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
@@ -24,12 +24,12 @@
                 @forelse ($tickets as $ticket)
                     <tr wire:key="ticket-{{ $ticket->id }}">
                         <td>#{{ $ticket->id }}</td><td><a class="table-primary-link" href="{{ route('tickets.show', $ticket) }}">{{ $ticket->subject }}</a></td>
-                        <td>{{ $ticket->customer?->name ?? 'Unassigned' }}</td><td>{{ $ticket->team?->name ?? '—' }}</td><td>{{ $ticket->assignedAgent?->name ?? '—' }}</td>
+                        <td>{{ $ticket->customer?->name ?? 'Unassigned' }}</td><td>{{ $ticket->project?->name ?? '—' }}</td><td>{{ $ticket->team?->name ?? '—' }}</td><td>{{ $ticket->assignedAgent?->name ?? '—' }}</td>
                         <td><span class="priority-badge priority-{{ $ticket->priority }}">{{ ucfirst($ticket->priority) }}</span></td>
                         <td><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></td>
                         <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>
                     </tr>
-                @empty <tr><td colspan="8" class="empty-state">No tickets match your filters.</td></tr> @endforelse
+                @empty <tr><td colspan="9" class="empty-state">No tickets match your filters.</td></tr> @endforelse
                 </tbody>
             </table>
         </div>

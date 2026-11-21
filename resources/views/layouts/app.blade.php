@@ -47,6 +47,12 @@
             <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                 <span class="nav-icon">▤</span><span>Tickets</span>
             </a>
+            @can('viewAny', \\App\\Models\\Sprint::class)
+                <a href="{{ route('sprints.index') }}" class="nav-link {{ request()->routeIs('sprints.*') ? 'active' : '' }}"><span class="nav-icon">◷</span><span>Sprints</span></a>
+                @if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('agent'))
+                    <a href="{{ route('kanban.index') }}" class="nav-link {{ request()->routeIs('kanban.*') ? 'active' : '' }}"><span class="nav-icon">▦</span><span>Kanban</span></a>
+                @endif
+            @endcan
         </nav>
     </aside>
 
@@ -64,6 +70,7 @@
                     request()->routeIs('teams.index') => 'teams',
                     request()->routeIs('projects.index') => 'projects',
                     request()->routeIs('tickets.index') => 'tickets',
+                    request()->routeIs('sprints.index') => 'sprints',
                     default => null,
                 };
             @endphp
@@ -88,6 +95,10 @@
                     @elseif ($topbarPage === 'tickets')
                         @can('tickets.create')
                             <a href="{{ route('tickets.create') }}" class="btn btn-primary topbar-create">+ Create ticket</a>
+                        @endcan
+                    @elseif ($topbarPage === 'sprints')
+                        @can('create', \\App\\Models\\Sprint::class)
+                            <button type="button" class="btn btn-primary topbar-create" onclick="Livewire.dispatch('sprints-create')">+ Create sprint</button>
                         @endcan
                     @endif
                 </div>

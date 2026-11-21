@@ -76,6 +76,21 @@ docker compose down
 
 Do not run `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume and all local HelpDesk data.
 
+## Team management
+
+Administrators can create and manage support teams, assign active agent accounts to teams, and view team membership and ticket counts. A team cannot be deleted while tickets are assigned to it. Tickets may optionally reference a team.
+
+## Local update helper
+
+After pulling the repository, make the helper executable once and run it from the repository root:
+
+```bash
+chmod +x scripts/update-and-test.sh
+./scripts/update-and-test.sh
+```
+
+The script pulls `origin/master`, clears Laravel optimized caches, runs the test suite, and then applies migrations and seeders. It stops if any command fails.
+
 ## Access model
 
 - Customers can create tickets and see only their own tickets.

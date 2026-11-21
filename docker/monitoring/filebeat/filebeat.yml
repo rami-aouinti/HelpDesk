@@ -1,0 +1,39 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      host: "unix:///var/run/docker.sock"
+      hints.enabled: false
+      templates:
+        - condition:
+            contains:
+              docker.container.labels.com.docker.compose.project: "helpdesk"
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              stream: all
+              processors:
+                - add_docker_metadata:
+                    host: "unix:///var/run/docker.sock"
+                - decode_json_fields:
+                    fields: ["message"]
+                    target: ""
+                    overwrite_keys: true
+                    add_error_key: true
+
+processors:
+  - add_fields:
+      target: ""
+      fields:
+        service_name: helpdesk
+        environment: local
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "helpdesk-logs-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.name: "helpdesk-logs"
+setup.template.pattern: "helpdesk-logs-*"
+logging.to_files: false
+logging.to_stderr: true

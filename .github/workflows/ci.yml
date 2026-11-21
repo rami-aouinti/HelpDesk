@@ -23,6 +23,9 @@ jobs:
         run: |
           cp .env.example .env
           docker compose --profile monitoring config --quiet
+      HELPDESK_IMAGE=ghcr.io/rami-aouinti/helpdesk:ci HELPDESK_NGINX_IMAGE=ghcr.io/rami-aouinti/helpdesk-nginx:ci docker compose --env-file .env -f compose.production.yaml config --quiet
+      bash -n scripts/backup.sh scripts/restore.sh scripts/deploy-production.sh
+      python -c 'import json; [json.loads(line) for line in open("docker/monitoring/kibana/helpdesk-operations.ndjson", encoding="utf-8") if line.strip()]'
           docker run --rm --entrypoint /bin/promtool -v "$PWD/docker/monitoring/prometheus:/etc/prometheus:ro" prom/prometheus:v3.2.1 check config /etc/prometheus/prometheus.yml
           docker run --rm --entrypoint /bin/amtool -v "$PWD/docker/monitoring/alertmanager:/etc/alertmanager:ro" prom/alertmanager:v0.28.1 check-config /etc/alertmanager/alertmanager.yml
           python -m json.tool docker/monitoring/grafana/dashboards/helpdesk-overview.json > /dev/null
@@ -61,6 +64,11 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
+
+      - name: Build production Docker targets
+        run: |
+          docker build --target app --tag helpdesk-app:ci .
+          docker build --target nginx --tag helpdesk-nginx:ci .
 
       - name: Prepare Laravel environment
         run: |

@@ -40,6 +40,8 @@ Open:
 - Application: http://localhost:8080
 - Mailpit inbox: http://localhost:8025
 
+For the full Docker monitoring stack (Grafana, Prometheus, Loki, Alloy, cAdvisor, exporters and alerting), see the [monitoring guide](docs/monitoring.md). Start it with `docker compose --profile monitoring up -d --build` after configuring the Grafana password in `.env`.
+
 The demo accounts are configured through `HELPDESK_ADMIN_EMAIL`, `HELPDESK_AGENT_EMAIL`, `HELPDESK_CUSTOMER_EMAIL` and `HELPDESK_DEMO_PASSWORD` in `.env`. Change the demo password and credentials before sharing the environment or exposing it beyond your local machine. Never use the example database password or demo credentials in production.
 
 ## Useful commands
@@ -114,6 +116,10 @@ Ticket lists support pagination, status/priority filters, team/project/assignee/
 ## Continuous integration
 
 GitHub Actions runs on pushes and pull requests targeting `master`. The workflow validates Composer, installs dependencies, runs PHPCS, PHPStan, PHP Insights, Rector dry-run and Pint, builds frontend assets, then runs the Laravel test suite using in-memory SQLite.
+
+## Monitoring and observability
+
+The optional monitoring profile provides Grafana dashboards, Prometheus metrics and alert rules, Loki log aggregation, Alloy Docker log collection, cAdvisor, Node Exporter, PostgreSQL Exporter, Blackbox Exporter and Alertmanager. See [docs/monitoring.md](docs/monitoring.md) for setup, dashboards, alert delivery and security notes.
 
 ## Deployment
 

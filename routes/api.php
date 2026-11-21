@@ -10,6 +10,9 @@ Route::middleware(['auth:sanctum', 'active', 'verified'])->group(function (): vo
     Route::get('/user', fn (\Illuminate\Http\Request $request) => $request->user())->name('api.user');
 
     Route::prefix('v1')->name('api.v1.')->group(function (): void {
+        Route::post('/tokens', [TokenController::class, 'store'])->name('tokens.store');
+        Route::delete('/tokens/current', [TokenController::class, 'destroy'])->name('tokens.destroy');
+        Route::get('/user', fn (\Illuminate\Http\Request $request) => $request->user())->name('user');
         Route::get('/tickets', [V1TicketController::class, 'index'])->name('tickets.index');
         Route::post('/tickets', [V1TicketController::class, 'store'])->name('tickets.store');
         Route::get('/tickets/{ticket}', [V1TicketController::class, 'show'])->name('tickets.show');

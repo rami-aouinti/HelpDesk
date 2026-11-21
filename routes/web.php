@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
 
     Route::view('/teams', 'teams.index')->name('teams.index');
+    Route::view('/projects', 'projects.index')->name('projects.index');
+    Route::get('/project-documents/{document}/download', [ProjectDocumentController::class, 'download'])->name('projects.documents.download');
 
     Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::patch('/users/{user}/active', [UserController::class, 'toggleActive'])->name('users.toggle-active');

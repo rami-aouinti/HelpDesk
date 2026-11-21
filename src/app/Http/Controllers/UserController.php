@@ -20,10 +20,10 @@ class UserController extends Controller
         $users = User::query()
             ->with('roles')
             ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = trim($request->string('search')->toString());
+                $search = mb_strtolower(trim($request->string('search')->toString()));
                 $query->where(function ($query) use ($search): void {
-                    $query->where('name', 'ilike', "%{$search}%")
-                        ->orWhere('email', 'ilike', "%{$search}%");
+                    $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
                 });
             })
             ->when($request->filled('role'), fn ($query) => $query->role($request->string('role')->toString()))

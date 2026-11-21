@@ -32,9 +32,6 @@
     <section class="content-card sprint-list-card">
         <div class="sprint-list-toolbar">
             <div><span class="sprint-eyebrow">DELIVERY PLANNING</span><h2>All sprints</h2><p>Plan iterations, track progress and keep ticket delivery on schedule.</p></div>
-            @can('create', \App\Models\Sprint::class)
-                <button type="button" class="btn btn-primary" wire:click="create">+ Create sprint</button>
-            @endcan
         </div>
         <div class="sprint-search-row">
             <label class="topbar-search sprint-search"><span aria-hidden="true">⌕</span><input type="search" wire:model.live.debounce.300ms="search" placeholder="Search sprints..." aria-label="Search sprints"></label>

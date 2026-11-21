@@ -6,6 +6,7 @@
 |---|---|---|---|
 | app | Custom PHP 8.4 + Apache | Laravel application | http://localhost:8080 |
 | db | PostgreSQL 17 Alpine | Relational database | localhost:5433 |
+| adminer | Adminer | Browser-based database management | http://localhost:8081 (local machine only) |
 
 The app container connects to PostgreSQL using hostname `db` and port `5432`. The host port `5433` is only for optional local database clients.
 
@@ -19,7 +20,7 @@ The application container mounts `./src` into `/var/www/html`. If the Laravel `a
 
 The first build and Composer install require an internet connection and may take several minutes.
 
-Open http://localhost:8080 after the app container has started.
+Open http://localhost:8080 after the app container has started. Open http://localhost:8081 to manage the database with Adminer.
 
 ## Everyday commands
 
@@ -43,6 +44,18 @@ docker compose down
 
 These are development-only defaults. Do not reuse them in production.
 
+## Adminer login
+
+Use the following development connection details on http://localhost:8081:
+
+- System: PostgreSQL
+- Server: `db`
+- Username: `helpdesk` (or the value of `DB_USERNAME`)
+- Password: `secret` (or the value of `DB_PASSWORD`)
+- Database: `helpdesk` (or the value of `DB_DATABASE`)
+
+Adminer runs in the Docker Compose network and connects to PostgreSQL through `db:5432`. Its host port is bound to `127.0.0.1` so it is not exposed to other machines on your network.
+
 ## Configuration
 
 Copy `.env.docker.example` to `.env` at the repository root to override Compose variables:
@@ -63,6 +76,9 @@ The Laravel environment file is generated at `src/.env` inside the bind-mounted 
 
 ### Port 8080 is already in use
 Set `APP_PORT=8081` in the root `.env` file, recreate the app, and use http://localhost:8081.
+
+### Port 8081 is already in use
+Set `ADMINER_PORT=8082` in the root `.env` file and recreate the Adminer container with `docker compose up -d --force-recreate adminer`.
 
 ### Port 5433 is already in use
 Set `DB_FORWARD_PORT=5434`. The app still connects internally to `db:5432`.

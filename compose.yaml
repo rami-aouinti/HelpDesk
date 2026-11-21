@@ -34,6 +34,9 @@ services:
       - helpdesk
 
   queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: helpdesk-app:local
     restart: unless-stopped
     working_dir: /var/www/html

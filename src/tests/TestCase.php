@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -11,10 +11,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // CSRF is a browser/session concern. Feature tests focus on the
-        // application behavior behind the middleware and should not need
-        // to manually manufacture browser tokens for every POST/PATCH.
-        $this->withoutMiddleware(ValidateCsrfToken::class);
+        // Browser CSRF checks are covered by the framework. Feature tests
+        // focus on the application behavior behind this middleware.
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $this->withoutVite();
     }
 }

@@ -27,6 +27,9 @@
         <p><strong>Description:</strong> {{ $ticket->description }}</p>
         <p><strong>Customer:</strong> {{ $ticket->customer?->name ?? 'Unassigned' }}</p>
         <p><strong>Project:</strong> {{ $ticket->project?->name ?? 'No project' }}</p>
+        <p><strong>Estimated time:</strong> {{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</p>
+        <p><strong>Elapsed time:</strong> {{ intdiv($ticket->elapsed_minutes, 60) }}h {{ $ticket->elapsed_minutes % 60 }}m</p>
+        <p><strong>Remaining time:</strong> {{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m</p>
         <p><strong>Team:</strong> {{ $ticket->team?->name ?? 'Not assigned' }}</p>
         <p><strong>Assigned agent:</strong> {{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</p>
         <p><strong>Created:</strong> {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
@@ -111,6 +114,15 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="estimated_minutes">Estimated time (minutes)</label>
+                <input type="number" min="0" max="525600" name="estimated_minutes" id="estimated_minutes" value="{{ old('estimated_minutes', $ticket->estimated_minutes) }}">
+            </div>
+            <div class="form-group">
+                <label for="elapsed_minutes">Elapsed time (minutes)</label>
+                <input type="number" min="0" max="525600" name="elapsed_minutes" id="elapsed_minutes" value="{{ old('elapsed_minutes', $ticket->elapsed_minutes) }}">
+                <small>Remaining time is calculated automatically.</small>
+            </div>
             <div class="form-group"><label for="project_id">Project</label><select name="project_id" id="project_id"><option value="">No project</option>@foreach ($projects as $project)<option value="{{ $project->id }}" @selected((string) old('project_id', $ticket->project_id) === (string) $project->id)>{{ $project->name }}</option>@endforeach</select></div>
             <div class="form-group">
                 <label for="assigned_to">Assigned agent</label>

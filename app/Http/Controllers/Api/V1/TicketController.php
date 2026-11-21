@@ -29,7 +29,7 @@ use Throwable;
 
 class TicketController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request, TicketSearchService $ticketSearch): AnonymousResourceCollection
     {
         Gate::authorize('viewAny', Ticket::class);
 
@@ -51,7 +51,7 @@ class TicketController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $tickets = $this->visibleTickets($request->user())
+        $searchIds = isset($filters['search']) ? $ticketSearch->searchIds(trim($filters['search'])) : null;\n\n        $tickets = $this->visibleTickets($request->user())
             ->when(isset($filters['status']), fn (Builder $query) => $query->where('status', $filters['status']))
             ->when(isset($filters['priority']), fn (Builder $query) => $query->where('priority', $filters['priority']))
             ->when(isset($filters['team_id']), fn (Builder $query) => $query->where('team_id', $filters['team_id']))
@@ -65,7 +65,8 @@ class TicketController extends Controller
             ->when(isset($filters['created_to']), fn (Builder $query) => $query->whereDate('created_at', '<=', $filters['created_to']))
             ->when(isset($filters['updated_from']), fn (Builder $query) => $query->whereDate('updated_at', '>=', $filters['updated_from']))
             ->when(isset($filters['updated_to']), fn (Builder $query) => $query->whereDate('updated_at', '<=', $filters['updated_to']))
-            ->when(isset($filters['search']), function (Builder $query) use ($filters): void {
+            ->when($searchIds !== null, fn (Builder $query) => $query->whereIn('id', $searchIds))
+            ->when($searchIds === null && isset($filters['search']), function (Builder $query) use ($filters): void {
                 $term = trim($filters['search']);
                 $query->where(function (Builder $nested) use ($term): void {
                     $nested->where('subject', 'like', '%' . $term . '%')

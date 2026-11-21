@@ -8,6 +8,7 @@ use App\Events\TicketUpdated;
 use App\Listeners\SendTicketCreatedNotifications;
 use App\Listeners\SendTicketMessageNotifications;
 use App\Listeners\SendTicketUpdatedNotifications;
+use App\Listeners\IndexTicketInElasticsearch;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -38,7 +39,9 @@ class AppServiceProvider extends ServiceProvider
         });
         Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);
-        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);\n        Event::listen(TicketCreated::class, IndexTicketInElasticsearch::class);\n        Event::listen(TicketUpdated::class, IndexTicketInElasticsearch::class);
+        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);
+        Event::listen(TicketCreated::class, IndexTicketInElasticsearch::class);
+        Event::listen(TicketUpdated::class, IndexTicketInElasticsearch::class);
 
         Fortify::authenticateUsing(function (Request $request): ?User {
             $user = User::query()

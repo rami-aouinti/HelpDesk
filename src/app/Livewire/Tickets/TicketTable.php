@@ -5,6 +5,7 @@ namespace App\Livewire\Tickets;
 use App\Models\Team;
 use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -20,6 +21,11 @@ class TicketTable extends Component
     #[Url] public string $sortBy = 'created_at';
     #[Url] public string $sortDirection = 'desc';
     public int $perPage = 10;
+
+    public function mount(): void
+    {
+        Gate::authorize('viewAny', Ticket::class);
+    }
 
     public function updated($property): void
     {
@@ -51,10 +57,11 @@ class TicketTable extends Component
         $sortColumn = in_array($this->sortBy, ['id', 'subject', 'priority', 'status', 'created_at'], true) ? $this->sortBy : 'created_at';
         $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
         $perPage = min(max($this->perPage, 5), 50);
+        $user = auth()->user();
 
         $query = Ticket::query()
             ->with(['customer', 'assignedAgent', 'team'])
-            ->when(auth()->user()->hasRole('customer'), fn ($builder) => $builder->where('user_id', auth()->id()))
+            ->when(! $user->can('tickets.view.all'), fn ($builder) => $builder->where('user_id', $user->id))
             ->when(trim($this->search) !== '', function ($builder): void {
                 $search = trim($this->search);
                 $builder->where(fn ($nested) => $nested->whereRaw('LOWER(subject) LIKE ?', ['%'.mb_strtolower($search).'%'])
@@ -62,12 +69,12 @@ class TicketTable extends Component
             })
             ->when($this->status !== '', fn ($builder) => $builder->where('status', $this->status))
             ->when($this->priority !== '', fn ($builder) => $builder->where('priority', $this->priority))
-            ->when($this->team !== '', fn ($builder) => $builder->where('team_id', $this->team))
+            ->when($this->team !== '' && $user->can('tickets.view.all'), fn ($builder) => $builder->where('team_id', $this->team))
             ->orderBy($sortColumn, $sortDirection);
 
         return view('livewire.tickets.ticket-table', [
             'tickets' => $query->paginate($perPage),
-            'teams' => Team::query()->orderBy('name')->get(['id', 'name']),
+            'teams' => $user->can('tickets.view.all') ? Team::query()->orderBy('name')->get(['id', 'name']) : collect(),
         ]);
     }
 }

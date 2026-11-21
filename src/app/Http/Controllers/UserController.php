@@ -8,35 +8,15 @@ use App\Models\User;
 use App\Services\UserManagementService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        abort_unless($request->user()->can('viewAny', User::class), 403);
+        abort_unless(auth()->user()->can('viewAny', User::class), 403);
 
-        $users = User::query()
-            ->with('roles')
-            ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = mb_strtolower(trim($request->string('search')->toString()));
-                $query->where(function ($query) use ($search): void {
-                    $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
-                });
-            })
-            ->when($request->filled('role'), fn ($query) => $query->role($request->string('role')->toString()))
-            ->when($request->input('status') === 'active', fn ($query) => $query->where('is_active', true))
-            ->when($request->input('status') === 'inactive', fn ($query) => $query->where('is_active', false))
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
-
-        return view('users.index', [
-            'users' => $users,
-            'roles' => Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name'),
-        ]);
+        return view('users.index');
     }
 
     public function create(): View

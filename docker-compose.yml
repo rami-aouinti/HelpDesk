@@ -30,6 +30,38 @@ services:
       mailpit:
         condition: service_started
 
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: helpdesk-queue
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "--queue=notifications,default", "--sleep=3", "--tries=3", "--timeout=90"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:${APP_PORT:-8080}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-helpdesk}
+      DB_USERNAME: ${DB_USERNAME:-helpdesk}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_FROM_ADDRESS: hello@helpdesk.test
+      MAIL_FROM_NAME: HelpDesk
+      QUEUE_CONNECTION: database
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
   db:
     image: postgres:17-alpine
     container_name: helpdesk-db

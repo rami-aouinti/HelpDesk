@@ -9,21 +9,21 @@ class TeamPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('teams.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('teams.create');
     }
 
     public function update(User $user, Team $team): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('teams.update');
     }
 
     public function delete(User $user, Team $team): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('teams.delete');
     }
 }

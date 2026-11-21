@@ -17,11 +17,18 @@ services:
       DB_DATABASE: ${DB_DATABASE:-helpdesk}
       DB_USERNAME: ${DB_USERNAME:-helpdesk}
       DB_PASSWORD: ${DB_PASSWORD:-secret}
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_FROM_ADDRESS: hello@helpdesk.test
+      MAIL_FROM_NAME: HelpDesk
     volumes:
       - ./src:/var/www/html
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   db:
     image: postgres:17-alpine
@@ -53,6 +60,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: helpdesk-mailpit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
 
 volumes:
   helpdesk-postgres-data:

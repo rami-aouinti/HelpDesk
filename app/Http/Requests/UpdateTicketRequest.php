@@ -9,7 +9,21 @@ class UpdateTicketRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('update', $this->route('ticket')) ?? false;
+        $user = $this->user();
+
+        if (! $user || ! $user->can('update', $this->route('ticket'))) {
+            return false;
+        }
+
+        // Assignment and reassignment are administrative responsibilities.
+        if (
+            ($this->exists('team_id') || $this->exists('assigned_to'))
+            && ! $user->hasRole('admin')
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     public function rules(): array

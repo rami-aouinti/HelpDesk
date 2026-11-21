@@ -1,30 +1,48 @@
 <?php
 
-namespace App\Livewire\Tickets;
+namespace App\\Livewire\\Tickets;
 
-use App\Models\Ticket;
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Url;
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\\Models\\Team;
+use App\\Models\\Ticket;
+use Illuminate\\Contracts\\View\\View;
+use Livewire\\Attributes\\Url;
+use Livewire\\Component;
+use Livewire\\WithPagination;
 
 class TicketTable extends Component
 {
     use WithPagination;
 
-    #[Url]
-    public string $search = '';
+    #[Url] public string $search = '';
+    #[Url] public string $status = '';
+    #[Url] public string $priority = '';
+    #[Url] public string $team = '';
+    #[Url] public string $sortBy = 'created_at';
+    #[Url] public string $sortDirection = 'desc';
+    public int $perPage = 10;
 
-    #[Url]
-    public string $status = '';
-
-    public function updatingSearch(): void
+    public function updated($property): void
     {
+        if (in_array($property, ['search', 'status', 'priority', 'team', 'perPage'], true)) {
+            $this->resetPage();
+        }
+    }
+
+    public function sort(string $column): void
+    {
+        abort_unless(in_array($column, ['id', 'subject', 'priority', 'status', 'created_at'], true), 400);
+        if ($this->sortBy === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $column;
+            $this->sortDirection = 'asc';
+        }
         $this->resetPage();
     }
 
-    public function updatingStatus(): void
+    public function resetFilters(): void
     {
+        $this->reset(['search', 'status', 'priority', 'team']);
         $this->resetPage();
     }
 
@@ -33,17 +51,19 @@ class TicketTable extends Component
         $query = Ticket::query()
             ->with(['customer', 'assignedAgent', 'team'])
             ->when(auth()->user()->hasRole('customer'), fn ($builder) => $builder->where('user_id', auth()->id()))
-            ->when($this->search !== '', function ($builder): void {
-                $builder->where(function ($nested): void {
-                    $nested->where('subject', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%');
-                });
+            ->when(trim($this->search) !== '', function ($builder): void {
+                $search = trim($this->search);
+                $builder->where(fn ($nested) => $nested->where('subject', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%"));
             })
             ->when($this->status !== '', fn ($builder) => $builder->where('status', $this->status))
-            ->latest();
+            ->when($this->priority !== '', fn ($builder) => $builder->where('priority', $this->priority))
+            ->when($this->team !== '', fn ($builder) => $builder->where('team_id', $this->team))
+            ->orderBy($this->sortBy, $this->sortDirection);
 
         return view('livewire.tickets.ticket-table', [
-            'tickets' => $query->paginate(10),
+            'tickets' => $query->paginate($this->perPage),
+            'teams' => Team::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 }

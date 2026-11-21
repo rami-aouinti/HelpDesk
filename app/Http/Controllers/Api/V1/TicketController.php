@@ -38,6 +38,7 @@ class TicketController extends Controller
             'team_id' => ['sometimes', 'integer', 'min:1'],
             'project_id' => ['sometimes', 'integer', 'min:1'],
             'assigned_to' => ['sometimes', 'integer', 'min:1'],
+            'sprint_id' => ['sometimes', 'integer', 'min:1', 'exists:sprints,id'],
             'search' => ['sometimes', 'string', 'max:100'],
             'unassigned' => ['sometimes', Rule::in(['true', 'false', '1', '0', 1, 0])],
             'created_from' => ['sometimes', 'date'],
@@ -55,6 +56,7 @@ class TicketController extends Controller
             ->when(isset($filters['team_id']), fn (Builder $query) => $query->where('team_id', $filters['team_id']))
             ->when(isset($filters['project_id']), fn (Builder $query) => $query->where('project_id', $filters['project_id']))
             ->when(isset($filters['assigned_to']), fn (Builder $query) => $query->where('assigned_to', $filters['assigned_to']))
+            ->when(isset($filters['sprint_id']), fn (Builder $query) => $query->where('sprint_id', $filters['sprint_id']))
             ->when(isset($filters['unassigned']), fn (Builder $query) => filter_var($filters['unassigned'], FILTER_VALIDATE_BOOLEAN)
                 ? $query->whereNull('assigned_to')
                 : $query->whereNotNull('assigned_to'))

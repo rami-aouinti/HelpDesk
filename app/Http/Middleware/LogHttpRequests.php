@@ -30,7 +30,7 @@ class LogHttpRequests
             Log::error('http.request.exception', [
                 'event' => 'http.request.exception',
                 'method' => $request->method(),
-                'path' => '/'.$request->path(),
+                'path' => '/' . $request->path(),
                 'route' => $request->route()?->getName(),
                 'exception' => $exception::class,
             ]);
@@ -40,7 +40,7 @@ class LogHttpRequests
             Log::info('http.request', [
                 'event' => 'http.request',
                 'method' => $request->method(),
-                'path' => '/'.$request->path(),
+                'path' => '/' . $request->path(),
                 'route' => $request->route()?->getName(),
                 'status_code' => $status,
                 'duration_ms' => round((microtime(true) - $startedAt) * 1000, 2),

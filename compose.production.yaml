@@ -7,7 +7,7 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
     volumes:
-      - helpdesk_storage:/var/www/html/storage/app
+      - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:
       db:
         condition: service_healthy
@@ -24,7 +24,7 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
     volumes:
-      - helpdesk_storage:/var/www/html/storage/app
+      - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:
       db:
         condition: service_healthy
@@ -40,7 +40,7 @@ services:
     ports:
       - "${APP_PORT:-80}:80"
     volumes:
-      - helpdesk_storage:/var/www/html/storage/app:ro
+      - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app:ro
     depends_on:
       - app
     networks: [helpdesk]
@@ -48,6 +48,8 @@ services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:${DB_FORWARD_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: ${DB_DATABASE:?Set DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME:?Set DB_USERNAME}
@@ -77,7 +79,6 @@ services:
 volumes:
   helpdesk_postgres:
   helpdesk_redis:
-  helpdesk_storage:
 
 networks:
   helpdesk:

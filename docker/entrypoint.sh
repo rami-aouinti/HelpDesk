@@ -10,6 +10,11 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+if [ ! -f vendor/autoload.php ]; then
+    echo "Composer dependencies not found. Installing HelpDesk dependencies..."
+    composer update --prefer-dist --no-interaction
+fi
+
 set_env() {
     key="$1"
     value="$2"

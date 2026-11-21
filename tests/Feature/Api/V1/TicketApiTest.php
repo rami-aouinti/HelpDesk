@@ -19,6 +19,28 @@ class TicketApiTest extends TestCase
         $this->seed();
     }
 
+    public function test_personal_access_token_authenticates_the_versioned_api(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $token = $customer->createToken('api-test')->plainTextToken;
+
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/user')
+            ->assertOk()
+            ->assertJsonPath('email', $customer->email);
+    }
+
+    public function test_customer_can_create_a_sanctum_token_from_the_versioned_api(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        Sanctum::actingAs($customer);
+
+        $this->postJson('/api/v1/tokens', ['name' => 'integration-test'])
+            ->assertCreated()
+            ->assertJsonStructure(['token', 'token_type'])
+            ->assertJsonPath('token_type', 'Bearer');
+    }
+
     public function test_ticket_endpoints_require_authentication(): void
     {
         $this->getJson('/api/v1/tickets')->assertUnauthorized();

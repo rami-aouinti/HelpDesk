@@ -390,3 +390,42 @@ th {
     color: #64748b;
     font-size: 13px;
 }
+
+
+/* User management */
+.filters {
+    display: grid;
+    grid-template-columns: minmax(180px, 2fr) minmax(140px, 1fr) minmax(140px, 1fr) auto;
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 22px;
+}
+.filters .form-group { margin-bottom: 0; }
+.filter-actions, .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.actions form { margin: 0; }
+.btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.form-card { max-width: 720px; }
+.pagination { margin-top: 22px; }
+.pagination nav { display: flex; justify-content: space-between; gap: 12px; }
+.pagination a, .pagination span {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 2px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    color: #334155;
+}
+@media (max-width: 900px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .filters { grid-template-columns: 1fr; }
+    .filter-actions { flex-wrap: wrap; }
+}

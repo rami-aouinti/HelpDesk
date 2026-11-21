@@ -252,7 +252,7 @@ class TicketApiTest extends TestCase
         $ticket = $this->makeTicket($customer);
         Sanctum::actingAs($customer);
 
-        $response = $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+        $response = $this->post("/api/v1/tickets/{$ticket->id}/messages", [
             'body' => 'Please see the attached document.',
             'attachments' => [
                 UploadedFile::fake()->createWithContent(
@@ -260,7 +260,7 @@ class TicketApiTest extends TestCase
                     "%PDF-1.4\\n1 0 obj\\n<< /Type /Catalog >>\\nendobj\\n%%EOF",
                 ),
             ],
-        ])->assertCreated()
+        ], ['Accept' => 'application/json'])->assertCreated()
             ->assertJsonPath('data.attachments.0.file_name', 'evidence.pdf');
 
         $attachmentId = $response->json('data.attachments.0.id');
@@ -326,6 +326,50 @@ class TicketApiTest extends TestCase
         $this->getJson('/api/v1/tickets?status=unknown')
             ->assertUnprocessable()
             ->assertJsonValidationErrors('status');
+    }
+
+
+    public function test_ticket_list_supports_assignment_and_date_filters_and_sorting(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $older = $this->makeTicket($customer);
+        $older->forceFill(['created_at' => now()->subDays(3), 'updated_at' => now()->subDays(2)])->save();
+        $newer = $this->makeTicket($customer);
+        $newer->update(['priority' => 'urgent']);
+
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?unassigned=true&created_from='.now()->subDay()->toDateString().'&sort_by=subject&sort_direction=asc')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $newer->id);
+    }
+
+    public function test_ticket_list_rejects_invalid_sorting_and_page_size(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        Sanctum::actingAs($customer);
+
+        $this->getJson('/api/v1/tickets?sort_by=password&sort_direction=sideways&per_page=500')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['sort_by', 'sort_direction', 'per_page']);
+    }
+
+    public function test_customer_cannot_post_a_message_to_another_customers_ticket(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $otherCustomer = User::factory()->create();
+        $ticket = $this->makeTicket($otherCustomer);
+        Sanctum::actingAs($customer);
+
+        $this->postJson("/api/v1/tickets/{$ticket->id}/messages", [
+            'body' => 'Unauthorized reply.',
+        ])->assertForbidden();
+
+        $this->assertDatabaseMissing('ticket_messages', [
+            'ticket_id' => $ticket->id,
+            'body' => 'Unauthorized reply.',
+        ]);
     }
 
     private function makeTicket(User $customer): Ticket

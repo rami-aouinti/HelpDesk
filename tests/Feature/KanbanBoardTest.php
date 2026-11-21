@@ -144,6 +144,44 @@ class KanbanBoardTest extends TestCase
         $this->assertSame('open', $ticket->fresh()->status);
     }
 
+
+    public function test_admin_can_move_any_ticket_to_another_sprint(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $otherAgent = User::where('email', 'sarah.agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $current = $this->makeSprint();
+        $destination = $this->makeSprint(['name' => 'Admin destination']);
+        $ticket = $this->makeTicket($customer, $current, ['assigned_to' => $otherAgent->id]);
+
+        Livewire::actingAs($admin)->test(Board::class)
+            ->set('sprintId', $current->id)
+            ->call('moveTicketToSprint', $ticket->id, $destination->id)
+            ->assertHasNoErrors();
+
+        $this->assertSame($destination->id, $ticket->fresh()->sprint_id);
+    }
+
+    public function test_ticket_cannot_be_moved_into_a_completed_sprint(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $current = $this->makeSprint();
+        $completed = $this->makeSprint(['name' => 'Already completed']);
+        $closedTicket = $this->makeTicket($customer, $completed, ['status' => 'closed']);
+        $ticket = $this->makeTicket($customer, $current, ['assigned_to' => $agent->id]);
+
+        $this->assertTrue($completed->fresh()->is_completed);
+
+        Livewire::actingAs($admin)->test(Board::class)
+            ->set('sprintId', $current->id)
+            ->call('moveTicketToSprint', $ticket->id, $completed->id)
+            ->assertHasErrors('board');
+
+        $this->assertSame($current->id, $ticket->fresh()->sprint_id);
+    }
+
     private function makeSprint(array $attributes = []): Sprint
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();

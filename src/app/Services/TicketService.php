@@ -38,8 +38,9 @@ class TicketService
     public function update(Ticket $ticket, array $data, ?int $userId = null): Ticket
     {
         $this->validateAssignment($data, $ticket);
+        $changes = [];
 
-        return DB::transaction(function () use ($ticket, $data, $userId) {
+        $updatedTicket = DB::transaction(function () use ($ticket, $data, $userId, &$changes) {
             $ticket = Ticket::query()
                 ->lockForUpdate()
                 ->findOrFail($ticket->id);
@@ -68,6 +69,7 @@ class TicketService
 
                 $ticket->{$field} = $newValue;
                 $ticket->save();
+                $changes[$field] = ['old' => $oldValue, 'new' => $newValue];
 
                 TicketHistory::create([
                     'ticket_id' => $ticket->id,
@@ -78,8 +80,18 @@ class TicketService
                 ]);
             }
 
-            return $ticket->refresh();
+            return $ticket->refresh()->load(['customer', 'assignedAgent', 'team']);
         });
+
+        if ($userId !== null) {
+            app(TicketNotificationService::class)->ticketUpdated(
+                $updatedTicket,
+                User::query()->findOrFail($userId),
+                $changes,
+            );
+        }
+
+        return $updatedTicket;
     }
 
     /**

@@ -17,8 +17,8 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261121-9">
-    <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-9">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261121-10">
+    <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-10">
     @livewireStyles
 </head>
 <body>

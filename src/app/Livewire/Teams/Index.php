@@ -1,16 +1,16 @@
 <?php
 
-namespace App\\Livewire\\Teams;
+namespace App\Livewire\Teams;
 
-use App\\Models\\Team;
-use App\\Models\\User;
-use App\\Services\\TeamManagementService;
-use Illuminate\\Contracts\\View\\View;
-use Illuminate\\Support\\Facades\\Gate;
-use Illuminate\\Validation\\Rule;
-use Livewire\\Attributes\\Url;
-use Livewire\\Component;
-use Livewire\\WithPagination;
+use App\Models\Team;
+use App\Models\User;
+use App\Services\TeamManagementService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {

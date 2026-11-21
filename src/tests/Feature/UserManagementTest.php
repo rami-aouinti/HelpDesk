@@ -1,0 +1,108 @@
+<?php
+
+namespace Tests\\Feature;
+
+use App\\Models\\User;
+use Illuminate\\Foundation\\Testing\\RefreshDatabase;
+use Tests\\TestCase;
+
+class UserManagementTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_admin_can_create_a_user_with_a_role(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'New Support Agent',
+                'email' => 'new.agent@example.test',
+                'password' => 'SecurePassword123!',
+                'password_confirmation' => 'SecurePassword123!',
+                'role' => 'agent',
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $user = User::where('email', 'new.agent@example.test')->firstOrFail();
+
+        $this->assertTrue($user->hasRole('agent'));
+        $this->assertTrue($user->is_active);
+    }
+
+    public function test_admin_can_update_a_user_role_without_changing_password(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $passwordHash = $customer->password;
+
+        $this->actingAs($admin)
+            ->put(route('users.update', $customer), [
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'role' => 'agent',
+                'password' => '',
+                'password_confirmation' => '',
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $this->assertTrue($customer->fresh()->hasRole('agent'));
+        $this->assertSame($passwordHash, $customer->fresh()->password);
+    }
+
+    public function test_admin_can_deactivate_and_reactivate_another_user(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('users.toggle-active', $agent))
+            ->assertRedirect(route('users.index'));
+
+        $this->assertFalse($agent->fresh()->is_active);
+
+        $this->patch(route('users.toggle-active', $agent))
+            ->assertRedirect(route('users.index'));
+
+        $this->assertTrue($agent->fresh()->is_active);
+    }
+
+    public function test_non_admin_cannot_access_user_management(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->get(route('users.index'))
+            ->assertForbidden();
+    }
+
+    public function test_last_active_administrator_cannot_be_deactivated(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('users.toggle-active', $admin))
+            ->assertForbidden();
+
+        $this->assertTrue($admin->fresh()->is_active);
+    }
+
+    public function test_inactive_user_cannot_log_in(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $agent->update(['is_active' => false]);
+
+        $this->post(route('login.store'), [
+            'email' => $agent->email,
+            'password' => env('HELPDESK_DEMO_PASSWORD', 'password'),
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+}

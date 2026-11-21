@@ -79,7 +79,7 @@
         "phpcbf": "@php vendor/bin/phpcbf",
         "phpstan": "@php vendor/bin/phpstan analyse --memory-limit=1G",
         "insights": [
-            "@php artisan vendor:publish --provider=\\\"NunoMaduro\\\\PhpInsights\\\\Application\\\\Adapters\\\\Laravel\\\\InsightsServiceProvider\\\" --force --no-interaction",
+            "@php artisan vendor:publish --provider=\"NunoMaduro\\PhpInsights\\Application\\Adapters\\Laravel\\InsightsServiceProvider\" --force --no-interaction",
             "@php artisan insights"
         ],
         "rector": "@php vendor/bin/rector process --dry-run",
@@ -87,7 +87,7 @@
         "quality": [
             "@php vendor/bin/phpcs",
             "@php vendor/bin/phpstan analyse --memory-limit=1G",
-            "@php artisan vendor:publish --provider=\\\"NunoMaduro\\\\PhpInsights\\\\Application\\\\Adapters\\\\Laravel\\\\InsightsServiceProvider\\\" --force --no-interaction",
+            "@php artisan vendor:publish --provider=\"NunoMaduro\\PhpInsights\\Application\\Adapters\\Laravel\\InsightsServiceProvider\" --force --no-interaction",
             "@php artisan insights",
             "@php vendor/bin/rector process --dry-run",
             "@php vendor/bin/pint --test"

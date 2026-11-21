@@ -33,11 +33,19 @@
             </div>
 
             <div class="profile-identity">
-                @if ($user->profile_photo_path)
-                    <img class="profile-photo-large" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->profile_photo_path) }}" alt="Profile photo">
-                @else
-                    <div class="profile-photo-placeholder">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
-                @endif
+                <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" class="profile-avatar-upload-form">
+                    @csrf
+                    <input id="profile-avatar-upload" class="profile-avatar-file" type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp" required>
+                    <label for="profile-avatar-upload" class="profile-avatar-trigger" title="Change profile photo" aria-label="Change profile photo">
+                        @if ($user->profile_photo_path)
+                            <img class="profile-photo-large" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->profile_photo_path) }}" alt="Profile photo">
+                        @else
+                            <span class="profile-photo-placeholder">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                        @endif
+                        <span class="profile-avatar-overlay" aria-hidden="true">✎</span>
+                    </label>
+                    <small class="profile-avatar-hint">Click your avatar to change it</small>
+                </form>
                 <div class="profile-identity-copy">
                     <strong>{{ $user->name }}</strong>
                     <span>{{ $user->email }}</span>
@@ -59,12 +67,7 @@
                     <small>Changing your email address requires verifying the new address.</small>
                     @error('email')<small class="field-error">{{ $message }}</small>@enderror
                 </div>
-                <div class="form-group">
-                    <label for="profile_photo">Change profile photo</label>
-                    <input id="profile_photo" name="profile_photo" type="file" accept=".jpg,.jpeg,.png,.webp">
-                    <small>JPG, PNG or WEBP. Maximum file size: 2 MB.</small>
-                    @error('profile_photo')<small class="field-error">{{ $message }}</small>@enderror
-                </div>
+
                 <div class="profile-form-actions">
                     <button type="submit" class="btn btn-primary">Save changes</button>
                     @if ($user->profile_photo_path)
@@ -102,4 +105,14 @@
             </div>
         </aside>
     </div>
+
+    <script>
+        (function () {
+            var avatarInput = document.getElementById('profile-avatar-upload');
+            if (!avatarInput) return;
+            avatarInput.addEventListener('change', function () {
+                if (avatarInput.files && avatarInput.files.length) avatarInput.form.submit();
+            });
+        })();
+    </script>
 @endsection

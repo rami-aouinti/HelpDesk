@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Ticket;
 use App\Models\TicketHistory;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -70,7 +71,7 @@ class TicketWorkflowTest extends TestCase
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
-        $team = \\App\\Models\\Team::where('name', 'General Support')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
 
         $ticket = Ticket::create([
             'subject' => 'VPN connection issue',
@@ -109,7 +110,7 @@ class TicketWorkflowTest extends TestCase
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
         $agent = User::where('email', 'amira.agent@helpdesk.test')->firstOrFail();
-        $team = \\App\\Models\\Team::where('name', 'General Support')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
 
         $ticket = Ticket::create([
             'subject' => 'Account access issue',

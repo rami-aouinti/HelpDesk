@@ -11,7 +11,7 @@ Route::redirect('/', '/dashboard');
 
 Route::view('/api/documentation', 'api.documentation')->name('api.documentation');
 Route::get('/api/openapi.yaml', function () {
-    return response()->file(base_path('openapi.yaml'), [
+    return response()->make(file_get_contents(base_path('openapi.yaml')), 200, [
         'Content-Type' => 'application/yaml; charset=UTF-8',
         'X-Content-Type-Options' => 'nosniff',
     ]);

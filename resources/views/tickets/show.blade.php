@@ -234,36 +234,150 @@
             @endforelse
         </div>
 
-        <form method="POST" enctype="multipart/form-data" action="{{ route('tickets.messages.store', $ticket) }}">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('tickets.messages.store', $ticket) }}" class="ticket-reply-form" id="ticket-reply-form">
             @csrf
-            <div class="form-group">
+            <div class="ticket-composer-heading">
+                <div><span class="eyebrow">REPLY</span><h3>Write a response</h3><p>Send a message or share supporting files with this ticket.</p></div>
+            </div>
+            <div class="form-group ticket-composer-field">
                 <label for="message-body">Your message</label>
-                <textarea id="message-body" name="body" rows="5" maxlength="10000">{{ old('body') }}</textarea>
+                <textarea id="message-body" name="body" rows="5" maxlength="10000" placeholder="Write your message here...">{{ old('body') }}</textarea>
+                <div class="ticket-composer-footer"><small>Be clear and include any details that help resolve the request.</small><small><span id="message-character-count">{{ mb_strlen(old('body', '')) }}</span> / 10,000</small></div>
             </div>
 
-            <div class="form-group">
-                <label for="attachments">Attachments</label>
-                <input
-                    id="attachments"
-                    type="file"
-                    name="attachments[]"
-                    multiple
-                    accept=".pdf,.jpg,.jpeg,.png,.txt,.csv,.doc,.docx,.xls,.xlsx"
-                >
-                <small>Up to 5 files, 10 MB each. Allowed: PDF, images, text, CSV, Word and Excel files. You may send files without a message.</small>
+            <div class="form-group ticket-upload-field">
+                <label for="attachments">Attachments <span class="ticket-optional-label">Optional</span></label>
+                <label class="ticket-upload-zone" for="attachments" id="ticket-upload-zone">
+                    <span class="ticket-upload-icon" aria-hidden="true">＋</span>
+                    <span><strong>Choose files or drag them here</strong><small>PDF, JPG, PNG, TXT, CSV, DOC, DOCX, XLS, XLSX</small></span>
+                    <span class="ticket-upload-browse">Browse files</span>
+                </label>
+                <input class="ticket-file-input" id="attachments" type="file" name="attachments[]" multiple accept=".pdf,.jpg,.jpeg,.png,.txt,.csv,.doc,.docx,.xls,.xlsx">
+                <small class="ticket-upload-help">Maximum 5 files · 10 MB per file</small>
+                <div class="ticket-file-list" id="ticket-file-list" aria-live="polite"></div>
+                <p class="ticket-upload-error" id="ticket-upload-error" role="alert" hidden></p>
             </div>
 
             @can('update', $ticket)
-                <div class="form-group">
-                    <label style="display: inline-flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="is_internal" value="1" @checked(old('is_internal'))>
-                        Add as an internal note (customer cannot see this)
-                    </label>
+                <div class="ticket-internal-toggle">
+                    <label><input type="checkbox" name="is_internal" value="1" id="internal-note-toggle" @checked(old('is_internal'))><span><strong>Internal note</strong><small>Only support agents and administrators can see this message.</small></span></label>
                 </div>
             @endcan
 
-            <button type="submit" class="btn btn-primary">Send message</button>
+            <div class="ticket-composer-actions">
+                <span class="ticket-submit-hint">Your reply will be added to the ticket conversation.</span>
+                <button type="submit" class="btn btn-primary" id="ticket-send-button"><span class="ticket-send-icon" aria-hidden="true">➤</span> Send reply</button>
+            </div>
         </form>
+        <script>
+            (function () {
+                var form = document.getElementById('ticket-reply-form');
+                if (!form) return;
+
+                var input = document.getElementById('attachments');
+                var zone = document.getElementById('ticket-upload-zone');
+                var list = document.getElementById('ticket-file-list');
+                var error = document.getElementById('ticket-upload-error');
+                var textarea = document.getElementById('message-body');
+                var counter = document.getElementById('message-character-count');
+                var sendButton = document.getElementById('ticket-send-button');
+                var selectedFiles = [];
+                var allowed = /\\.(pdf|jpe?g|png|txt|csv|docx?|xlsx?)$/i;
+                var maxSize = 10 * 1024 * 1024;
+
+                function formatSize(bytes) {
+                    return bytes >= 1024 * 1024 ? (bytes / (1024 * 1024)).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
+                }
+
+                function renderFiles() {
+                    list.replaceChildren();
+                    selectedFiles.forEach(function (file, index) {
+                        var item = document.createElement('div');
+                        item.className = 'ticket-file-item';
+                        var details = document.createElement('span');
+                        details.className = 'ticket-file-details';
+                        var name = document.createElement('strong');
+                        name.textContent = file.name;
+                        var size = document.createElement('small');
+                        size.textContent = formatSize(file.size);
+                        details.append(name, size);
+                        var remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'ticket-file-remove';
+                        remove.textContent = 'Remove';
+                        remove.setAttribute('aria-label', 'Remove ' + file.name);
+                        remove.addEventListener('click', function () {
+                            selectedFiles.splice(index, 1);
+                            syncInput();
+                        });
+                        item.append(details, remove);
+                        list.append(item);
+                    });
+                    zone.classList.toggle('has-files', selectedFiles.length > 0);
+                }
+
+                function syncInput() {
+                    var transfer = new DataTransfer();
+                    selectedFiles.forEach(function (file) { transfer.items.add(file); });
+                    input.files = transfer.files;
+                    renderFiles();
+                }
+
+                function addFiles(files) {
+                    error.hidden = true;
+                    var incoming = Array.from(files);
+                    for (var i = 0; i < incoming.length; i++) {
+                        var file = incoming[i];
+                        if (!allowed.test(file.name)) {
+                            error.textContent = 'File type not allowed: ' + file.name;
+                            error.hidden = false;
+                            continue;
+                        }
+                        if (file.size > maxSize) {
+                            error.textContent = file.name + ' is larger than 10 MB.';
+                            error.hidden = false;
+                            continue;
+                        }
+                        if (selectedFiles.some(function (existing) { return existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified; })) continue;
+                        if (selectedFiles.length >= 5) {
+                            error.textContent = 'You can attach a maximum of 5 files.';
+                            error.hidden = false;
+                            break;
+                        }
+                        selectedFiles.push(file);
+                    }
+                    syncInput();
+                }
+
+                input.addEventListener('change', function () {
+                    addFiles(input.files);
+                });
+                ['dragenter', 'dragover'].forEach(function (eventName) {
+                    zone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        zone.classList.add('is-dragging');
+                    });
+                });
+                ['dragleave', 'drop'].forEach(function (eventName) {
+                    zone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        zone.classList.remove('is-dragging');
+                    });
+                });
+                zone.addEventListener('drop', function (event) {
+                    if (event.dataTransfer) addFiles(event.dataTransfer.files);
+                });
+                textarea.addEventListener('input', function () {
+                    counter.textContent = textarea.value.length.toLocaleString();
+                });
+                form.addEventListener('submit', function () {
+                    sendButton.disabled = true;
+                    sendButton.classList.add('is-sending');
+                    sendButton.textContent = 'Sending...';
+                });
+                renderFiles();
+            })();
+        </script>
     </div>
 
     <div class="content-card ticket-history-card ticket-detail-section">

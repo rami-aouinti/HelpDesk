@@ -26,6 +26,11 @@ class RolePermissionSeeder extends Seeder
             'teams.create',
             'teams.update',
             'teams.delete',
+            'projects.view',
+            'projects.view.all',
+            'projects.create',
+            'projects.update',
+            'projects.delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -40,10 +45,12 @@ class RolePermissionSeeder extends Seeder
         $agent->syncPermissions([
             'tickets.view',
             'tickets.update',
+            'projects.view',
         ]);
         $customer->syncPermissions([
             'tickets.view',
             'tickets.create',
+            'projects.view',
         ]);
     }
 }

@@ -17,5 +17,7 @@ Route::middleware(['auth:sanctum', 'active', 'verified'])->group(function (): vo
         Route::post('/tickets', [V1TicketController::class, 'store'])->name('tickets.store');
         Route::get('/tickets/{ticket}', [V1TicketController::class, 'show'])->name('tickets.show');
         Route::patch('/tickets/{ticket}', [V1TicketController::class, 'update'])->name('tickets.update');
+        Route::post('/tickets/{ticket}/messages', [V1TicketController::class, 'storeMessage'])->name('tickets.messages.store');
+        Route::get('/tickets/{ticket}/attachments/{attachment}', [V1TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
     });
 });

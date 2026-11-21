@@ -14,11 +14,11 @@ class TicketPolicy
 
     public function view(User $user, Ticket $ticket): bool
     {
-        if ($user->hasRole('customer')) {
-            return $ticket->user_id === $user->id;
+        if ($user->can('tickets.view.all')) {
+            return true;
         }
 
-        return $user->hasAnyRole(['admin', 'agent']) && $user->can('tickets.view');
+        return $user->can('tickets.view') && $ticket->user_id === $user->id;
     }
 
     public function create(User $user): bool
@@ -28,7 +28,6 @@ class TicketPolicy
 
     public function update(User $user, Ticket $ticket): bool
     {
-        return $user->hasAnyRole(['admin', 'agent'])
-            && $user->can('tickets.update');
+        return $user->can('tickets.update');
     }
 }

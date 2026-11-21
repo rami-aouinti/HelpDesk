@@ -52,6 +52,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function resetFilters(): void
+    {
+        $this->reset(['search', 'membership']);
+        $this->resetPage();
+    }
+
     public function create(): void
     {
         Gate::authorize('create', Team::class);
@@ -119,8 +125,8 @@ class Index extends Component
             ->withCount('tickets')
             ->withCount('members')
             ->when(trim($this->search) !== '', fn ($query) => $query->where(fn ($nested) => $nested
-                ->where('name', 'like', '%'.trim($this->search).'%')
-                ->orWhere('description', 'like', '%'.trim($this->search).'%')))
+                ->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower(trim($this->search)).'%'])
+                ->orWhereRaw('LOWER(description) LIKE ?', ['%'.mb_strtolower(trim($this->search)).'%'])))
             ->when($this->membership === 'with_members', fn ($query) => $query->has('members'))
             ->when($this->membership === 'without_members', fn ($query) => $query->doesntHave('members'))
             ->orderBy($sortColumn, $sortDirection)

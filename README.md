@@ -7,6 +7,51 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+
+## Run locally with Docker
+
+The repository includes a Docker Compose development environment with PHP 8.4, Laravel, Nginx, PostgreSQL 17, a database queue worker, and Mailpit.
+
+### First startup
+
+```bash
+cp .env.example .env
+docker compose config
+docker compose up -d --build
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan storage:link
+```
+
+Open the application at [http://localhost:8080](http://localhost:8080) and Mailpit at [http://localhost:8025](http://localhost:8025).
+
+The demo credentials are configured by `HELPDESK_ADMIN_EMAIL`, `HELPDESK_AGENT_EMAIL`, `HELPDESK_CUSTOMER_EMAIL`, and `HELPDESK_DEMO_PASSWORD` in your local `.env` file. Change these values before exposing the application outside your development machine.
+
+### Useful commands
+
+```bash
+# Run the test suite (PHPUnit uses in-memory SQLite)
+docker compose exec app php artisan test
+
+# Run migrations after pulling new changes
+docker compose exec app php artisan migrate
+
+# Follow application and queue-worker logs
+docker compose logs -f app queue
+
+# Stop the stack (database data is preserved)
+docker compose down
+
+# Stop the stack and delete the local PostgreSQL volume
+docker compose down -v
+```
+
+The application source is bind-mounted into the containers, so PHP changes are available immediately. Rebuild the image after changing PHP extensions, Composer dependencies, or frontend dependencies/assets:
+
+```bash
+docker compose up -d --build
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

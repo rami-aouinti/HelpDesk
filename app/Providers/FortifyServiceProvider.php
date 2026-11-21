@@ -29,7 +29,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::verifyEmailView(fn () => view('auth.verify-email'));
 
         RateLimiter::for('login', function (Request $request): Limit {
-            $key = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+            $key = Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($key);
         });

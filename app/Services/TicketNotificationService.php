@@ -38,7 +38,7 @@ class TicketNotificationService
             $this->send(
                 $recipients,
                 $ticket,
-                'Internal note added to ticket #'.$ticket->id,
+                'Internal note added to ticket #' . $ticket->id,
                 'A team member added an internal note. Sign in to HelpDesk to read it.',
             );
 
@@ -52,7 +52,7 @@ class TicketNotificationService
             $this->send(
                 $recipients,
                 $ticket,
-                'New customer reply on ticket #'.$ticket->id,
+                'New customer reply on ticket #' . $ticket->id,
                 'The customer replied to a ticket. Please review the conversation.',
             );
 
@@ -62,7 +62,7 @@ class TicketNotificationService
         $this->send(
             collect([$ticket->customer])->filter()->reject(fn (User $user): bool => $user->is($author)),
             $ticket,
-            'New reply on your ticket #'.$ticket->id,
+            'New reply on your ticket #' . $ticket->id,
             'The support team replied to your ticket.',
         );
     }
@@ -87,7 +87,7 @@ class TicketNotificationService
             $this->send(
                 collect([$ticket->customer])->filter()->reject(fn (User $user): bool => $user->is($actor)),
                 $ticket,
-                'Your ticket #'.$ticket->id.' was updated',
+                'Your ticket #' . $ticket->id . ' was updated',
                 'There has been an update to your support ticket.',
                 $customerChanges,
             );
@@ -137,7 +137,7 @@ class TicketNotificationService
             $this->send(
                 $supportRecipients->reject(fn (User $user): bool => $user->is($actor)),
                 $ticket,
-                'Assignment updated for ticket #'.$ticket->id,
+                'Assignment updated for ticket #' . $ticket->id,
                 'The assignment details of a support ticket have changed.',
                 $supportChanges,
             );

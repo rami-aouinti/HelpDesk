@@ -27,7 +27,7 @@ class TicketApiTest extends TestCase
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $token = $customer->createToken('api-test')->plainTextToken;
 
-        $this->withHeader('Authorization', 'Bearer '.$token)
+        $this->withHeader('Authorization', 'Bearer ' . $token)
             ->getJson('/api/v1/user')
             ->assertOk()
             ->assertJsonPath('email', $customer->email);
@@ -281,7 +281,7 @@ class TicketApiTest extends TestCase
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
         $ticket = $this->makeTicket($customer);
-        $path = 'ticket-attachments/'.$ticket->id.'/secret.pdf';
+        $path = 'ticket-attachments/' . $ticket->id . '/secret.pdf';
         Storage::disk('local')->put($path, '%PDF-1.4');
         $message = $ticket->messages()->create([
             'user_id' => $agent->id,
@@ -338,7 +338,7 @@ class TicketApiTest extends TestCase
 
         Sanctum::actingAs($customer);
 
-        $this->getJson('/api/v1/tickets?unassigned=true&created_from='.now()->subDay()->toDateString().'&sort_by=subject&sort_direction=asc')
+        $this->getJson('/api/v1/tickets?unassigned=true&created_from=' . now()->subDay()->toDateString() . '&sort_by=subject&sort_direction=asc')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $newer->id);
@@ -413,7 +413,7 @@ class TicketApiTest extends TestCase
 
         Sanctum::actingAs($customer);
 
-        $this->getJson('/api/v1/tickets?sprint_id='.$sprint->id)
+        $this->getJson('/api/v1/tickets?sprint_id=' . $sprint->id)
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.sprint.id', $sprint->id)

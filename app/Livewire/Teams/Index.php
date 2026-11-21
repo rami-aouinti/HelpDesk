@@ -154,8 +154,8 @@ class Index extends Component
             ->withCount('tickets')
             ->withCount('members')
             ->when(trim($this->search) !== '', fn ($query) => $query->where(fn ($nested) => $nested
-                ->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower(trim($this->search)).'%'])
-                ->orWhereRaw('LOWER(description) LIKE ?', ['%'.mb_strtolower(trim($this->search)).'%'])))
+                ->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower(trim($this->search)) . '%'])
+                ->orWhereRaw('LOWER(description) LIKE ?', ['%' . mb_strtolower(trim($this->search)) . '%'])))
             ->when($this->membership === 'with_members', fn ($query) => $query->has('members'))
             ->when($this->membership === 'without_members', fn ($query) => $query->doesntHave('members'))
             ->orderBy($sortColumn, $sortDirection)

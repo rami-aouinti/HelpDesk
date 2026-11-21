@@ -143,7 +143,7 @@ class Index extends Component
             ->with('creator:id,name')
             ->withCount('tickets')
             ->withCount(['tickets as done_tickets_count' => fn ($query) => $query->where('status', 'closed')])
-            ->when(trim($this->search) !== '', fn ($query) => $query->whereRaw('LOWER(name) LIKE ?', ['%'.mb_strtolower(trim($this->search)).'%']))
+            ->when(trim($this->search) !== '', fn ($query) => $query->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower(trim($this->search)) . '%']))
             ->orderByDesc('start_date')
             ->orderByDesc('id')
             ->paginate($perPage);

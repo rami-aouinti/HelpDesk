@@ -92,7 +92,7 @@ class ProjectManagementTest extends TestCase
         $project = Project::where('name', 'Budgeted Project')->firstOrFail();
         $this->assertSame('15000.50', $project->budget);
         $this->assertSame('2026-11-01', $project->start_date->format('Y-m-d'));
-        $this->assertSame('2027-02-28',$project->end_date->format('Y-m-d'));
-        $this->assertSame('active',$project->status);
+        $this->assertSame('2027-02-28', $project->end_date->format('Y-m-d'));
+        $this->assertSame('active', $project->status);
     }
 }

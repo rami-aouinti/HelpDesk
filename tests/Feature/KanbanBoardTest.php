@@ -269,7 +269,7 @@ class KanbanBoardTest extends TestCase
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
 
         return Sprint::create([
-            'name' => 'Sprint '.uniqid(),
+            'name' => 'Sprint ' . uniqid(),
             'description' => null,
             'start_date' => '2026-12-01',
             'end_date' => '2026-12-14',

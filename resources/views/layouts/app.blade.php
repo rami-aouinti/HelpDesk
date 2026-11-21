@@ -105,6 +105,25 @@
             @endif
 
             <div class="topbar-actions">
+                <details class="notification-menu" id="notification-menu"
+                    data-feed-url="{{ route('notifications.recent') }}"
+                    data-read-url="{{ route('notifications.read', ['notification' => '__ID__']) }}"
+                    data-read-all-url="{{ route('notifications.read-all') }}">
+                    <summary class="notification-trigger" aria-label="Open notifications">
+                        <span aria-hidden="true">♧</span>
+                        <span class="notification-count" id="notification-count" hidden>0</span>
+                    </summary>
+                    <div class="notification-panel">
+                        <div class="notification-panel-header">
+                            <div><strong>Notifications</strong><small id="notification-summary">Your latest updates</small></div>
+                            <button type="button" id="notification-read-all" class="notification-read-all" hidden>Mark all read</button>
+                        </div>
+                        <div class="notification-list" id="notification-list" aria-live="polite">
+                            <div class="notification-loading">Loading notifications…</div>
+                        </div>
+                        <a class="notification-view-all" href="{{ route('tickets.index') }}">Go to tickets</a>
+                    </div>
+                </details>
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">
                     <span class="theme-toggle-icon" aria-hidden="true">☾</span>
                 </button>
@@ -192,6 +211,88 @@
             }
             applyAccent(accent);
         });
+    })();
+</script>
+
+<script>
+    (function () {
+        var menu = document.getElementById('notification-menu');
+        if (!menu) return;
+
+        var list = document.getElementById('notification-list');
+        var count = document.getElementById('notification-count');
+        var summary = document.getElementById('notification-summary');
+        var readAll = document.getElementById('notification-read-all');
+        var csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        var feedUrl = menu.dataset.feedUrl;
+
+        function element(tag, className, value) {
+            var node = document.createElement(tag);
+            if (className) node.className = className;
+            if (value !== undefined) node.textContent = value;
+            return node;
+        }
+
+        function updateCount(value) {
+            count.textContent = value > 99 ? '99+' : String(value);
+            count.hidden = value < 1;
+            readAll.hidden = value < 1;
+            summary.textContent = value ? value + ' unread update' + (value === 1 ? '' : 's') : 'You are all caught up';
+        }
+
+        function render(items) {
+            list.replaceChildren();
+            if (!items.length) {
+                list.append(element('div', 'notification-empty', 'No notifications yet. Updates about your tickets will appear here.'));
+                return;
+            }
+
+            items.forEach(function (item) {
+                var link = element('a', 'notification-item' + (item.read_at ? '' : ' is-unread'));
+                link.href = item.url || '{{ route('tickets.index') }}';
+                var dot = element('span', 'notification-dot');
+                var content = element('span', 'notification-content');
+                content.append(element('strong', '', item.title || 'HelpDesk update'));
+                content.append(element('span', 'notification-message', item.message || ''));
+                if (item.ticket_subject) content.append(element('span', 'notification-ticket', item.ticket_subject));
+                content.append(element('small', 'notification-time', item.created_at || ''));
+                link.append(dot, content);
+                link.addEventListener('click', function () {
+                    if (!item.read_at) {
+                        fetch(menu.dataset.readUrl.replace('__ID__', encodeURIComponent(item.id)), {
+                            method: 'PATCH',
+                            credentials: 'same-origin',
+                            headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+                        });
+                    }
+                });
+                list.append(link);
+            });
+        }
+
+        function refresh() {
+            fetch(feedUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+                .then(function (response) { if (!response.ok) throw new Error('Unable to load notifications'); return response.json(); })
+                .then(function (data) { updateCount(data.unread_count || 0); render(data.notifications || []); })
+                .catch(function () {
+                    if (!list.children.length) list.append(element('div', 'notification-empty', 'Notifications are temporarily unavailable.'));
+                });
+        }
+
+        readAll.addEventListener('click', function () {
+            fetch(menu.dataset.readAllUrl, {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+            }).then(function (response) {
+                if (!response.ok) throw new Error('Unable to update notifications');
+                refresh();
+            });
+        });
+
+        refresh();
+        window.setInterval(refresh, 30000);
+        menu.addEventListener('toggle', function () { if (menu.open) refresh(); });
     })();
 </script>
 

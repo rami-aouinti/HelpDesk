@@ -75,3 +75,62 @@ html[data-theme="dark"] .theme-option-footer strong { color:#e8edf7; }
 @media(max-width:1100px) { .theme-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:760px) { .theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .theme-section { padding:19px; } }
 @media(max-width:440px) { .theme-grid { grid-template-columns:1fr; } .theme-option { flex-direction:row; align-items:center; } .theme-preview { flex:0 0 43%; } .theme-option-footer { flex:1; } }
+
+
+/* Accent palette overrides — keep these selectors above legacy fixed colors. */
+html[data-accent] {
+    --hd-focus: color-mix(in srgb, var(--hd-primary) 22%, transparent);
+}
+html[data-accent] .btn-primary,
+html[data-accent] .button-primary,
+html[data-accent] .quick-photo-submit,
+html[data-accent] .pagination-page.is-active {
+    background-color:var(--hd-primary);
+    border-color:var(--hd-primary);
+}
+html[data-accent] .btn-primary:hover,
+html[data-accent] .button-primary:hover,
+html[data-accent] .quick-photo-submit:hover {
+    background-color:var(--hd-primary-dark);
+    border-color:var(--hd-primary-dark);
+}
+html[data-accent] .eyebrow,
+html[data-accent] .table-primary-link,
+html[data-accent] .dashboard-view-all,
+html[data-accent] .dashboard-ticket-link:hover,
+html[data-accent] .sort-button:hover,
+html[data-accent] .profile-identity-copy .profile-role,
+html[data-accent] .account-info-note a {
+    color:var(--hd-primary);
+}
+html[data-accent] .nav-link.active {
+    box-shadow:inset 3px 0 var(--hd-primary);
+}
+html[data-accent] .theme-option[aria-pressed="true"] {
+    border-color:var(--hd-primary);
+    box-shadow:0 0 0 3px var(--hd-focus);
+}
+html[data-accent] .theme-option-check {
+    background:var(--hd-primary);
+}
+html[data-accent] .dashboard-stat-dot,
+html[data-accent] .dashboard-mini-avatar {
+    color:var(--hd-primary);
+    background-color:color-mix(in srgb,var(--hd-primary) 12%,var(--hd-surface));
+}
+html[data-accent] .dashboard-stat-dot {
+    background-color:var(--hd-primary);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--hd-primary) 12%,transparent);
+}
+html[data-accent] .ticket-description {
+    border-color:color-mix(in srgb,var(--hd-primary) 20%,var(--hd-border));
+}
+html[data-accent] .topbar-search:focus-within,
+html[data-accent] .table-search input:focus,
+html[data-accent] .table-filter select:focus,
+html[data-accent] .form-group input:focus,
+html[data-accent] .form-group textarea:focus,
+html[data-accent] .form-group select:focus {
+    border-color:var(--hd-primary);
+    box-shadow:0 0 0 3px var(--hd-focus);
+}

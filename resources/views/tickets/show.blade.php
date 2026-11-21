@@ -35,6 +35,7 @@
             </div>
             <div class="ticket-detail-item"><span>Customer</span><strong>{{ $ticket->customer?->name ?? 'Unassigned' }}</strong></div>
             <div class="ticket-detail-item"><span>Project</span><strong>{{ $ticket->project?->name ?? 'No project' }}</strong></div>
+            <div class="ticket-detail-item"><span>Sprint</span><strong>{{ $ticket->sprint?->name ?? 'No sprint' }}</strong></div>
             <div class="ticket-detail-item"><span>Team</span><strong>{{ $ticket->team?->name ?? 'Not assigned' }}</strong></div>
             <div class="ticket-detail-item"><span>Assigned agent</span><strong>{{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</strong></div>
             <div class="ticket-detail-item"><span>Estimated time</span><strong>{{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</strong></div>

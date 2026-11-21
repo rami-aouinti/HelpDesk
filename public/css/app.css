@@ -1011,3 +1011,16 @@ html[data-theme="dark"] .ticket-detail-item { border-color:var(--hd-border); }
 .profile-avatar-trigger:focus-visible .profile-avatar-overlay { opacity:1; }
 .profile-avatar-hint { color:var(--hd-muted); font-size:10px; text-align:center; }
 .profile-avatar-file:focus-visible + .profile-avatar-trigger { outline:3px solid var(--hd-ring); outline-offset:4px; }
+
+
+/* Keep the dark-mode control on the left side of the appbar, beside the breadcrumb */
+.topbar-actions {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+@media (max-width: 850px) {
+    .topbar-actions {
+        margin-left: auto !important;
+        margin-right: 4px !important;
+    }
+}

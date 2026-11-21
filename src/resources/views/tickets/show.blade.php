@@ -26,6 +26,8 @@
         <p><strong>Subject:</strong> {{ $ticket->subject }}</p>
         <p><strong>Description:</strong> {{ $ticket->description }}</p>
         <p><strong>Customer:</strong> {{ $ticket->customer?->name ?? 'Unassigned' }}</p>
+        <p><strong>Team:</strong> {{ $ticket->team?->name ?? 'Not assigned' }}</p>
+        <p><strong>Assigned agent:</strong> {{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</p>
         <p><strong>Created:</strong> {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
 
         <hr>
@@ -63,6 +65,31 @@
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="team_id">Team</label>
+                <select name="team_id" id="team_id">
+                    <option value="">No team</option>
+                    @foreach ($teams as $team)
+                        <option value="{{ $team->id }}" @selected((string) old('team_id', $ticket->team_id) === (string) $team->id)>
+                            {{ $team->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assigned_to">Assigned agent</label>
+                <select name="assigned_to" id="assigned_to">
+                    <option value="">Unassigned</option>
+                    @foreach ($agents as $agent)
+                        <option value="{{ $agent->id }}" @selected((string) old('assigned_to', $ticket->assigned_to) === (string) $agent->id)>
+                            {{ $agent->name }} ({{ $agent->email }})
+                        </option>
+                    @endforeach
+                </select>
+                <small>The agent must belong to the selected team.</small>
             </div>
 
             <div class="form-group">

@@ -57,6 +57,41 @@
                 <strong>@yield('page-title', 'Dashboard')</strong>
             </div>
 
+            @php
+                $topbarPage = match (true) {
+                    request()->routeIs('users.index') => 'users',
+                    request()->routeIs('teams.index') => 'teams',
+                    request()->routeIs('projects.index') => 'projects',
+                    request()->routeIs('tickets.index') => 'tickets',
+                    default => null,
+                };
+            @endphp
+            @if ($topbarPage)
+                <div class="topbar-page-tools">
+                    <label class="topbar-search" for="topbar-page-search">
+                        <span aria-hidden="true">⌕</span>
+                        <input id="topbar-page-search" type="search" data-search-event="{{ $topbarPage }}-search-updated" placeholder="Search {{ $topbarPage }}..." value="{{ request()->query('search', '') }}" autocomplete="off" aria-label="Search {{ $topbarPage }}">
+                    </label>
+                    @if ($topbarPage === 'users')
+                        @can('create', \App\Models\User::class)
+                            <a href="{{ route('users.create') }}" class="btn btn-primary topbar-create">+ Create user</a>
+                        @endcan
+                    @elseif ($topbarPage === 'teams')
+                        @can('create', \App\Models\Team::class)
+                            <button type="button" class="btn btn-primary topbar-create" onclick="Livewire.dispatch('teams-create')">+ Create team</button>
+                        @endcan
+                    @elseif ($topbarPage === 'projects')
+                        @can('create', \App\Models\Project::class)
+                            <button type="button" class="btn btn-primary topbar-create" onclick="Livewire.dispatch('projects-create')">+ Create project</button>
+                        @endcan
+                    @elseif ($topbarPage === 'tickets')
+                        @can('tickets.create')
+                            <a href="{{ route('tickets.create') }}" class="btn btn-primary topbar-create">+ Create ticket</a>
+                        @endcan
+                    @endif
+                </div>
+            @endif
+
             <div class="topbar-actions">
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">
                     <span class="theme-toggle-icon" aria-hidden="true">☾</span>
@@ -100,6 +135,21 @@
     </main>
 </div>
 @livewireScripts
+<script>
+    (function () {
+        var search = document.getElementById('topbar-page-search');
+        if (!search) return;
+        var debounce;
+        search.addEventListener('input', function () {
+            window.clearTimeout(debounce);
+            var value = search.value;
+            var eventName = search.dataset.searchEvent;
+            debounce = window.setTimeout(function () {
+                if (window.Livewire && eventName) window.Livewire.dispatch(eventName, { search: value });
+            }, 300);
+        });
+    })();
+</script>
 <script>
     (function () {
         var button = document.getElementById('theme-toggle');

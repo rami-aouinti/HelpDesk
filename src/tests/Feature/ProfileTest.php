@@ -44,7 +44,10 @@ class ProfileTest extends TestCase
             ->put(route('profile.update'), [
                 'name' => 'Updated Customer Name',
                 'email' => $user->email,
-                'profile_photo' => UploadedFile::fake()->image('avatar.png'),
+                'profile_photo' => UploadedFile::fake()->createWithContent(
+                    'avatar.png',
+                    base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX2sAAAAASUVORK5CYII=')
+                ),
             ])
             ->assertRedirect(route('profile.edit'))
             ->assertSessionHasNoErrors();

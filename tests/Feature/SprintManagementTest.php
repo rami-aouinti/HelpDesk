@@ -41,6 +41,41 @@ class SprintManagementTest extends TestCase
         ]);
     }
 
+
+    public function test_admin_can_update_sprint_details_and_dates(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint($admin);
+
+        Livewire::actingAs($admin)->test(Index::class)
+            ->call('edit', $sprint->id)
+            ->set('name', 'Updated sprint name')
+            ->set('description', 'Updated sprint goal.')
+            ->set('startDate', '2026-12-03')
+            ->set('endDate', '2026-12-17')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('sprints', [
+            'id' => $sprint->id,
+            'name' => 'Updated sprint name',
+            'description' => 'Updated sprint goal.',
+            'start_date' => '2026-12-03',
+            'end_date' => '2026-12-17',
+        ]);
+    }
+
+    public function test_agent_cannot_edit_a_sprint(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $sprint = $this->makeSprint($admin);
+
+        Livewire::actingAs($agent)->test(Index::class)
+            ->call('edit', $sprint->id)
+            ->assertForbidden();
+    }
+
     public function test_sprint_end_date_cannot_be_before_start_date(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();

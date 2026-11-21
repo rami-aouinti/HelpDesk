@@ -3,7 +3,7 @@
 Elasticsearch has two explicit responsibilities:
 
 1. **Operational telemetry**: Filebeat indexes container output in `helpdesk-logs-YYYY.MM.DD`. Laravel emits structured `http.request`, `http.request.exception`, and queue lifecycle events.
-2. **Ticket search**: the queued `IndexTicketInElasticsearch` listener maintains one document per ticket in the `helpdesk-tickets` index. The document contains ticket text, status, priority and relation IDs only. It deliberately excludes customer names, email addresses, message bodies, attachments, tokens and other personal data.
+2. **Ticket search**: the queued `IndexTicketInElasticsearch` listener maintains one document per ticket in the `helpdesk-tickets` index. The document contains ticket subject/description, status, priority and relation IDs. It excludes direct customer identifiers, email addresses, message bodies, attachments and tokens. Ticket subject/description are user-entered business content and may themselves contain personal data; restrict Elasticsearch access, apply retention rules and handle deletion requests consistently.
 
 ## Ticket indexing
 

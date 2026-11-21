@@ -8,6 +8,7 @@ use App\Services\TeamManagementService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -57,6 +58,12 @@ class Index extends Component
         $this->reset(['search', 'membership']);
         $this->resetPage();
     }
+
+    #[On('teams-search-updated')]
+    public function updateSearch(string $search): void { $this->search = $search; $this->resetPage(); }
+
+    #[On('teams-create')]
+    public function createFromTopbar(): void { $this->create(); }
 
     public function create(): void
     {

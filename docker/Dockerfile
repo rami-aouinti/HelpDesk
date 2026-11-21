@@ -10,7 +10,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
-    && printf '<Directory %s>\\n    AllowOverride All\\n    Require all granted\\n</Directory>\\n' "$APACHE_DOCUMENT_ROOT" > /etc/apache2/conf-available/laravel.conf \
+    && printf '<Directory %s>\n    AllowOverride All\n    Require all granted\n</Directory>\n' "$APACHE_DOCUMENT_ROOT" > /etc/apache2/conf-available/laravel.conf \
     && a2enconf laravel
 
 WORKDIR /var/www/html

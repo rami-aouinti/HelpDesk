@@ -39,7 +39,6 @@ class RolePermissionSeeder extends Seeder
         $admin->syncPermissions(Permission::query()->where('guard_name', 'web')->get());
         $agent->syncPermissions([
             'tickets.view',
-            'tickets.view.all',
             'tickets.update',
         ]);
         $customer->syncPermissions([

@@ -42,6 +42,8 @@ class TicketSeeder extends Seeder
                 ? User::where('email', $definition['agent'])->firstOrFail()
                 : null;
 
+            $createdAt = now()->subDays(12 - $index)->subHours($index * 2);
+
             $ticket = Ticket::updateOrCreate(
                 ['subject' => $definition['subject'], 'user_id' => $customer->id],
                 [
@@ -50,10 +52,11 @@ class TicketSeeder extends Seeder
                     'priority' => $definition['priority'],
                     'team_id' => $definition['team']->id,
                     'assigned_to' => $agent?->id,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
                 ],
             );
 
-            $createdAt = now()->subDays(12 - $index)->subHours($index * 2);
             $this->history($ticket, $customer->id, 'created', null, 'Ticket created', $createdAt);
 
             $this->history($ticket, $agent?->id, 'team_id', null, (string) $definition['team']->id, $createdAt->copy()->addMinutes(5));

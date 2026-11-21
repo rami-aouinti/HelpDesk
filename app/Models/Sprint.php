@@ -36,6 +36,11 @@ class Sprint extends Model
 
     public function getIsCompletedAttribute(): bool
     {
+        if (array_key_exists('tickets_count', $this->attributes)
+            && array_key_exists('unfinished_tickets_count', $this->attributes)) {
+            return (int) $this->tickets_count > 0 && (int) $this->unfinished_tickets_count === 0;
+        }
+
         if ($this->relationLoaded('tickets')) {
             return $this->tickets->isNotEmpty()
                 && $this->tickets->every(fn (Ticket $ticket): bool => $ticket->status === 'closed');

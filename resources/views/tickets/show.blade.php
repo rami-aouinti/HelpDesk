@@ -1,12 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Ticket #' . $ticket->id)
+@section('title', 'Ticket #' . $ticket->id . ' | HelpDesk')
+@section('page-title', 'Ticket #' . $ticket->id)
 
 @section('content')
-    <div class="page-header">
+    <div class="page-header ticket-page-header">
         <div>
+            <span class="eyebrow">SUPPORT WORKSPACE / TICKET</span>
             <h1>Ticket #{{ $ticket->id }}</h1>
             <p>{{ $ticket->subject }}</p>
+            <div class="ticket-header-badges">
+                <span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
+                <span class="priority-badge priority-{{ $ticket->priority }}">{{ ucfirst($ticket->priority) }} priority</span>
+            </div>
         </div>
 
         <a href="{{ route('tickets.index') }}" class="btn btn-secondary">
@@ -20,19 +26,22 @@
         </div>
     @endif
 
-    <div class="content-card">
-        <h2>Ticket information</h2>
-
-        <p><strong>Subject:</strong> {{ $ticket->subject }}</p>
-        <p><strong>Description:</strong> {{ $ticket->description }}</p>
-        <p><strong>Customer:</strong> {{ $ticket->customer?->name ?? 'Unassigned' }}</p>
-        <p><strong>Project:</strong> {{ $ticket->project?->name ?? 'No project' }}</p>
-        <p><strong>Estimated time:</strong> {{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</p>
-        <p><strong>Elapsed time:</strong> {{ intdiv($ticket->elapsed_minutes, 60) }}h {{ $ticket->elapsed_minutes % 60 }}m</p>
-        <p><strong>Remaining time:</strong> {{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m</p>
-        <p><strong>Team:</strong> {{ $ticket->team?->name ?? 'Not assigned' }}</p>
-        <p><strong>Assigned agent:</strong> {{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</p>
-        <p><strong>Created:</strong> {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
+    <div class="content-card ticket-information-card">
+        <h2>Ticket overview</h2>
+        <div class="ticket-overview">
+            <div class="ticket-description">
+                <span class="ticket-field-label">DESCRIPTION</span>
+                <p>{{ $ticket->description }}</p>
+            </div>
+            <div class="ticket-detail-item"><span>Customer</span><strong>{{ $ticket->customer?->name ?? 'Unassigned' }}</strong></div>
+            <div class="ticket-detail-item"><span>Project</span><strong>{{ $ticket->project?->name ?? 'No project' }}</strong></div>
+            <div class="ticket-detail-item"><span>Team</span><strong>{{ $ticket->team?->name ?? 'Not assigned' }}</strong></div>
+            <div class="ticket-detail-item"><span>Assigned agent</span><strong>{{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</strong></div>
+            <div class="ticket-detail-item"><span>Estimated time</span><strong>{{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</strong></div>
+            <div class="ticket-detail-item"><span>Elapsed time</span><strong>{{ intdiv($ticket->elapsed_minutes, 60) }}h {{ $ticket->elapsed_minutes % 60 }}m</strong></div>
+            <div class="ticket-detail-item"><span>Remaining time</span><strong>{{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m</strong></div>
+            <div class="ticket-detail-item"><span>Created</span><strong>{{ $ticket->created_at->format('d.m.Y H:i') }}</strong></div>
+        </div>
 
         @if (auth()->user()->hasRole('agent') && $ticket->assigned_to === null)
             <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
@@ -159,9 +168,8 @@
     </div>
 
 
-    <div class="content-card" style="margin-top: 24px;">
-        <h2>Conversation</h2>
-        <p class="text-sm text-slate-500">Replies are visible to the customer and the support team.</p>
+    <div class="content-card ticket-conversation-card" style="margin-top: 24px;">
+        <div class="ticket-section-heading"><div><span class="eyebrow">MESSAGES</span><h2>Conversation</h2><p>Replies are visible to the customer and the support team.</p></div><span class="ticket-message-count">{{ $messages->count() }} messages</span></div>
 
         @if ($errors->any())
             <div class="alert alert-error">
@@ -236,8 +244,8 @@
         </form>
     </div>
 
-    <div class="content-card" style="margin-top: 24px;">
-        <h2>Activity history</h2>
+    <div class="content-card ticket-history-card" style="margin-top: 24px;">
+        <div class="ticket-section-heading"><div><span class="eyebrow">AUDIT TRAIL</span><h2>Activity history</h2><p>Important changes made to this ticket.</p></div></div>
 
         @forelse ($ticket->histories as $history)
             <div style="padding: 14px 0; border-bottom: 1px solid #e2e8f0;">

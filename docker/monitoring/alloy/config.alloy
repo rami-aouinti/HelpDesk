@@ -1,0 +1,29 @@
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "10s"
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.containers.targets
+  labels     = {
+    job = "docker",
+  }
+  forward_to = [loki.process.docker.receiver]
+}
+
+loki.process "docker" {
+  stage.static_labels {
+    values = {
+      environment = "local",
+      application = "helpdesk",
+    }
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

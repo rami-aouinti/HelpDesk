@@ -16,7 +16,7 @@ class TicketSearchServiceTest extends TestCase
         config(['app.env' => 'local']);
         config(['services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);
         Http::fake([
-            'elasticsearch:9200/helpdesk-tickets/_search*' => Http::response([
+            'http://elasticsearch:9200/helpdesk-tickets/_search*' => Http::response([
                 'hits' => [
                     'hits' => [
                         ['_id' => '12'],
@@ -36,7 +36,7 @@ class TicketSearchServiceTest extends TestCase
     {
         config(['app.env' => 'local', 'services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);
         Http::fake([
-            'elasticsearch:9200/*' => Http::response(['error' => 'unavailable'], 503),
+            'http://elasticsearch:9200/*' => Http::response(['error' => 'unavailable'], 503),
         ]);
 
         $this->assertNull(app(TicketSearchService::class)->searchIds('printer offline'));

@@ -43,7 +43,7 @@
                             @if ($canAddToSprint && ! $sprint->is_completed)
                                 <button type="button" class="btn btn-primary" wire:click="addTicketToSprint({{ $backlogTicket->id }})" wire:loading.attr="disabled">Add to sprint</button>
                             @elseif (! $canAddToSprint)
-                                <small class="kanban-readonly-hint">Assigned to another agent</small>
+                                <small class="kanban-readonly-hint">Only the assignee or an administrator can move this ticket</small>
                             @else
                                 <small class="kanban-readonly-hint">This sprint is already completed</small>
                             @endif

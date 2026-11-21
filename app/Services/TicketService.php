@@ -205,6 +205,30 @@ class TicketService
     }
 
     /**
+     * Enforce the ticket workflow for non-administrators.
+     */
+    private function validateStatusTransition(string $oldStatus, string $newStatus, User $actor): void
+    {
+        if ($actor->hasRole('admin')) {
+            return;
+        }
+
+        $transitions = [
+            'open' => ['in_progress'],
+            'in_progress' => ['waiting_for_customer', 'resolved'],
+            'waiting_for_customer' => ['in_progress'],
+            'resolved' => ['closed'],
+            'closed' => [],
+        ];
+
+        if (! in_array($newStatus, $transitions[$oldStatus] ?? [], true)) {
+            throw ValidationException::withMessages([
+                'status' => 'This status transition is not allowed.',
+            ]);
+        }
+    }
+
+    /**
      * A non-admin can only link a ticket to a project they belong to.
      */
     private function validateProjectMembership(array $data, Ticket $ticket, ?int $userId): void

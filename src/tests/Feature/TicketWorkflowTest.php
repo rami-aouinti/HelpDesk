@@ -97,6 +97,7 @@ class TicketWorkflowTest extends TestCase
             'id' => $ticket->id,
             'team_id' => $team->id,
             'assigned_to' => $agent->id,
+            'status' => 'in_progress',
         ]);
         $this->assertDatabaseHas('ticket_histories', [
             'ticket_id' => $ticket->id,

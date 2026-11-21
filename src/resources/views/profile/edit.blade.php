@@ -6,8 +6,9 @@
 @section('content')
     <div class="page-header">
         <div>
+            <span class="eyebrow">ACCOUNT SETTINGS</span>
             <h1>My profile</h1>
-            <p>Manage your personal information and profile photo.</p>
+            <p>Keep your personal details and profile photo up to date.</p>
         </div>
     </div>
 
@@ -17,67 +18,88 @@
 
     @if ($errors->any())
         <div class="alert alert-error">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
     @endif
 
-    <section class="content-card form-card">
-        <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px;">
-            @if ($user->profile_photo_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->profile_photo_path) }}"
-                     alt="Profile photo"
-                     style="width:88px;height:88px;object-fit:cover;border-radius:50%;">
-            @else
-                <div class="avatar" style="width:88px;height:88px;font-size:26px;">
-                    {{ strtoupper(substr($user->name, 0, 2)) }}
+    <div class="profile-layout">
+        <section class="content-card profile-card">
+            <div class="profile-card-heading">
+                <div>
+                    <span class="eyebrow">PERSONAL INFORMATION</span>
+                    <h2>Profile details</h2>
+                    <p>Update the name and email address associated with your account.</p>
                 </div>
-            @endif
-            <div>
-                <h2>{{ $user->name }}</h2>
-                <p>{{ $user->email }}</p>
+            </div>
+
+            <div class="profile-identity">
                 @if ($user->profile_photo_path)
-                    <form method="POST" action="{{ route('profile.photo.destroy') }}" style="margin-top:8px;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-secondary">Remove photo</button>
-                    </form>
+                    <img class="profile-photo-large" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->profile_photo_path) }}" alt="Profile photo">
+                @else
+                    <div class="profile-photo-placeholder">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
                 @endif
-            </div>
-        </div>
-
-        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-
-            <div class="form-group">
-                <label for="name">Full name</label>
-                <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" maxlength="255" required>
+                <div class="profile-identity-copy">
+                    <strong>{{ $user->name }}</strong>
+                    <span>{{ $user->email }}</span>
+                    <span class="profile-role">{{ $user->getRoleNames()->map(fn ($role) => ucfirst($role))->join(' · ') }}</span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="email">Email address</label>
-                <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" maxlength="255" required>
-                <small>Changing your email address requires verifying the new address.</small>
+            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="profile-form">
+                @csrf
+                @method('PUT')
+                <div class="form-group">
+                    <label for="name">Full name</label>
+                    <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" maxlength="255" required>
+                    @error('name')<small class="field-error">{{ $message }}</small>@enderror
+                </div>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" maxlength="255" required>
+                    <small>Changing your email address requires verifying the new address.</small>
+                    @error('email')<small class="field-error">{{ $message }}</small>@enderror
+                </div>
+                <div class="form-group">
+                    <label for="profile_photo">Change profile photo</label>
+                    <input id="profile_photo" name="profile_photo" type="file" accept=".jpg,.jpeg,.png,.webp">
+                    <small>JPG, PNG or WEBP. Maximum file size: 2 MB.</small>
+                    @error('profile_photo')<small class="field-error">{{ $message }}</small>@enderror
+                </div>
+                <div class="profile-form-actions">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    @if ($user->profile_photo_path)
+                        <button type="submit" form="remove-profile-photo" class="btn btn-secondary">Remove photo</button>
+                    @endif
+                </div>
+            </form>
+            @if ($user->profile_photo_path)
+                <form id="remove-profile-photo" method="POST" action="{{ route('profile.photo.destroy') }}">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endif
+        </section>
+
+        <aside class="content-card account-info-card">
+            <span class="eyebrow">ACCOUNT</span>
+            <h2>Account information</h2>
+            <div class="account-info-row">
+                <span>Member since</span>
+                <strong>{{ $user->created_at->format('d M Y') }}</strong>
             </div>
-
-            <div class="form-group">
-                <label for="profile_photo">Profile photo</label>
-                <input id="profile_photo" name="profile_photo" type="file" accept=".jpg,.jpeg,.png,.webp">
-                <small>JPG, PNG or WEBP. Maximum file size: 2 MB.</small>
+            <div class="account-info-row">
+                <span>Email verification</span>
+                <strong class="{{ $user->hasVerifiedEmail() ? 'text-success' : 'text-warning' }}">{{ $user->hasVerifiedEmail() ? 'Verified' : 'Not verified' }}</strong>
             </div>
-
-            <button type="submit" class="btn btn-primary">Save profile</button>
-        </form>
-    </section>
-
-    <section class="content-card" style="margin-top:24px;">
-        <h2>Account information</h2>
-        <p><strong>Member since:</strong> {{ $user->created_at->format('d.m.Y') }}</p>
-        <p><strong>Account roles:</strong> {{ $user->getRoleNames()->map(fn ($role) => ucfirst($role))->join(', ') }}</p>
-        <p><strong>Email status:</strong> {{ $user->hasVerifiedEmail() ? 'Verified' : 'Not verified' }}</p>
-    </section>
+            <div class="account-info-row">
+                <span>Role</span>
+                <strong>{{ $user->getRoleNames()->map(fn ($role) => ucfirst($role))->join(', ') }}</strong>
+            </div>
+            <div class="account-info-note">
+                <strong>Need help?</strong>
+                <p>Visit the Help center to learn how to use tickets, teams and conversations.</p>
+                <a href="{{ route('help') }}">Open Help center →</a>
+            </div>
+        </aside>
+    </div>
 @endsection

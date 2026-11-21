@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration; use Illuminate\Database\Schema\Blueprint; use Illuminate\Support\Facades\Schema;
+return new class extends Migration { public function up():void { Schema::table('tickets',function(Blueprint $t):void{$t->foreignId('project_id')->nullable()->after('team_id')->constrained()->nullOnDelete();$t->index(['project_id','team_id']);});} public function down():void{Schema::table('tickets',function(Blueprint $t):void{$t->dropIndex(['project_id','team_id']);$t->dropConstrainedForeignId('project_id');});}};

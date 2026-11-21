@@ -114,7 +114,7 @@ class TicketNotificationService
         }
 
         if (isset($changes['team_id'])) {
-            $supportChanges['Team'] = $ticket->team?->name ?? 'Unassigned';
+            $supportChanges['Team'] = $ticket->team_id === null ? 'Unassigned' : $ticket->team->name;
 
             if ($ticket->team) {
                 $supportRecipients = $supportRecipients->merge(

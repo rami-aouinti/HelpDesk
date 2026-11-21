@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TicketUpdated;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\Team;
@@ -101,11 +102,11 @@ class TicketService
         });
 
         if ($userId !== null) {
-            app(TicketNotificationService::class)->ticketUpdated(
+            event(new TicketUpdated(
                 $updatedTicket,
                 User::query()->findOrFail($userId),
                 $changes,
-            );
+            ));
         }
 
         return $updatedTicket;
@@ -199,7 +200,7 @@ class TicketService
             return $lockedTicket->refresh()->load(['customer', 'assignedAgent', 'team']);
         });
 
-        app(TicketNotificationService::class)->ticketUpdated($claimedTicket, $agent, $changes);
+        event(new TicketUpdated($claimedTicket, $agent, $changes));
 
         return $claimedTicket;
     }

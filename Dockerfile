@@ -12,10 +12,10 @@ RUN npm run build
 FROM php:8.4-fpm-bookworm AS app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip libicu-dev libpq-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    git unzip libicu-dev libpq-dev libsqlite3-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
-        bcmath exif gd intl opcache pcntl pdo_pgsql zip \
+        bcmath exif gd intl opcache pcntl pdo_pgsql pdo_sqlite zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

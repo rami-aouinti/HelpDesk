@@ -145,7 +145,7 @@ class Board extends Component
                 });
             }
 
-            if ($this->onlyMine && ! $user->hasRole('admin')) {
+            if ($this->onlyMine) {
                 $query->where('assigned_to', $user->id);
             }
 

@@ -4,16 +4,11 @@
 @section('page-title', 'Tickets')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <h1>Tickets</h1>
-            <p>Manage and track customer support requests.</p>
-        </div>
-
-        @can('tickets.create')
+    @can('tickets.create')
+        <div class="page-actions">
             <a href="{{ route('tickets.create') }}" class="btn btn-primary">+ Create ticket</a>
-        @endcan
-    </div>
+        </div>
+    @endcan
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

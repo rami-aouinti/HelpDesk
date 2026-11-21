@@ -10,14 +10,14 @@ use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketService;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class TicketController extends Controller
 {
-    public function index(Request $request): LengthAwarePaginator
+    public function index(Request $request): AnonymousResourceCollection
     {
         Gate::authorize('viewAny', Ticket::class);
 
@@ -26,7 +26,7 @@ class TicketController extends Controller
             ->latest()
             ->paginate(min(max($request->integer('per_page', 15), 1), 100));
 
-        return TicketResource::collection($tickets)->response()->getData(true);
+        return TicketResource::collection($tickets);
     }
 
     public function store(StoreTicketRequest $request): JsonResponse

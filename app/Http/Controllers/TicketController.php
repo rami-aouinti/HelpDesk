@@ -32,7 +32,7 @@ class TicketController extends Controller
         abort_unless(auth()->user()->can('create', Ticket::class), 403);
 
         $user = auth()->user();
-        $projects = $user->can('projects.view.all') ? \\App\\Models\\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
+        $projects = $user->can('projects.view.all') ? \App\Models\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
         return view('tickets.create', compact('projects'));
     }
 
@@ -83,7 +83,7 @@ class TicketController extends Controller
             'messages' => $messagesQuery->get(),
             'teams' => $teams->get(),
             'agents' => $agents->get(),
-            'projects' => $user->can('projects.view.all') ? \\App\\Models\\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
+            'projects' => $user->can('projects.view.all') ? \App\Models\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
         ]);
     }
 

@@ -33,12 +33,11 @@ class SprintManagementTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('sprints', [
-            'name' => 'Sprint Alpha',
-            'created_by' => $admin->id,
-            'start_date' => '2026-12-01',
-            'end_date' => '2026-12-14',
-        ]);
+        $sprint = Sprint::query()->where('name', 'Sprint Alpha')->firstOrFail();
+
+        $this->assertSame($admin->id, $sprint->created_by);
+        $this->assertSame('2026-12-01', $sprint->start_date->toDateString());
+        $this->assertSame('2026-12-14', $sprint->end_date->toDateString());
     }
 
     public function test_admin_can_update_sprint_details_and_dates(): void
@@ -55,13 +54,12 @@ class SprintManagementTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('sprints', [
-            'id' => $sprint->id,
-            'name' => 'Updated sprint name',
-            'description' => 'Updated sprint goal.',
-            'start_date' => '2026-12-03',
-            'end_date' => '2026-12-17',
-        ]);
+        $updatedSprint = $sprint->fresh();
+
+        $this->assertSame('Updated sprint name', $updatedSprint->name);
+        $this->assertSame('Updated sprint goal.', $updatedSprint->description);
+        $this->assertSame('2026-12-03', $updatedSprint->start_date->toDateString());
+        $this->assertSame('2026-12-17', $updatedSprint->end_date->toDateString());
     }
 
     public function test_agent_cannot_edit_a_sprint(): void

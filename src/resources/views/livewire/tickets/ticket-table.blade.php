@@ -20,7 +20,7 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>ID</th><th>Subject</th><th>Customer</th><th>Priority</th><th>Status</th><th>Created</th>
+                        <th>ID</th><th>Subject</th><th>Customer</th><th>Team</th><th>Assigned agent</th><th>Priority</th><th>Status</th><th>Created</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -29,6 +29,8 @@
                             <td>#{{ $ticket->id }}</td>
                             <td><a href="{{ route('tickets.show', $ticket) }}">{{ $ticket->subject }}</a></td>
                             <td>{{ $ticket->customer?->name ?? 'Unassigned' }}</td>
+                            <td>{{ $ticket->team?->name ?? '—' }}</td>
+                            <td>{{ $ticket->assignedAgent?->name ?? '—' }}</td>
                             <td>{{ ucfirst($ticket->priority) }}</td>
                             <td>{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</td>
                             <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>

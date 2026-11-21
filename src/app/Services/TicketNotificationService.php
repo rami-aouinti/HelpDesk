@@ -26,10 +26,14 @@ class TicketNotificationService
 
     public function messageCreated(TicketMessage $message): void
     {
+        fwrite(STDERR, "NOTIFY 1: entered messageCreated\\n");
         $ticket = $message->ticket()->with(['team.members', 'assignedAgent', 'customer'])->firstOrFail();
+        fwrite(STDERR, "NOTIFY 2: ticket loaded\\n");
         $author = $message->user;
+        fwrite(STDERR, "NOTIFY 3: author loaded\\n");
 
         if ($message->is_internal) {
+            fwrite(STDERR, "NOTIFY 6: before support recipients\\n");
             $recipients = $this->supportRecipients($ticket)
                 ->merge($ticket->assignedAgent ? collect([$ticket->assignedAgent]) : collect())
                 ->unique('id')
@@ -45,12 +49,15 @@ class TicketNotificationService
             return;
         }
 
+        fwrite(STDERR, "NOTIFY 4: before author role check\\n");
         if ($author->hasRole('customer')) {
+            fwrite(STDERR, "NOTIFY 5: author is customer\\n");
             $recipients = $this->supportRecipients($ticket)
                 ->merge($ticket->assignedAgent ? collect([$ticket->assignedAgent]) : collect())
                 ->unique('id')
                 ->reject(fn (User $user): bool => $user->is($author));
 
+            fwrite(STDERR, "NOTIFY 7: recipients loaded\\n");
             $this->send(
                 $recipients,
                 $ticket,
@@ -188,10 +195,12 @@ class TicketNotificationService
             return;
         }
 
+        fwrite(STDERR, "NOTIFY 9: before Notification::send\\n");
         Notification::send(
             $recipients,
             new TicketActivityNotification($ticket, $subject, $message, $changes),
         );
+        fwrite(STDERR, "NOTIFY 10: after Notification::send\\n");
     }
 
     private function displayValue(mixed $value): string

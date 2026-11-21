@@ -15,5 +15,7 @@
     <rule ref="PSR12">
         <!-- Laravel/PHPUnit test methods conventionally use snake_case. -->
         <exclude name="PSR1.Methods.CamelCapsMethodName"/>
+        <!-- Existing application code is not subject to PSR-12 line-length warnings. -->
+        <exclude name="Generic.Files.LineLength.TooLong"/>
     </rule>
 </ruleset>

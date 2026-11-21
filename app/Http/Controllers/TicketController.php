@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TicketCreated;
+use App\Events\TicketMessageCreated;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Ticket;
@@ -10,7 +12,6 @@ use App\Models\TicketMessage;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\TicketService;
-use App\Services\TicketNotificationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class TicketController extends Controller
             'project_id' => $request->validated('project_id'),
         ]);
 
-        app(TicketNotificationService::class)->ticketCreated($ticket);
+        event(new TicketCreated($ticket));
 
         return redirect()
             ->route('tickets.index')
@@ -151,7 +152,7 @@ class TicketController extends Controller
             throw $exception;
         }
 
-        app(TicketNotificationService::class)->messageCreated($message);
+        event(new TicketMessageCreated($message));
 
         return redirect()
             ->route('tickets.show', $ticket)

@@ -40,6 +40,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function resetFilters(): void
+    {
+        $this->reset(['search', 'role', 'status']);
+        $this->resetPage();
+    }
+
     public function toggleActive(int $userId, UserManagementService $users): void
     {
         $user = User::query()->findOrFail($userId);

@@ -37,6 +37,13 @@ class TicketResource extends JsonResource
                 'id' => $this->project->id,
                 'name' => $this->project->name,
             ] : null),
+            'sprint' => $this->whenLoaded('sprint', fn () => $this->sprint ? [
+                'id' => $this->sprint->id,
+                'name' => $this->sprint->name,
+                'start_date' => $this->sprint->start_date?->toDateString(),
+                'end_date' => $this->sprint->end_date?->toDateString(),
+                'is_completed' => $this->sprint->is_completed,
+            ] : null),
             'messages' => TicketMessageResource::collection($this->whenLoaded('messages')),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

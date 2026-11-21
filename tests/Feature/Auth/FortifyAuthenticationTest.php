@@ -141,7 +141,7 @@ class FortifyAuthenticationTest extends TestCase
 
         $this->actingAs($user)
             ->get($verificationUrl)
-            ->assertRedirect('/dashboard');
+            ->assertRedirect('/dashboard?verified=1');
 
         $this->assertNotNull($user->fresh()->email_verified_at);
     }

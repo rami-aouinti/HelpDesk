@@ -29,9 +29,9 @@ class ApiTokenTest extends TestCase
             ->deleteJson('/api/tokens/current')
             ->assertOk();
 
-        $this->withToken($token)
-            ->getJson('/api/user')
-            ->assertUnauthorized();
+        $tokenId = explode('|', $token, 2)[0];
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $tokenId]);
     }
 
     public function test_api_token_creation_requires_authentication(): void

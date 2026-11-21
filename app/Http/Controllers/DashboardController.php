@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\\Http\\Controllers;
 
-use App\Models\Ticket;
-use Illuminate\Contracts\View\View;
+use App\\Models\\Ticket;
+use Illuminate\\Contracts\\View\\View;
 
 class DashboardController extends Controller
 {
@@ -17,12 +17,23 @@ class DashboardController extends Controller
                 $tickets->where('user_id', $user->id);
             } elseif ($user->hasRole('agent')) {
                 $teamIds = $user->teams()->pluck('teams.id');
+
                 $tickets->where(function ($scope) use ($teamIds): void {
-                    $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds);
+                    $scope->whereNull('team_id')
+                        ->orWhereIn('team_id', $teamIds);
                 });
             } else {
                 $tickets->whereRaw('1 = 0');
             }
+
+            // Keep dashboard visibility aligned with TicketPolicy: a ticket
+            // attached to a project is visible only to that project's members.
+            $tickets->where(function ($scope) use ($user): void {
+                $scope->whereNull('project_id')
+                    ->orWhereHas('project.members', function ($members) use ($user): void {
+                        $members->whereKey($user->id);
+                    });
+            });
         }
 
         $statistics = [

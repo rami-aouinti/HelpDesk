@@ -19,11 +19,11 @@ class CreateNewUser implements CreatesNewUsers
 
         $user = User::create([
             'name' => $input['name'],
-            'email' => Strtolower($input['email']),
+            'email' => strtolower($input['email']),
             'password' => $input['password'],
         ]);
 
-        $user->assignRole('customer');
+        Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);\n        $user->assignRole('customer');
 
         return $user;
     }

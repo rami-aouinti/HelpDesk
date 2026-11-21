@@ -8,26 +8,26 @@ class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('users.view');
     }
 
     public function view(User $user, User $model): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('users.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('users.create');
     }
 
     public function update(User $user, User $model): bool
     {
-        return $user->hasRole('admin');
+        return $user->can('users.update');
     }
 
     public function toggleActive(User $user, User $model): bool
     {
-        return $user->hasRole('admin') && $user->isNot($model);
+        return $user->can('users.deactivate') && $user->isNot($model);
     }
 }

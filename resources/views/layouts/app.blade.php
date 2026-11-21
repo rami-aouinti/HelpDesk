@@ -152,25 +152,6 @@
         });
     })();
 </script>
-<script>
-    (function () {
-        var button = document.getElementById('theme-toggle');
-        if (!button) return;
-        function syncThemeButton() {
-            var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-            var icon = button.querySelector('.theme-toggle-icon');
-            button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-            button.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
-            if (icon) icon.textContent = dark ? '☀' : '☾';
-        }
-        syncThemeButton();
-        button.addEventListener('click', function () {
-            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            try { localStorage.setItem('helpdesk-theme', next); } catch (error) {}
-            syncThemeButton();
-        });
-    })();
-</script>
+
 </body>
 </html>

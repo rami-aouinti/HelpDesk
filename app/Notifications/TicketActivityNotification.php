@@ -29,7 +29,24 @@ class TicketActivityNotification extends Notification implements \Illuminate\Con
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
+    }
+
+    /**
+     * Store a concise, safe in-app notification payload.
+     *
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'title' => $this->subject,
+            'message' => $this->message,
+            'ticket_id' => $this->ticket->id,
+            'ticket_subject' => $this->ticket->subject,
+            'url' => route('tickets.show', $this->ticket),
+            'changes' => $this->changes,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

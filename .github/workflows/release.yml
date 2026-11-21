@@ -1,0 +1,64 @@
+name: Release Docker images
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-scan-publish:
+    name: Build, scan and publish immutable images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build PHP-FPM image
+        run: docker build --target app --tag "$IMAGE:$GITHUB_SHA" .
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/helpdesk
+
+      - name: Build Nginx image
+        run: docker build --target nginx --tag "$IMAGE-nginx:$GITHUB_SHA" .
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/helpdesk
+
+      - name: Scan PHP-FPM image
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/helpdesk:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Scan Nginx image
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/helpdesk-nginx:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Log in to GitHub Container Registry
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish immutable images
+        run: |
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE-nginx:$GITHUB_SHA"
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/helpdesk

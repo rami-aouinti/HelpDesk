@@ -1,0 +1,4 @@
+<?php
+namespace Database\Seeders;
+use App\Models\Project; use App\Models\Ticket; use App\Models\User; use Illuminate\Database\Seeder;
+class ProjectSeeder extends Seeder { public function run():void{$admin=User::role('admin')->firstOrFail();$agents=User::role('agent')->where('is_active',true)->get();$customers=User::role('customer')->where('is_active',true)->get();$defs=[['Website Redesign','Customer portal redesign and accessibility improvements.'],['Mobile Application','Mobile app stability and authentication improvements.'],['Billing Modernization','Invoice and payment reconciliation improvements.']];foreach($defs as $i=>$def){$p=Project::updateOrCreate(['name'=>$def[0]],['description'=>$def[1],'created_by'=>$admin->id]);$p->members()->sync($agents->take(2)->merge($customers->take($i+1))->modelKeys());Ticket::whereNull('project_id')->whereIn('user_id',$customers->take($i+1)->modelKeys())->limit(1)->update(['project_id'=>$p->id]);}}}

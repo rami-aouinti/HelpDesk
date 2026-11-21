@@ -90,7 +90,7 @@ Supported list filters:
 | Query parameter | Description |
 | --- | --- |
 | `status`, `priority` | Filter by ticket status or priority |
-| `team_id`, `project_id`, `assigned_to` | Filter by team, project, or assigned agent |
+| `team_id`, `project_id`, `assigned_to`, `sprint_id` | Filter by team, project, assigned agent, or sprint |
 | `unassigned=true/false` | Filter unassigned or assigned tickets |
 | `search` | Search subject, description, or numeric ticket ID |
 | `created_from`, `created_to` | Filter by creation date |
@@ -117,7 +117,7 @@ The web application includes Sprint Management and a Livewire Kanban board:
 - A sprint is automatically considered completed when it contains at least one ticket and every ticket has status `closed` (the workflow's final `done` state).
 - Administrators can create, edit and delete empty sprints, and move any ticket.
 - Agents can move only tickets assigned to themselves, and status changes still respect the ticket workflow.
-- The Kanban board opens the latest sprint by default and offers an "Only my assigned tickets" filter to agents.
+- The Kanban board opens the latest sprint by default and offers an "Only my assigned tickets" filter to agents and administrators.
 - A sprint containing tickets cannot be deleted; move its tickets to another sprint first.
 
 Pages: [Sprints](/sprints) and [Kanban](/kanban).

@@ -10,9 +10,20 @@ class DashboardController extends Controller
     public function index(): View
     {
         $user = auth()->user();
+        $tickets = Ticket::query();
 
-        $tickets = Ticket::query()
-            ->when(! $user->can('tickets.view.all'), fn ($query) => $query->where('user_id', $user->id));
+        if (! $user->can('tickets.view.all')) {
+            if ($user->hasRole('customer')) {
+                $tickets->where('user_id', $user->id);
+            } elseif ($user->hasRole('agent')) {
+                $teamIds = $user->teams()->pluck('teams.id');
+                $tickets->where(function ($scope) use ($teamIds): void {
+                    $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds);
+                });
+            } else {
+                $tickets->whereRaw('1 = 0');
+            }
+        }
 
         $statistics = [
             'total' => (clone $tickets)->count(),

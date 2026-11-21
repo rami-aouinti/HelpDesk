@@ -41,6 +41,7 @@ class ElasticsearchTicketIndexingTest extends TestCase
                 && ! array_key_exists('customer_email', $request->data());
         });
     }
+
     public function test_reindex_command_rebuilds_the_ticket_search_projection_in_batches(): void
     {
         config(['app.env' => 'local', 'services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);

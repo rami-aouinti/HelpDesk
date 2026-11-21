@@ -14,6 +14,7 @@ use App\Services\TicketNotificationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
@@ -108,41 +109,48 @@ class TicketController extends Controller
             abort_unless($request->user()->can('update', $ticket), 403);
         }
 
-        $message = TicketMessage::create([
-            'ticket_id' => $ticket->id,
-            'user_id' => $request->user()->id,
-            'body' => trim((string) ($data['body'] ?? '')) ?: 'Shared attachments.',
-            'is_internal' => $isInternal,
-        ]);
         $storedPaths = [];
 
         try {
-            foreach ($request->file('attachments', []) as $file) {
-                $path = $file->store("ticket-attachments/{$ticket->id}", 'local');
-
-                if ($path === false) {
-                    throw new \RuntimeException('The attachment could not be stored.');
-                }
-
-                $storedPaths[] = $path;
-
-                $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
-                $message->attachments()->create([
+            $message = DB::transaction(function () use ($ticket, $request, $data, $isInternal, &$storedPaths): TicketMessage {
+                $message = TicketMessage::create([
                     'ticket_id' => $ticket->id,
                     'user_id' => $request->user()->id,
-                    'disk' => 'local',
-                    'path' => $path,
-                    'original_name' => mb_strcut($originalName, 0, 255, 'UTF-8'),
-                    'mime_type' => $file->getMimeType(),
-                    'size' => $file->getSize(),
+                    'body' => trim((string) ($data['body'] ?? '')) ?: 'Shared attachments.',
+                    'is_internal' => $isInternal,
                 ]);
-            }
+
+                foreach ($request->file('attachments', []) as $file) {
+                    $path = $file->store("ticket-attachments/{$ticket->id}", 'local');
+
+                    if ($path === false) {
+                        throw new \\RuntimeException('The attachment could not be stored.');
+                    }
+
+                    $storedPaths[] = $path;
+
+                    $originalName = basename(str_replace('\\\\', '/', $file->getClientOriginalName()));
+                    $message->attachments()->create([
+                        'ticket_id' => $ticket->id,
+                        'user_id' => $request->user()->id,
+                        'disk' => 'local',
+                        'path' => $path,
+                        'original_name' => mb_strcut($originalName, 0, 255, 'UTF-8'),
+                        'mime_type' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                    ]);
+                }
+
+                return $message;
+            });
         } catch (Throwable $exception) {
-            Storage::disk('local')->delete($storedPaths);
-            $message->delete();
+            if ($storedPaths !== []) {
+                Storage::disk('local')->delete($storedPaths);
+            }
 
             throw $exception;
         }
+
         app(TicketNotificationService::class)->messageCreated($message);
 
         return redirect()

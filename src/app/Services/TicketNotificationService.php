@@ -94,25 +94,53 @@ class TicketNotificationService
             );
         }
 
-        if (isset($changes['assigned_to']) && $ticket->assignedAgent && ! $ticket->assignedAgent->is($actor)) {
-            $this->send(
-                collect([$ticket->assignedAgent]),
-                $ticket,
-                'A ticket was assigned to you',
-                'You have been assigned a support ticket.',
-            );
+        $supportChanges = [];
+        $supportRecipients = collect();
+
+        if (isset($changes['assigned_to'])) {
+            if ($ticket->assignedAgent) {
+                $supportRecipients->push($ticket->assignedAgent);
+                $supportChanges['Assigned agent'] = $ticket->assignedAgent->name;
+            } else {
+                $supportChanges['Assigned agent'] = 'Unassigned';
+            }
+
+            $oldAgentId = $changes['assigned_to']['old'];
+            if ($oldAgentId && (int) $oldAgentId !== (int) $ticket->assigned_to) {
+                $oldAgent = User::query()->find($oldAgentId);
+                if ($oldAgent) {
+                    $supportRecipients->push($oldAgent);
+                }
+            }
         }
 
         if (isset($changes['team_id'])) {
-            $newTeamMembers = $ticket->team?->members()
-                ->where('is_active', true)
-                ->get() ?? collect();
+            $supportChanges['Team'] = $ticket->team?->name ?? 'Unassigned';
 
+            if ($ticket->team) {
+                $supportRecipients = $supportRecipients->merge(
+                    $ticket->team->members()->where('is_active', true)->get()
+                );
+            }
+
+            $oldTeamId = $changes['team_id']['old'];
+            if ($oldTeamId && (int) $oldTeamId !== (int) $ticket->team_id) {
+                $oldTeam = \\App\\Models\\Team::query()->with('members')->find($oldTeamId);
+                if ($oldTeam) {
+                    $supportRecipients = $supportRecipients->merge(
+                        $oldTeam->members->where('is_active', true)
+                    );
+                }
+            }
+        }
+
+        if ($supportChanges !== []) {
             $this->send(
-                $newTeamMembers->reject(fn (User $user): bool => $user->is($actor)),
+                $supportRecipients->reject(fn (User $user): bool => $user->is($actor)),
                 $ticket,
-                'Ticket #'.$ticket->id.' moved to your team',
-                'A ticket was assigned to your team.',
+                'Assignment updated for ticket #'.$ticket->id,
+                'The assignment details of a support ticket have changed.',
+                $supportChanges,
             );
         }
     }

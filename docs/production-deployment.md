@@ -137,3 +137,14 @@ After each release, verify:
 ## 9. Current deployment status
 
 The repository currently has automated CI and Semgrep security scanning. The supplied Compose stack is intended for local development. A production deployment has **not** been configured or verified because the hosting provider, domain, registry, database service, and secret-management environment have not been selected.
+
+
+## 8. Production Docker Compose and releases
+
+The repository includes `compose.production.yaml`, which is separate from the local development/monitoring stack. It runs PHP-FPM, Nginx, the database, Redis and a queue worker without publishing PostgreSQL or Redis ports. Configure a production `.env` on the host; never copy the development `.env.example` unchanged.
+
+Release images are built from the `app` and `nginx` Dockerfile targets, scanned with Trivy, and published to GHCR under the immutable commit SHA. Create a version tag (for example `v1.0.0`) or run the Release Docker images workflow manually.
+
+The manual Deploy production workflow requires these GitHub Environment secrets: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY`, `GHCR_USERNAME`, and `GHCR_READ_TOKEN`. Set the environment variable `DEPLOY_PATH` to the existing application checkout on the server. The host must have Docker Compose, Git access to this repository, a valid production `.env`, and a reachable HTTP health endpoint.
+
+The deployment script pulls the immutable image, runs migrations once, updates app/Nginx/worker containers, checks `/up`, and restores the previous application image tag if the health check fails. It does **not** reverse database migrations; migrations must remain backward-compatible with the previous release. Configure TLS and backups outside this Compose stack before exposing it publicly.

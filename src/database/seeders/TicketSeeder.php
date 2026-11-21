@@ -12,6 +12,10 @@ class TicketSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         $general = Team::where('name', 'General Support')->firstOrFail();
         $technical = Team::where('name', 'Technical Support')->firstOrFail();
         $billing = Team::where('name', 'Billing Support')->firstOrFail();

@@ -56,12 +56,12 @@ class TicketActivityNotification extends Notification implements ShouldQueue
     {
         $mail = (new MailMessage())
             ->subject($this->subject)
-            ->greeting('Hello '.$notifiable->name.',')
+            ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->message)
-            ->line('Ticket #'.$this->ticket->id.': '.$this->ticket->subject);
+            ->line('Ticket #' . $this->ticket->id . ': ' . $this->ticket->subject);
 
         foreach ($this->changes as $label => $value) {
-            $mail->line($label.': '.$value);
+            $mail->line($label . ': ' . $value);
         }
 
         return $mail

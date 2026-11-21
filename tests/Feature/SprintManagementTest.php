@@ -166,7 +166,7 @@ class SprintManagementTest extends TestCase
     private function makeSprint(User $creator, array $attributes = []): Sprint
     {
         return Sprint::create([
-            'name' => 'Sprint '.uniqid(),
+            'name' => 'Sprint ' . uniqid(),
             'description' => 'Sprint test fixture.',
             'start_date' => '2026-12-01',
             'end_date' => '2026-12-14',

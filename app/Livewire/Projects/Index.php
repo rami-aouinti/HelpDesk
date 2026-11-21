@@ -181,7 +181,7 @@ class Index extends Component
     public function render(): View
     {
         $u = auth()->user();
-        $projects = Project::withCount(['members', 'tickets', 'documents'])->with('members:id,name,email')->when(! $u->can('projects.view.all'), fn ($q) => $q->whereHas('members', fn ($m) => $m->whereKey($u->id)))->when(trim($this->search) !== '', fn ($q) => $q->where(fn ($n) => $n->where('name', 'like', '%'.trim($this->search).'%')->orWhere('description', 'like', '%'.trim($this->search).'%')))->latest()->paginate(min(max($this->perPage, 6), 30));
+        $projects = Project::withCount(['members', 'tickets', 'documents'])->with('members:id,name,email')->when(! $u->can('projects.view.all'), fn ($q) => $q->whereHas('members', fn ($m) => $m->whereKey($u->id)))->when(trim($this->search) !== '', fn ($q) => $q->where(fn ($n) => $n->where('name', 'like', '%' . trim($this->search) . '%')->orWhere('description', 'like', '%' . trim($this->search) . '%')))->latest()->paginate(min(max($this->perPage, 6), 30));
         $users = User::where('is_active', true)->whereHas('roles', fn ($q) => $q->whereIn('name', ['agent', 'customer']))->orderBy('name')->get(['id', 'name', 'email']);
         $selectedProject = $this->showDetails && $this->projectId ? Project::with(['members', 'documents.uploader'])->find($this->projectId) : null;
         if ($selectedProject) {

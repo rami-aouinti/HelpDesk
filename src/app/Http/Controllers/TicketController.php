@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Http\\Requests\\StoreTicketRequest;
-use App\\Http\\Requests\\UpdateTicketRequest;
-use App\\Models\\Ticket;
-use App\\Services\\TicketService;
-use Illuminate\\Contracts\\View\\View;
-use Illuminate\\Http\\RedirectResponse;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
+use App\Models\Ticket;
+use App\Services\TicketService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Throwable;
 
 class TicketController extends Controller

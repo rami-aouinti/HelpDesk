@@ -106,6 +106,7 @@ class TicketAttachmentTest extends TestCase
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $otherCustomer = User::factory()->create();
+        $otherCustomer->assignRole('customer');
         $ownTicket = $this->makeTicket($customer);
         $otherTicket = $this->makeTicket($otherCustomer);
 

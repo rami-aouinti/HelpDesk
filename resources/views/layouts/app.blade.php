@@ -18,6 +18,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}">
     @livewireStyles
 </head>
 <body>
@@ -113,6 +114,7 @@
                     </div>
                     <div class="account-menu-divider"></div>
                     <a href="{{ route('profile.edit') }}" class="account-menu-item">My profile</a>
+                    <a href="{{ route('appearance.edit') }}" class="account-menu-item">Appearance &amp; themes</a>
                     <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" class="quick-photo-form">
                         @csrf
                         <label for="quick-profile-photo" class="account-menu-item quick-photo-label">Change photo</label>

@@ -22,6 +22,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => strtolower($input['email']),
             'password' => $input['password'],
+            'is_active' => true,
         ]);
 
         Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);

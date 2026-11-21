@@ -59,6 +59,26 @@ class ProfileTest extends TestCase
         Storage::disk('public')->assertExists($user->profile_photo_path);
     }
 
+    public function test_authenticated_user_can_change_their_photo_from_the_account_menu(): void
+    {
+        $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($user)
+            ->post(route('profile.photo.update'), [
+                'profile_photo' => UploadedFile::fake()->createWithContent(
+                    'menu-avatar.png',
+                    base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX2sAAAAASUVORK5CYII=')
+                ),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $user->refresh();
+
+        $this->assertNotNull($user->profile_photo_path);
+        Storage::disk('public')->assertExists($user->profile_photo_path);
+    }
+
     public function test_changing_email_requires_reverification(): void
     {
         $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();

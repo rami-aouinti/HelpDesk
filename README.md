@@ -38,7 +38,7 @@ Open:
 - Adminer: http://localhost:8081
 - Mailpit inbox: http://localhost:8025
 
-Mailpit accepts SMTP connections from Laravel at `mailpit:1025`. Verification and password-reset emails are captured locally; no real email is sent.
+Mailpit accepts SMTP connections from Laravel at `mailpit:1025`. Verification and password-reset emails are captured locally; no real email is sent. New accounts must verify their email before accessing the dashboard.
 
 ## Development users
 

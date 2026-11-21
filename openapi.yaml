@@ -88,6 +88,10 @@ paths:
           name: assigned_to
           schema: { type: integer, minimum: 1 }
         - in: query
+          name: sprint_id
+          description: Filter tickets by sprint
+          schema: { type: integer, minimum: 1 }
+        - in: query
           name: unassigned
           description: true returns unassigned tickets; false returns assigned tickets
           schema: { type: boolean }
@@ -273,6 +277,14 @@ components:
         description: { type: string, minLength: 10 }
         priority: { type: string, enum: [low, normal, high, urgent] }
         project_id: { type: [integer, 'null'] }
+        sprint:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            start_date: { type: string, format: date }
+            end_date: { type: string, format: date }
+            is_completed: { type: boolean }
     TicketUpdate:
       type: object
       properties:

@@ -20,6 +20,7 @@ class Ticket extends Model
         'user_id',
         'assigned_to',
         'team_id',
+        'project_id',
     ];
 
     public function customer(): BelongsTo
@@ -35,6 +36,11 @@ class Ticket extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function messages(): HasMany

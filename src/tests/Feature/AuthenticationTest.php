@@ -29,6 +29,18 @@ class AuthenticationTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
+    public function test_user_can_log_in_with_fortify(): void
+    {
+        $this->seed();
+
+        $this->post(route('login.store'), [
+            'email' => 'admin@helpdesk.test',
+            'password' => env('HELPDESK_DEMO_PASSWORD', 'password'),
+        ])->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticated();
+    }
+
     public function test_unverified_users_are_redirected_to_email_verification(): void
     {
         $this->seed();

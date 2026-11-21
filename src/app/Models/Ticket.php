@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * @package App\Models
+ * @author Rami Aouinti
+ */
+class Ticket extends Model
+{
+    protected $fillable = [
+        'subject',
+        'description',
+        'status',
+        'priority',
+        'user_id',
+        'assigned_to',
+    ];
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function assignedAgent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+}

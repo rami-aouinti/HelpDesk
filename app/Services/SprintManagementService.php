@@ -36,13 +36,17 @@ class SprintManagementService
 
     public function delete(Sprint $sprint): void
     {
-        if ($sprint->tickets()->exists()) {
-            throw ValidationException::withMessages([
-                'sprint' => 'Move all tickets out of this sprint before deleting it.',
-            ]);
-        }
+        DB::transaction(function () use ($sprint): void {
+            $lockedSprint = Sprint::query()->lockForUpdate()->findOrFail($sprint->id);
 
-        $sprint->delete();
+            if ($lockedSprint->tickets()->exists()) {
+                throw ValidationException::withMessages([
+                    'sprint' => 'Move all tickets out of this sprint before deleting it.',
+                ]);
+            }
+
+            $lockedSprint->delete();
+        });
     }
 
     public function moveTicket(Ticket $ticket, ?Sprint $destination, User $actor): Ticket
@@ -52,6 +56,10 @@ class SprintManagementService
 
             if (! $actor->hasRole('admin') && (int) $lockedTicket->assigned_to !== (int) $actor->id) {
                 abort(403, 'You can only move tickets assigned to you.');
+            }
+
+            if ($destination !== null) {
+                $destination = Sprint::query()->lockForUpdate()->findOrFail($destination->id);
             }
 
             if ($destination?->is_completed) {

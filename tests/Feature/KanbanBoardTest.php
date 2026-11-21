@@ -27,8 +27,8 @@ class KanbanBoardTest extends TestCase
         $otherAgent = User::where('email', 'sarah.agent@helpdesk.test')->firstOrFail();
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $sprint = $this->makeSprint();
-        $mine = $this->makeTicket($customer, $sprint, ['subject' => 'My assigned ticket', 'assigned_to' => $agent->id]);
-        $others = $this->makeTicket($customer, $sprint, ['subject' => 'Another agent ticket', 'assigned_to' => $otherAgent->id]);
+        $this->makeTicket($customer, $sprint, ['subject' => 'My assigned ticket', 'assigned_to' => $agent->id]);
+        $this->makeTicket($customer, $sprint, ['subject' => 'Another agent ticket', 'assigned_to' => $otherAgent->id]);
 
         Livewire::actingAs($agent)->test(Board::class)
             ->assertSee('My assigned ticket')
@@ -100,6 +100,7 @@ class KanbanBoardTest extends TestCase
         $ticket = $this->makeTicket($customer, $current, ['assigned_to' => $agent->id]);
 
         Livewire::actingAs($agent)->test(Board::class)
+            ->set('sprintId', $current->id)
             ->call('moveTicketToSprint', $ticket->id, $destination->id)
             ->assertHasNoErrors();
 
@@ -144,7 +145,6 @@ class KanbanBoardTest extends TestCase
         $this->assertSame('open', $ticket->fresh()->status);
     }
 
-
     public function test_admin_can_move_any_ticket_to_another_sprint(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
@@ -169,7 +169,7 @@ class KanbanBoardTest extends TestCase
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
         $current = $this->makeSprint();
         $completed = $this->makeSprint(['name' => 'Already completed']);
-        $closedTicket = $this->makeTicket($customer, $completed, ['status' => 'closed']);
+        $this->makeTicket($customer, $completed, ['status' => 'closed']);
         $ticket = $this->makeTicket($customer, $current, ['assigned_to' => $agent->id]);
 
         $this->assertTrue($completed->fresh()->is_completed);
@@ -181,7 +181,6 @@ class KanbanBoardTest extends TestCase
 
         $this->assertSame($current->id, $ticket->fresh()->sprint_id);
     }
-
 
     public function test_agent_can_add_their_assigned_backlog_ticket_to_a_sprint(): void
     {
@@ -226,7 +225,6 @@ class KanbanBoardTest extends TestCase
         $this->assertNull($ticket->fresh()->sprint_id);
         $this->assertDatabaseHas('sprints', ['id' => $sprint->id]);
     }
-
 
     public function test_agent_cannot_skip_ticket_workflow_from_kanban(): void
     {

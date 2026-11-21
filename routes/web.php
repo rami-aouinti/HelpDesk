@@ -36,6 +36,8 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
 
     Route::view('/teams', 'teams.index')->name('teams.index');
+    Route::view('/sprints', 'sprints.index')->name('sprints.index');
+    Route::view('/kanban', 'kanban.index')->name('kanban.index');
     Route::view('/projects', 'projects.index')->name('projects.index');
     Route::get('/projects/{project}/cover', [ProjectDocumentController::class, 'cover'])->name('projects.cover');
     Route::get('/project-documents/{document}/download', [ProjectDocumentController::class, 'download'])->name('projects.documents.download');

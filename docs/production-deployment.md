@@ -141,7 +141,7 @@ The repository currently has automated CI and Semgrep security scanning. The sup
 
 ## 8. Production Docker Compose and releases
 
-The repository includes `compose.production.yaml`, which is separate from the local development/monitoring stack. It runs PHP-FPM, Nginx, the database, Redis and a queue worker without publishing PostgreSQL or Redis ports. Configure a production `.env` on the host; never copy the development `.env.example` unchanged.
+The repository includes `compose.production.yaml`, which is separate from the local development/monitoring stack. It runs PHP-FPM, Nginx, the database, Redis and a queue worker. PostgreSQL is published only on 127.0.0.1 for host-side backup tooling; Redis remains private. Uploaded files use the persistent host directory configured by `HELPDESK_STORAGE_PATH` (default `./storage/app`). Configure a production `.env` on the host; never copy the development `.env.example` unchanged. Set `HELPDESK_STORAGE_PATH` to a durable host directory with sufficient disk space.
 
 Release images are built from the `app` and `nginx` Dockerfile targets, scanned with Trivy, and published to GHCR under the immutable commit SHA. Create a version tag (for example `v1.0.0`) or run the Release Docker images workflow manually.
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_internal
  * @property-read Ticket $ticket
  * @property-read User $user
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketAttachment> $attachments
+ * @property-read Collection<int, TicketAttachment> $attachments
  */
 class TicketMessage extends Model
 {

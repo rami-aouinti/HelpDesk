@@ -2,22 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon $end_date
+ * @property Carbon $start_date
+ * @property Carbon $end_date
  * @property int|null $created_by
  * @property int|null $tickets_count
  * @property int|null $unfinished_tickets_count
  * @property int|null $done_tickets_count
  * @property-read User|null $creator
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Ticket> $tickets
+ * @property-read Collection<int, Ticket> $tickets
  */
 class Sprint extends Model
 {

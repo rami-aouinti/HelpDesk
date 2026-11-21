@@ -62,7 +62,7 @@ class SprintManagementService
                 abort(403, 'You can only move tickets assigned to you.');
             }
 
-            if ($destination instanceof \App\Models\Sprint) {
+            if ($destination instanceof Sprint) {
                 $destination = Sprint::query()->lockForUpdate()->findOrFail($destination->id);
             }
 

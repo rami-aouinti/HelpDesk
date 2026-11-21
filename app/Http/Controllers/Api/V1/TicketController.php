@@ -68,8 +68,8 @@ class TicketController extends Controller
             ->when(isset($filters['search']), function (Builder $query) use ($filters): void {
                 $term = trim($filters['search']);
                 $query->where(function (Builder $nested) use ($term): void {
-                    $nested->where('subject', 'like', '%' . $term . '%')
-                        ->orWhere('description', 'like', '%' . $term . '%');
+                    $nested->where('subject', 'like', '%'.$term.'%')
+                        ->orWhere('description', 'like', '%'.$term.'%');
 
                     if (ctype_digit($term)) {
                         $nested->orWhereKey((int) $term);

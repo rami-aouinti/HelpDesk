@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,8 +25,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Team|null $team
  * @property-read Project|null $project
  * @property-read Sprint|null $sprint
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketMessage> $messages
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketHistory> $histories
+ * @property-read Collection<int, TicketMessage> $messages
+ * @property-read Collection<int, TicketHistory> $histories
+ *
  * @author Rami Aouinti
  */
 class Ticket extends Model

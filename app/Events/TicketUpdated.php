@@ -16,6 +16,5 @@ class TicketUpdated
         public readonly Ticket $ticket,
         public readonly User $actor,
         public readonly array $changes,
-    ) {
-    }
+    ) {}
 }

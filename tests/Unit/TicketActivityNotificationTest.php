@@ -20,6 +20,6 @@ class TicketActivityNotificationTest extends TestCase
         $this->assertInstanceOf(ShouldQueue::class, $notification);
         $this->assertSame('notifications', $notification->queue);
         $this->assertTrue($notification->afterCommit);
-        $this->assertSame(['database', 'mail'], $notification->via(new \stdClass()));
+        $this->assertSame(['database', 'mail'], $notification->via(new \stdClass));
     }
 }

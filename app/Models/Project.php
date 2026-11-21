@@ -2,27 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $name
  * @property string|null $description
  * @property string|null $budget
- * @property \Illuminate\Support\Carbon|null $start_date
- * @property \Illuminate\Support\Carbon|null $end_date
+ * @property Carbon|null $start_date
+ * @property Carbon|null $end_date
  * @property string $status
  * @property string|null $cover_image_path
  * @property int|null $created_by
  * @property-read User|null $creator
- * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $members
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Ticket> $tickets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ProjectDocument> $documents
+ * @property-read Collection<int, User> $members
+ * @property-read Collection<int, Ticket> $tickets
+ * @property-read Collection<int, ProjectDocument> $documents
  */
 class Project extends Model
 {

@@ -97,10 +97,10 @@ class TicketTable extends Component
                 $search = trim($this->search);
                 $term = mb_strtolower($search);
                 $builder->where(function ($nested) use ($search, $term): void {
-                    $nested->whereRaw('LOWER(subject) LIKE ?', ['%' . $term . '%'])
-                        ->orWhereRaw('LOWER(description) LIKE ?', ['%' . $term . '%'])
-                        ->orWhereHas('customer', fn ($customer) => $customer->whereRaw('LOWER(name) LIKE ?', ['%' . $term . '%']))
-                        ->orWhereHas('assignedAgent', fn ($agent) => $agent->whereRaw('LOWER(name) LIKE ?', ['%' . $term . '%']));
+                    $nested->whereRaw('LOWER(subject) LIKE ?', ['%'.$term.'%'])
+                        ->orWhereRaw('LOWER(description) LIKE ?', ['%'.$term.'%'])
+                        ->orWhereHas('customer', fn ($customer) => $customer->whereRaw('LOWER(name) LIKE ?', ['%'.$term.'%']))
+                        ->orWhereHas('assignedAgent', fn ($agent) => $agent->whereRaw('LOWER(name) LIKE ?', ['%'.$term.'%']));
 
                     if (ctype_digit($search)) {
                         $nested->orWhere('id', (int) $search);

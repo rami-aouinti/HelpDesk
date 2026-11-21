@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,16 +20,18 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property bool $is_active
  * @property bool $email_notifications_enabled
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Project> $projects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Team> $teams
+ * @property-read Collection<int, Project> $projects
+ * @property-read Collection<int, Team> $teams
  */
 #[Fillable(['name', 'email', 'password', 'is_active', 'profile_photo_path', 'email_notifications_enabled'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasRoles;
     use Notifiable;
 

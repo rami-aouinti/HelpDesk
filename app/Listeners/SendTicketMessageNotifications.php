@@ -9,9 +9,7 @@ use App\Services\TicketNotificationService;
 
 class SendTicketMessageNotifications
 {
-    public function __construct(private readonly TicketNotificationService $notifications)
-    {
-    }
+    public function __construct(private readonly TicketNotificationService $notifications) {}
 
     public function handle(TicketMessageCreated $event): void
     {

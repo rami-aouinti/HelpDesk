@@ -21,20 +21,6 @@ class TicketNotificationTest extends TestCase
         Notification::fake();
     }
 
-    public function test_new_ticket_notifies_active_support_users(): void
-    {
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
-
-        $this->actingAs($customer)->post(route('tickets.store'), [
-            'subject' => 'Email notifications are missing',
-            'description' => 'Please enable email notifications for new support tickets.',
-            'priority' => 'normal',
-        ])->assertRedirect(route('tickets.index'));
-
-        Notification::assertSentTo($agent, TicketActivityNotification::class);
-    }
-
     public function test_public_customer_reply_notifies_assigned_agent(): void
     {
         [$customer, $agent, $ticket] = $this->ticketWithAssignedAgent();

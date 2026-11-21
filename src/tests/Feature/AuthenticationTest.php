@@ -21,9 +21,9 @@ class AuthenticationTest extends TestCase
             'password_confirmation' => 'StrongPassword123!',
         ]);
 
-        $user = User::where('email', 'new.customer@example.test')->firstOrFail();
-
         $response->assertRedirect(route('dashboard'));
+
+        $user = User::where('email', 'new.customer@example.test')->firstOrFail();
         $this->get(route('dashboard'))->assertRedirect(route('verification.notice'));
         $this->assertTrue($user->hasRole('customer'));
         $this->assertNull($user->email_verified_at);

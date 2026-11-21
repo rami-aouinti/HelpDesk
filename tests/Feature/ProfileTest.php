@@ -36,7 +36,7 @@ class ProfileTest extends TestCase
             ->assertSee('Attachments');
     }
 
-    public function test_user_can_update_their_name_and_profile_photo(): void
+    public function test_user_can_update_their_name(): void
     {
         $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
 
@@ -44,10 +44,6 @@ class ProfileTest extends TestCase
             ->put(route('profile.update'), [
                 'name' => 'Updated Customer Name',
                 'email' => $user->email,
-                'profile_photo' => UploadedFile::fake()->createWithContent(
-                    'avatar.png',
-                    base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX2sAAAAASUVORK5CYII=')
-                ),
             ])
             ->assertRedirect(route('profile.edit'))
             ->assertSessionHasNoErrors();
@@ -55,8 +51,6 @@ class ProfileTest extends TestCase
         $user->refresh();
 
         $this->assertSame('Updated Customer Name', $user->name);
-        $this->assertNotNull($user->profile_photo_path);
-        Storage::disk('public')->assertExists($user->profile_photo_path);
     }
 
     public function test_authenticated_user_can_change_their_photo_from_the_profile_avatar(): void

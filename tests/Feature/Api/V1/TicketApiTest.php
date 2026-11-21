@@ -6,6 +6,8 @@ use App\Models\Ticket;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -235,6 +237,8 @@ class TicketApiTest extends TestCase
             'is_internal' => true,
         ])->assertCreated()
             ->assertJsonPath('data.is_internal', true);
+
+        Sanctum::actingAs($customer);
 
         $this->getJson("/api/v1/tickets/{$ticket->id}")
             ->assertOk()

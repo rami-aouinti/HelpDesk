@@ -72,9 +72,10 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
-    public function test_agent_can_assign_ticket_to_a_team_and_its_member(): void
+    public function test_admin_can_assign_ticket_to_a_team_and_its_member(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
         $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
         $team = Team::where('name', 'General Support')->firstOrFail();
 
@@ -86,7 +87,7 @@ class TicketWorkflowTest extends TestCase
             'user_id' => $customer->id,
         ]);
 
-        $this->actingAs($agent)
+        $this->actingAs($admin)
             ->patch(route('tickets.update', $ticket), [
                 'team_id' => $team->id,
                 'assigned_to' => $agent->id,

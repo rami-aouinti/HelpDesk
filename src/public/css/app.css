@@ -796,3 +796,30 @@ html[data-theme="dark"] .priority-badge { filter: brightness(.82) saturate(.9); 
 html[data-theme="dark"] .alert-success { background: #173a30; color: #a7e5c3; border-color: #285a48; }
 html[data-theme="dark"] .alert-error { background: #44252c; color: #ffc0c5; border-color: #713943; }
 html[data-theme="dark"] .btn-danger { background: #482a32; color: #ffc0c5; }
+
+
+/* Compact page actions and icon-only topbar controls */
+.page-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+}
+.theme-toggle {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0;
+    gap: 0;
+}
+.theme-toggle-icon { font-size: 19px; }
+.account-menu-trigger {
+    gap: 0;
+    padding: 4px;
+    border-radius: 50%;
+}
+.account-menu-name,
+.account-menu-chevron { display: none !important; }
+@media (max-width: 700px) {
+    .page-actions { margin-bottom: 14px; }
+}

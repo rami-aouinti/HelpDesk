@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+        $middleware->statefulApi();\n        $middleware->append(LogHttpRequests::class);
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
         ]);

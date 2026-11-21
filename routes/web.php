@@ -18,7 +18,7 @@ Route::get('/api/openapi.yaml', function () {
 })->name('api.openapi');
 
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');\n    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');\n    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');\n    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::view('/appearance', 'appearance.index')->name('appearance.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

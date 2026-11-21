@@ -20,7 +20,7 @@
         <nav>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
             <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">Tickets</a>
-            @can('viewAny', \\App\\Models\\User::class)
+            @can('viewAny', \App\Models\User::class)
                 <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a>
             @endcan
         </nav>

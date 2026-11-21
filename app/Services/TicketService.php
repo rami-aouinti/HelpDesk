@@ -38,6 +38,7 @@ class TicketService
     public function update(Ticket $ticket, array $data, ?int $userId = null): Ticket
     {
         $this->validateAgentTeamAccess($data, $ticket, $userId);
+        $this->validateProjectMembership($data, $ticket, $userId);
         $this->validateAssignment($data, $ticket);
         $changes = [];
 
@@ -186,6 +187,20 @@ class TicketService
         app(TicketNotificationService::class)->ticketUpdated($claimedTicket, $agent, $changes);
 
         return $claimedTicket;
+    }
+
+    /**
+     * A non-admin can only link a ticket to a project they belong to.
+     */
+    private function validateProjectMembership(array $data, Ticket $ticket, ?int $userId): void
+    {
+        if ($userId === null) { return; }
+        $user = User::query()->findOrFail($userId);
+        if ($user->can('projects.view.all')) { return; }
+        $projectId = array_key_exists('project_id', $data) ? $data['project_id'] : $ticket->project_id;
+        if ($projectId !== null && ! $user->projects()->whereKey($projectId)->exists()) {
+            throw ValidationException::withMessages(['project_id' => 'You must be a member of the selected project.']);
+        }
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Models\TicketMessage;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\TicketService;
+use App\Services\TicketNotificationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +41,8 @@ class TicketController extends Controller
             'status' => 'open',
             'user_id' => $request->user()->id,
         ]);
+
+        app(TicketNotificationService::class)->ticketCreated($ticket);
 
         return redirect()
             ->route('tickets.index')
@@ -124,6 +127,8 @@ class TicketController extends Controller
 
             throw $exception;
         }
+
+        app(TicketNotificationService::class)->messageCreated($message);
 
         return redirect()
             ->route('tickets.show', $ticket)

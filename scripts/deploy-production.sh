@@ -10,7 +10,7 @@ state_file=".last-good-image-tag"
 storage_path="$(sed -n 's/^HELPDESK_STORAGE_PATH=//p' .env | tail -n 1)"
 storage_path="${storage_path:-./storage/app}"
 mkdir -p "$storage_path/private" "$storage_path/public"
-chown -R 33:33 "$storage_path"
+
 [[ "$image_tag" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "Invalid image tag." >&2; exit 2; }
 
 previous_tag=""
@@ -21,6 +21,7 @@ export HELPDESK_NGINX_IMAGE="$repo_image-nginx:$image_tag"
 
 "${compose[@]}" config --quiet
 "${compose[@]}" pull
+"${compose[@]}" run --rm --no-deps --user root app chown -R www-data:www-data /var/www/html/storage/app
 "${compose[@]}" run --rm --no-deps app php artisan migrate --force
 "${compose[@]}" up -d --remove-orphans
 

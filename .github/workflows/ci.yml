@@ -161,11 +161,11 @@ jobs:
           psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -v ON_ERROR_STOP=1 -c "INSERT INTO backup_restore_probe VALUES (1, 'round-trip')"
           mkdir -p "$UPLOADS_DIR/private" "$UPLOADS_DIR/public"
           printf 'private attachment backup test\n' > "$UPLOADS_DIR/private/probe.txt"
-          ./scripts/backup.sh
+          bash ./scripts/backup.sh
           psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -v ON_ERROR_STOP=1 -c "DROP TABLE backup_restore_probe"
           database_backup="$(find "$BACKUP_DIR" -name '*.dump' -print -quit)"
           uploads_backup="$(find "$BACKUP_DIR" -name '*.tar.gz' -print -quit)"
-          printf 'RESTORE\n' | ./scripts/restore.sh "$database_backup" "$uploads_backup"
+          printf 'RESTORE\n' | bash ./scripts/restore.sh "$database_backup" "$uploads_backup"
           restored_payload="$(psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -Atc "SELECT payload FROM backup_restore_probe WHERE id = 1")"
           test "$restored_payload" = "round-trip"
           test -f "$UPLOADS_DIR/private/probe.txt"

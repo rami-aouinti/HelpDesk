@@ -10,7 +10,9 @@ database_file="$1"
 uploads_file="${2:-}"
 : "${DB_DATABASE:?DB_DATABASE is required}"
 : "${DB_USERNAME:?DB_USERNAME is required}"
-: "${DB_HOST:=db}"
+: "${DB_HOST:=localhost}"
+: "${DB_PORT:=5432}"
+: "${UPLOADS_DIR:=./storage/app}"
 
 [[ -f "$database_file" ]] || { echo "Database backup not found: $database_file" >&2; exit 2; }
 if [[ -n "$uploads_file" && ! -f "$uploads_file" ]]; then
@@ -23,12 +25,12 @@ read -r -p "Type RESTORE to continue: " confirmation
 [[ "$confirmation" == "RESTORE" ]] || { echo "Restore cancelled."; exit 1; }
 
 export PGPASSWORD="${DB_PASSWORD:?DB_PASSWORD is required}"
-pg_restore --clean --if-exists --no-owner --exit-on-error --host="$DB_HOST" --username="$DB_USERNAME" --dbname="$DB_DATABASE" "$database_file"
+pg_restore --clean --if-exists --no-owner --exit-on-error --host="$DB_HOST" --port="$DB_PORT" --username="$DB_USERNAME" --dbname="$DB_DATABASE" "$database_file"
 unset PGPASSWORD
 
 if [[ -n "$uploads_file" ]]; then
-  mkdir -p storage/app
-  tar -xzf "$uploads_file" -C storage/app
+  mkdir -p "$UPLOADS_DIR"
+  tar -xzf "$uploads_file" -C "$UPLOADS_DIR"
 fi
 
 echo "Restore completed. Verify the application and uploaded files before reopening traffic."

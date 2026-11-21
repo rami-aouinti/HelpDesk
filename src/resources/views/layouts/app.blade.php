@@ -60,6 +60,12 @@
                     </div>
                     <div class="account-menu-divider"></div>
                     <a href="{{ route('profile.edit') }}" class="account-menu-item">My profile</a>
+                    <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" class="quick-photo-form">
+                        @csrf
+                        <label for="quick-profile-photo" class="account-menu-item quick-photo-label">Change photo</label>
+                        <input id="quick-profile-photo" type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp" required>
+                        <button type="submit" class="quick-photo-submit">Upload photo</button>
+                    </form>
                     <a href="{{ route('help') }}" class="account-menu-item">Help center</a>
                     <div class="account-menu-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">

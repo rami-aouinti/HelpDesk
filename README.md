@@ -1,117 +1,58 @@
-# HelpDesk
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-HelpDesk is a Laravel 13 support-ticket application built with PHP 8.4, PostgreSQL 17, Docker Compose and the official Laravel Livewire starter-kit stack.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## Stack
+## About Laravel
 
-- Laravel 13 / PHP 8.4
-- Livewire 4, Tailwind CSS 4 and Flux UI
-- Laravel Fortify for registration, login, password reset and email verification
-- Spatie Laravel Permission for the admin, agent and customer roles
-- Laravel Sanctum for personal API tokens
-- PostgreSQL 17
-- Mailpit for local SMTP and email inspection
-- PHPUnit feature tests
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## Start locally
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Requirements: Docker Desktop (or Docker Engine) and Docker Compose.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-```bash
-git clone https://github.com/rami-aouinti/HelpDesk.git
-cd HelpDesk
-docker compose up --build -d
-```
+## Learning Laravel
 
-Install the PHP and frontend dependencies in the application container. The Composer manifest has changed as part of the Livewire/authentication integration, so run `composer update` once to refresh the lock file; keep the generated `src/composer.lock` in Git afterwards.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-```bash
-docker compose exec app composer update --no-interaction
-docker compose exec app npm install
-docker compose exec app npm run build
-docker compose exec app php artisan migrate --seed
-```
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-Open:
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-- HelpDesk: http://localhost:8080
-- Adminer: http://localhost:8081
-- Mailpit inbox: http://localhost:8025
+## Agentic Development
 
-Mailpit accepts SMTP connections from Laravel at `mailpit:1025`. Verification and password-reset emails are captured locally; no real email is sent. New accounts must verify their email before accessing the dashboard.
-
-## Development users
-
-The database seeder creates three local demo users:
-
-| Role | Email |
-|---|---|
-| Administrator | `admin@helpdesk.test` |
-| Support agent | `agent@helpdesk.test` |
-| Customer | `customer@helpdesk.test` |
-
-The default local demo password is `password`. Override it with `HELPDESK_DEMO_PASSWORD` before running the seeder. Do not use the demo password outside local development.
-
-## Useful commands
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
 ```bash
-# Run all migrations and seed the demo accounts
-docker compose exec app php artisan migrate --seed
+composer require laravel/boost --dev
 
-# Run the feature and unit tests
-docker compose exec app php artisan test
-
-# Inspect routes
-docker compose exec app php artisan route:list
-
-# Clear Laravel caches
-docker compose exec app php artisan optimize:clear
-
-# Follow application logs
-docker compose logs -f app
-
-# Stop containers; PostgreSQL data is preserved
-docker compose down
+php artisan boost:install
 ```
 
-Do not run `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume and all local HelpDesk data.
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-## Team management
+## Contributing
 
-Administrators can create and manage support teams, assign active agent accounts to teams, and view team membership and ticket counts. A team cannot be deleted while tickets are assigned to it. Tickets may optionally reference a team.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Local update helper
+## Code of Conduct
 
-After pulling the repository, make the helper executable once and run it from the repository root:
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-```bash
-chmod +x scripts/update-and-test.sh
-./scripts/update-and-test.sh
-```
+## Security Vulnerabilities
 
-The script pulls `origin/master`, clears Laravel optimized caches, runs the test suite, and then applies migrations and seeders. It stops if any command fails.
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## Access model
+## License
 
-- Customers can create tickets and see only their own tickets.
-- Agents can view and update tickets.
-- Administrators receive all ticket permissions and can manage user accounts.
-- Administrators can create users, change roles, update account details, and activate/deactivate accounts.
-- New administrator-created accounts receive an email verification notification.
-- Inactive users cannot sign in or continue using an existing web session or API token.
-- Ticket status and priority changes are stored in `ticket_histories`.
-- API clients authenticate with Sanctum bearer tokens.
-
-## API
-
-All API endpoints are prefixed with `/api`.
-
-- `GET /api/user` — current authenticated user
-- `POST /api/tokens` — create a personal access token (`name` required)
-- `DELETE /api/tokens/current` — revoke the current token
-
-These endpoints require Sanctum authentication. Use an existing session or bearer token to create a token.
-
-## Project structure
-
-Laravel source code lives in `src/`. Docker configuration lives in `docker/` and `docker-compose.yml`. Business features remain in controllers, Form Requests, policies, services, models and Livewire components.
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

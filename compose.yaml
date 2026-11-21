@@ -117,6 +117,7 @@ services:
       retries: 30
     networks:
       - monitoring
+      - helpdesk
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.2

@@ -138,6 +138,89 @@ class TicketWorkflowTest extends TestCase
         $this->assertNull($ticket->fresh()->assigned_to);
     }
 
+    public function test_agent_can_claim_an_unassigned_ticket_for_one_of_their_teams(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'New unassigned request',
+            'description' => 'Waiting for a support agent.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->post(route('tickets.claim', $ticket), ['team_id' => $team->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'assigned_to',
+            'old_value' => null,
+            'new_value' => (string) $agent->id,
+        ]);
+    }
+
+    public function test_agent_cannot_claim_ticket_for_a_team_they_do_not_belong_to(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $otherTeam = Team::where('name', 'Technical Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Unassigned technical request',
+            'description' => 'This ticket must not be claimed by another team.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->post(route('tickets.claim', $ticket), ['team_id' => $otherTeam->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('team_id');
+
+        $this->assertNull($ticket->fresh()->team_id);
+        $this->assertNull($ticket->fresh()->assigned_to);
+    }
+
+    public function test_agent_cannot_claim_a_ticket_that_is_already_assigned(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+        $alreadyAssignedAgent = User::where('email', 'sarah.agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Already assigned request',
+            'description' => 'Another agent is already working on it.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'team_id' => $team->id,
+            'assigned_to' => $alreadyAssignedAgent->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->post(route('tickets.claim', $ticket))
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('ticket');
+
+        $this->assertSame($alreadyAssignedAgent->id, $ticket->fresh()->assigned_to);
+    }
+
     public function test_customer_cannot_view_another_customers_ticket(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

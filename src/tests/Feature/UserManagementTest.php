@@ -82,7 +82,7 @@ class UserManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_last_active_administrator_cannot_be_deactivated(): void
+    public function test_administrator_cannot_deactivate_their_own_account(): void
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
 
@@ -133,6 +133,18 @@ class UserManagementTest extends TestCase
             ->assertSessionHasErrors('role');
 
         $this->assertTrue($admin->fresh()->hasRole('admin'));
+    }
+
+
+    public function test_admin_can_search_and_filter_users(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('users.index', ['search' => 'agent', 'role' => 'agent', 'status' => 'active']))
+            ->assertOk()
+            ->assertSee('agent@helpdesk.test')
+            ->assertDontSee('customer@helpdesk.test');
     }
 
 }

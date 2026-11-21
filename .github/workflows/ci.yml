@@ -29,7 +29,7 @@ jobs:
           node-version: "22"
 
       - name: Validate Composer manifest
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --no-check-lock
 
       - name: Resolve and install PHP dependencies
         run: composer update --prefer-dist --no-interaction

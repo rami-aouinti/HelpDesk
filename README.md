@@ -1,82 +1,99 @@
 # HelpDesk
 
-A hands-on Laravel learning project: build a realistic customer-support platform while learning Laravel from fundamentals to production practices.
+HelpDesk is a Laravel 13 support-ticket application built with PHP 8.4, PostgreSQL 17, Docker Compose and the official Laravel Livewire starter-kit stack.
 
-The repository starts with a Docker development environment. The Laravel application source is generated into `src/` on the first startup, so you can run the project without installing PHP, Composer, Apache, or PostgreSQL on your host machine.
+## Stack
 
-## Project goals
+- Laravel 13 / PHP 8.4
+- Livewire 4, Tailwind CSS 4 and Flux UI
+- Laravel Fortify for registration, login, password reset and email verification
+- Spatie Laravel Permission for the admin, agent and customer roles
+- Laravel Sanctum for personal API tokens
+- PostgreSQL 17
+- Mailpit for local SMTP and email inspection
+- PHPUnit feature tests
 
-HelpDesk is a support-ticket platform where customers can open requests, support agents can manage and answer them, and administrators can configure the workspace and follow service activity.
+## Start locally
 
-We will learn Laravel progressively by implementing real features, understanding the framework conventions, writing tests, and reviewing each change before moving on.
-
-## Technology choices
-
-- **Backend:** Laravel (latest stable release available when the container is first built), PHP 8.4
-- **Database:** PostgreSQL 17
-- **Web server:** Apache with PHP-FPM-free mod_php setup
-- **Local environment:** Docker Compose
-- **Frontend learning tracks:** Blade, Livewire, Vue.js with Laravel APIs, and Inertia.js with Vue
-- **Testing:** Pest or PHPUnit, selected and documented when we reach the testing phase
-
-The four frontend approaches are intentional learning tracks. We will compare their strengths and implement them progressively rather than mixing all four into every page.
-
-## Start the application
-
-Requirements: Docker Desktop (or Docker Engine) and the Docker Compose plugin.
+Requirements: Docker Desktop (or Docker Engine) and Docker Compose.
 
 ```bash
 git clone https://github.com/rami-aouinti/HelpDesk.git
 cd HelpDesk
-docker compose up --build
+docker compose up --build -d
 ```
 
-On the first startup, Composer creates the Laravel application inside the mounted `src/` directory. The process can take a few minutes. Once Apache is ready, open:
-
-**http://localhost:8080**
-
-PostgreSQL is available to containers at `db:5432` and from the host at `localhost:5433`.
-
-Useful commands:
+Install the PHP and frontend dependencies in the application container. The Composer manifest has changed as part of the Livewire/authentication integration, so run `composer update` once to refresh the lock file; keep the generated `src/composer.lock` in Git afterwards.
 
 ```bash
+docker compose exec app composer update --no-interaction
+docker compose exec app npm install
+docker compose exec app npm run build
+docker compose exec app php artisan migrate --seed
+```
+
+Open:
+
+- HelpDesk: http://localhost:8080
+- Adminer: http://localhost:8081
+- Mailpit inbox: http://localhost:8025
+
+Mailpit accepts SMTP connections from Laravel at `mailpit:1025`. Verification and password-reset emails are captured locally; no real email is sent.
+
+## Development users
+
+The database seeder creates three local demo users:
+
+| Role | Email |
+|---|---|
+| Administrator | `admin@helpdesk.test` |
+| Support agent | `agent@helpdesk.test` |
+| Customer | `customer@helpdesk.test` |
+
+The default local demo password is `password`. Override it with `HELPDESK_DEMO_PASSWORD` before running the seeder. Do not use the demo password outside local development.
+
+## Useful commands
+
+```bash
+# Run all migrations and seed the demo accounts
+docker compose exec app php artisan migrate --seed
+
+# Run the feature and unit tests
+docker compose exec app php artisan test
+
+# Inspect routes
+docker compose exec app php artisan route:list
+
+# Clear Laravel caches
+docker compose exec app php artisan optimize:clear
+
 # Follow application logs
 docker compose logs -f app
 
-# Open a shell in the PHP container
-docker compose exec app bash
-
-# Run Laravel Artisan commands
-docker compose exec app php artisan about
-
-# Run migrations when we introduce our first database schema
-docker compose exec app php artisan migrate
-
-# Stop containers (database data is preserved)
+# Stop containers; PostgreSQL data is preserved
 docker compose down
-
-# Stop containers and delete the local database volume (destructive)
-docker compose down -v
 ```
 
-The Docker environment defaults are in `.env.docker.example`. Compose also accepts a local `.env` file; copy the example if you want to customize ports or database credentials.
+Do not run `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume and all local HelpDesk data.
 
-## Documentation
+## Access model
 
-- [Project definition and functional scope](docs/PROJECT.md)
-- [Learning roadmap](docs/LEARNING-ROADMAP.md)
-- [Docker development environment](docs/DOCKER.md)
+- Customers can create tickets and see only their own tickets.
+- Agents can view and update tickets.
+- Administrators receive all ticket permissions.
+- Ticket status and priority changes are stored in `ticket_histories`.
+- API clients authenticate with Sanctum bearer tokens.
 
-## Development principles
+## API
 
-1. Learn Laravel conventions before introducing custom abstractions.
-2. Keep controllers focused on HTTP concerns.
-3. Put business rules in appropriate application/domain services when complexity justifies it.
-4. Use Eloquent relationships and query capabilities deliberately.
-5. Validate input with Form Requests and authorize actions with Policies.
-6. Cover important behaviour with automated tests.
-7. Prefer simple, maintainable solutions over patterns added only for the sake of architecture.
+All API endpoints are prefixed with `/api`.
 
-## Current status
+- `GET /api/user` — current authenticated user
+- `POST /api/tokens` — create a personal access token (`name` required)
+- `DELETE /api/tokens/current` — revoke the current token
 
-**Phase 0 – Project definition and local environment.** No business features have been implemented yet. The first learning session begins only after the environment is running and verified.
+These endpoints require Sanctum authentication. Use an existing session or bearer token to create a token.
+
+## Project structure
+
+Laravel source code lives in `src/`. Docker configuration lives in `docker/` and `docker-compose.yml`. Business features remain in controllers, Form Requests, policies, services, models and Livewire components.

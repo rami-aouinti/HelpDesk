@@ -31,7 +31,7 @@ class TicketTable extends Component
     public function render(): View
     {
         $query = Ticket::query()
-            ->with(['customer', 'assignedAgent'])
+            ->with(['customer', 'assignedAgent', 'team'])
             ->when(auth()->user()->hasRole('customer'), fn ($builder) => $builder->where('user_id', auth()->id()))
             ->when($this->search !== '', function ($builder): void {
                 $builder->where(function ($nested): void {

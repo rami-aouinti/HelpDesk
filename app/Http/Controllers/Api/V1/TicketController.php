@@ -39,6 +39,13 @@ class TicketController extends Controller
             'project_id' => ['sometimes', 'integer', 'min:1'],
             'assigned_to' => ['sometimes', 'integer', 'min:1'],
             'search' => ['sometimes', 'string', 'max:100'],
+            'unassigned' => ['sometimes', 'boolean'],
+            'created_from' => ['sometimes', 'date'],
+            'created_to' => ['sometimes', 'date', 'after_or_equal:created_from'],
+            'updated_from' => ['sometimes', 'date'],
+            'updated_to' => ['sometimes', 'date', 'after_or_equal:updated_from'],
+            'sort_by' => ['sometimes', 'string', Rule::in(['created_at', 'updated_at', 'priority', 'status', 'subject'])],
+            'sort_direction' => ['sometimes', 'string', Rule::in(['asc', 'desc'])],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
@@ -48,6 +55,13 @@ class TicketController extends Controller
             ->when(isset($filters['team_id']), fn (Builder $query) => $query->where('team_id', $filters['team_id']))
             ->when(isset($filters['project_id']), fn (Builder $query) => $query->where('project_id', $filters['project_id']))
             ->when(isset($filters['assigned_to']), fn (Builder $query) => $query->where('assigned_to', $filters['assigned_to']))
+            ->when(isset($filters['unassigned']), fn (Builder $query) => $filters['unassigned']
+                ? $query->whereNull('assigned_to')
+                : $query->whereNotNull('assigned_to'))
+            ->when(isset($filters['created_from']), fn (Builder $query) => $query->whereDate('created_at', '>=', $filters['created_from']))
+            ->when(isset($filters['created_to']), fn (Builder $query) => $query->whereDate('created_at', '<=', $filters['created_to']))
+            ->when(isset($filters['updated_from']), fn (Builder $query) => $query->whereDate('updated_at', '>=', $filters['updated_from']))
+            ->when(isset($filters['updated_to']), fn (Builder $query) => $query->whereDate('updated_at', '<=', $filters['updated_to']))
             ->when(isset($filters['search']), function (Builder $query) use ($filters): void {
                 $term = trim($filters['search']);
                 $query->where(function (Builder $nested) use ($term): void {
@@ -60,7 +74,7 @@ class TicketController extends Controller
                 });
             })
             ->with(['customer', 'assignedAgent', 'team', 'project'])
-            ->latest()
+            ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_direction'] ?? 'desc')
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
 

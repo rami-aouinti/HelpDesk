@@ -135,7 +135,8 @@ class KanbanBoardTest extends TestCase
         $other = $this->makeSprint(['name' => 'Other sprint']);
         $ticket = $this->makeTicket($customer, $other);
 
-        Livewire::actingAs($admin)->test(Board::class, ['sprintId' => $current->id])
+        Livewire::actingAs($admin)->test(Board::class)
+            ->set('sprintId', $current->id)
             ->call('moveTicketStatus', $ticket->id, 'closed')
             ->assertNotFound();
 

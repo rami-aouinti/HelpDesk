@@ -17,7 +17,7 @@ GET helpdesk-tickets/_count
 GET helpdesk-tickets/_search
 ```
 
-A full rebuild can be performed by replaying the ticket indexing listener for each ticket from a one-off Artisan command; never edit Elasticsearch documents as the source of truth.
+Rebuild the projection after index loss with `php artisan tickets:reindex --chunk=200`. The command reads PostgreSQL in batches and recreates the Elasticsearch documents; never edit Elasticsearch documents as the source of truth.
 
 ## Kibana
 

@@ -37,17 +37,7 @@ class TicketResource extends JsonResource
                 'id' => $this->project->id,
                 'name' => $this->project->name,
             ] : null),
-            'messages' => $this->whenLoaded('messages', fn () => $this->messages
-                ->map(fn ($message) => [
-                    'id' => $message->id,
-                    'body' => $message->body,
-                    'is_internal' => $message->is_internal,
-                    'author' => [
-                        'id' => $message->user?->id,
-                        'name' => $message->user?->name,
-                    ],
-                    'created_at' => $message->created_at?->toISOString(),
-                ])->values()),
+            'messages' => TicketMessageResource::collection($this->whenLoaded('messages')),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

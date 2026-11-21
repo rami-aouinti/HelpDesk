@@ -58,10 +58,17 @@ class TicketTable extends Component
         $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
         $perPage = min(max($this->perPage, 5), 50);
         $user = auth()->user();
+        $isGlobalViewer = $user->can('tickets.view.all');
+        $teamIds = $user->teams()->pluck('teams.id');
 
         $query = Ticket::query()
             ->with(['customer', 'assignedAgent', 'team'])
-            ->when(! $user->can('tickets.view.all'), fn ($builder) => $builder->where('user_id', $user->id))
+            ->when(! $isGlobalViewer && $user->hasRole('customer'), fn ($builder) => $builder->where('user_id', $user->id))
+            ->when(! $isGlobalViewer && $user->hasRole('agent'), function ($builder) use ($teamIds): void {
+                $builder->where(function ($scope) use ($teamIds): void {
+                    $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds);
+                });
+            })
             ->when(trim($this->search) !== '', function ($builder): void {
                 $search = trim($this->search);
                 $builder->where(fn ($nested) => $nested->whereRaw('LOWER(subject) LIKE ?', ['%'.mb_strtolower($search).'%'])
@@ -69,12 +76,17 @@ class TicketTable extends Component
             })
             ->when($this->status !== '', fn ($builder) => $builder->where('status', $this->status))
             ->when($this->priority !== '', fn ($builder) => $builder->where('priority', $this->priority))
-            ->when($this->team !== '' && $user->can('tickets.view.all'), fn ($builder) => $builder->where('team_id', $this->team))
+            ->when($this->team !== '' && $isGlobalViewer, fn ($builder) => $builder->where('team_id', $this->team))
+            ->when($this->team !== '' && ! $isGlobalViewer && $user->hasRole('agent'), fn ($builder) => $builder->where('team_id', $this->team)->whereIn('team_id', $teamIds))
             ->orderBy($sortColumn, $sortDirection);
+
+        $teams = $isGlobalViewer
+            ? Team::query()->orderBy('name')->get(['id', 'name'])
+            : ($user->hasRole('agent') ? $user->teams()->orderBy('name')->get(['teams.id', 'teams.name']) : collect());
 
         return view('livewire.tickets.ticket-table', [
             'tickets' => $query->paginate($perPage),
-            'teams' => $user->can('tickets.view.all') ? Team::query()->orderBy('name')->get(['id', 'name']) : collect(),
+            'teams' => $teams,
         ]);
     }
 }

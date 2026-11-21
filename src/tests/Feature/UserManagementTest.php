@@ -105,4 +105,34 @@ class UserManagementTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_inactive_authenticated_user_is_logged_out_from_protected_pages(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $agent->update(['is_active' => false]);
+
+        $this->actingAs($agent)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('login'));
+
+        $this->assertGuest();
+    }
+
+    public function test_last_active_administrator_cannot_remove_their_admin_role(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->put(route('users.update', $admin), [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => 'customer',
+                'password' => '',
+                'password_confirmation' => '',
+            ])
+            ->assertSessionHasErrors('role');
+
+        $this->assertTrue($admin->fresh()->hasRole('admin'));
+    }
+
 }

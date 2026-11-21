@@ -37,6 +37,11 @@ class Ticket extends Model
         return $this->belongsTo(Team::class);
     }
 
+    public function messages(): HasMany
+    {
+        return $this->hasMany(TicketMessage::class);
+    }
+
     public function histories(): HasMany
     {
         return $this->hasMany(TicketHistory::class)

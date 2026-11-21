@@ -58,6 +58,6 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-pagination">{{ $users->links() }}</div>
+        <div class="table-pagination">{{ $users->links('vendor.pagination.helpdesk') }}</div>
     </section>
 </div>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Ticket;
+use App\Models\Team;
+use App\Models\User;
 use App\Services\TicketService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -43,9 +45,13 @@ class TicketController extends Controller
     {
         abort_unless(auth()->user()->can('view', $ticket), 403);
 
-        $ticket->load(['customer', 'assignedAgent', 'histories.user']);
+        $ticket->load(['customer', 'assignedAgent', 'team', 'histories.user']);
 
-        return view('tickets.show', ['ticket' => $ticket]);
+        return view('tickets.show', [
+            'ticket' => $ticket,
+            'teams' => Team::query()->with('members')->orderBy('name')->get(),
+            'agents' => User::query()->role('agent')->where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     /**

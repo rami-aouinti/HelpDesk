@@ -61,6 +61,24 @@ class ProfileController extends Controller
             ->with('success', 'Your profile has been updated successfully.');
     }
 
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+        $newPath = $request->file('profile_photo')->store('profile-photos', 'public');
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        $user->forceFill(['profile_photo_path' => $newPath])->save();
+
+        return back()->with('success', 'Your profile photo has been updated.');
+    }
+
     public function destroyPhoto(Request $request): RedirectResponse
     {
         $user = $request->user();

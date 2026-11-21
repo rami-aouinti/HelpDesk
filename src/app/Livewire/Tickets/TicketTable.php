@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Livewire\\Tickets;
+namespace App\Livewire\Tickets;
 
-use App\\Models\\Ticket;
-use Illuminate\\Contracts\\View\\View;
-use Livewire\\Attributes\\Url;
-use Livewire\\Component;
-use Livewire\\WithPagination;
+use App\Models\Ticket;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class TicketTable extends Component
 {

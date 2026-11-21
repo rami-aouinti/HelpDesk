@@ -89,6 +89,10 @@ class TicketService
      */
     private function validateAssignment(array $data, Ticket $ticket): void
     {
+        if (! array_key_exists('team_id', $data) && ! array_key_exists('assigned_to', $data)) {
+            return;
+        }
+
         $teamId = array_key_exists('team_id', $data) ? $data['team_id'] : $ticket->team_id;
         $agentId = array_key_exists('assigned_to', $data) ? $data['assigned_to'] : $ticket->assigned_to;
 

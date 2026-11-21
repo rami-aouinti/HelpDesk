@@ -110,6 +110,10 @@ class Index extends Component
 
     public function render(): View
     {
+        $sortColumn = in_array($this->sortBy, ['name', 'members_count', 'tickets_count', 'created_at'], true) ? $this->sortBy : 'name';
+        $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
+        $perPage = min(max($this->perPage, 5), 50);
+
         $teams = Team::query()
             ->with('members')
             ->withCount('tickets')
@@ -119,8 +123,8 @@ class Index extends Component
                 ->orWhere('description', 'like', '%'.trim($this->search).'%')))
             ->when($this->membership === 'with_members', fn ($query) => $query->has('members'))
             ->when($this->membership === 'without_members', fn ($query) => $query->doesntHave('members'))
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+            ->orderBy($sortColumn, $sortDirection)
+            ->paginate($perPage);
 
         return view('livewire.teams.index', [
             'teams' => $teams,

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Livewire\\Users;
+namespace App\Livewire\Users;
 
-use App\\Models\\User;
-use App\\Services\\UserManagementService;
-use Illuminate\\Contracts\\View\\View;
-use Illuminate\\Support\\Facades\\Gate;
-use Livewire\\Component;
-use Livewire\\WithPagination;
-use Spatie\\Permission\\Models\\Role;
+use App\Models\User;
+use App\Services\UserManagementService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class Index extends Component
 {

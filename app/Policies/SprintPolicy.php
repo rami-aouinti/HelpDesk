@@ -9,7 +9,7 @@ class SprintPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('tickets.view');
+        return $user->hasRole('admin') || ($user->hasRole('agent') && $user->can('tickets.view'));
     }
 
     public function create(User $user): bool

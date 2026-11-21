@@ -47,6 +47,17 @@ class TicketService
                 ->lockForUpdate()
                 ->findOrFail($ticket->id);
 
+            $actor = $userId === null ? null : User::query()->findOrFail($userId);
+
+            if (
+                array_intersect(['team_id', 'assigned_to'], array_keys($data)) !== []
+                && (! $actor || ! $actor->hasRole('admin'))
+            ) {
+                throw new \\Illuminate\\Auth\\Access\\AuthorizationException(
+                    'Only administrators can assign or reassign tickets.'
+                );
+            }
+
             foreach ($data as $field => $newValue) {
                 $allowedValues = match ($field) {
                     'status' => self::STATUSES,
@@ -64,6 +75,10 @@ class TicketService
                 }
 
                 $oldValue = $ticket->{$field};
+
+                if ($field === 'status' && $oldValue !== $newValue && $actor !== null) {
+                    $this->validateStatusTransition($oldValue, $newValue, $actor);
+                }
 
                 if ($oldValue === $newValue) {
                     continue;

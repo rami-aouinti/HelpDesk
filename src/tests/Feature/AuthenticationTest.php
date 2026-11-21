@@ -23,7 +23,7 @@ class AuthenticationTest extends TestCase
 
         $user = User::where('email', 'new.customer@example.test')->firstOrFail();
 
-        $response->assertRedirect(route('verification.notice'));
+        $response->assertRedirect(route('dashboard'));\n        $this->get(route('dashboard'))->assertRedirect(route('verification.notice'));
         $this->assertTrue($user->hasRole('customer'));
         $this->assertNull($user->email_verified_at);
     }
@@ -32,7 +32,7 @@ class AuthenticationTest extends TestCase
     {
         $this->seed();
 
-        $user = User::factory()->create();
+        $user = User::factory()->unverified()->create();
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertRedirect(route('verification.notice'));

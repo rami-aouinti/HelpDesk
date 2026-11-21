@@ -31,7 +31,9 @@ class TicketController extends Controller
     {
         abort_unless(auth()->user()->can('create', Ticket::class), 403);
 
-        return view('tickets.create');
+        $user = auth()->user();
+        $projects = $user->can('projects.view.all') ? \\App\\Models\\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
+        return view('tickets.create', compact('projects'));
     }
 
     public function store(StoreTicketRequest $request): RedirectResponse
@@ -40,6 +42,7 @@ class TicketController extends Controller
             ...$request->validated(),
             'status' => 'open',
             'user_id' => $request->user()->id,
+            'project_id' => $request->validated('project_id'),
         ]);
 
         app(TicketNotificationService::class)->ticketCreated($ticket);
@@ -53,7 +56,7 @@ class TicketController extends Controller
     {
         abort_unless(auth()->user()->can('view', $ticket), 403);
 
-        $ticket->load(['customer', 'assignedAgent', 'team', 'histories.user']);
+        $ticket->load(['customer', 'assignedAgent', 'team', 'project', 'histories.user']);
 
         $messagesQuery = $ticket->messages()->with(['user', 'attachments'])->oldest();
         if (auth()->user()->hasRole('customer')) {
@@ -80,6 +83,7 @@ class TicketController extends Controller
             'messages' => $messagesQuery->get(),
             'teams' => $teams->get(),
             'agents' => $agents->get(),
+            'projects' => $user->can('projects.view.all') ? \\App\\Models\\Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
         ]);
     }
 

@@ -45,6 +45,7 @@ COPY --from=frontend /app/public/build ./public/build
 RUN composer dump-autoload --no-interaction --optimize \
     && mkdir -p storage/framework/cache/data storage/framework/sessions \
         storage/framework/views storage/logs bootstrap/cache \
+    && ln -sfn ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 9000

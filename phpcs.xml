@@ -16,10 +16,4 @@
         <!-- Laravel/PHPUnit test methods conventionally use snake_case. -->
         <exclude name="PSR1.Methods.CamelCapsMethodName"/>
     </rule>
-    <rule ref="Generic.Files.LineLength">
-        <properties>
-            <property name="lineLimit" value="140"/>
-            <property name="absoluteLineLimit" value="180"/>
-        </properties>
-    </rule>
 </ruleset>

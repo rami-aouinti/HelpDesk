@@ -51,11 +51,6 @@ class Board extends Component
         $this->sprintId = $sprintId;
     }
 
-    public function updatedOnlyMine(): void
-    {
-        //
-    }
-
     public function moveTicketStatus(int $ticketId, string $status, TicketService $tickets): void
     {
         abort_unless(array_key_exists($status, self::STATUSES), 422);
@@ -176,7 +171,7 @@ class Board extends Component
             $backlogQuery->where('assigned_to', $user->id);
         }
 
-        $backlog = $backlogQuery->orderByDesc('created_at')->limit(50)->get();
+        $backlog = $backlogQuery->orderByDesc('created_at')->get();
 
         $columns = [];
         foreach (self::STATUSES as $status => $label) {

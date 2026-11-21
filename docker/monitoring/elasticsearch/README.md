@@ -31,3 +31,8 @@ Filebeat ships Docker container logs to Elasticsearch. Keep retention bounded in
 ## Cache
 
 Redis is the Laravel cache store. Use a five-minute TTL for suitable read-through queries. Never cache authorization decisions or user-specific data under shared keys.
+
+
+## Import the Kibana operations dashboard
+
+Open Kibana at `http://localhost:5601`, go to **Stack Management → Saved Objects → Import**, and select `docker/monitoring/kibana/helpdesk-operations.ndjson`. The import creates the `helpdesk-logs-*` data view plus saved searches and an operations dashboard for HTTP and worker events.

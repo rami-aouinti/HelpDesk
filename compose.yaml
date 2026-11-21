@@ -135,6 +135,24 @@ services:
     networks:
       - monitoring
 
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    profiles: ["monitoring"]
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports:
+      - "127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"
+    volumes:
+      - ./docker/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - helpdesk_alertmanager:/alertmanager
+    depends_on:
+      - mailpit
+    networks:
+      - helpdesk
+      - monitoring
+
   alloy:
     image: grafana/alloy:v1.8.3
     profiles: ["monitoring"]
@@ -215,6 +233,7 @@ volumes:
   helpdesk_prometheus:
   helpdesk_grafana:
   helpdesk_loki:
+  helpdesk_alertmanager:
 
 networks:
   helpdesk:

@@ -87,3 +87,85 @@ jobs:
           SESSION_DRIVER: array
           QUEUE_CONNECTION: sync
           MAIL_MAILER: array
+
+  postgres-integration:
+    name: PostgreSQL integration and backup restore
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: helpdesk
+          POSTGRES_USER: helpdesk
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U helpdesk -d helpdesk"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: bcmath, curl, redis, dom, exif, gd, intl, mbstring, opcache, pcntl, pdo_pgsql, pdo_sqlite, simplexml, xml, xmlreader, xmlwriter, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Run full test suite against PostgreSQL
+        run: php artisan test --display-warnings --no-ansi
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: helpdesk
+          DB_USERNAME: helpdesk
+          DB_PASSWORD: secret
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          MAIL_MAILER: array
+          ELASTICSEARCH_ENABLED: false
+
+      - name: Verify PostgreSQL and uploads backup restore round-trip
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: helpdesk
+          DB_USERNAME: helpdesk
+          DB_PASSWORD: secret
+          BACKUP_DIR: ${{ runner.temp }}/helpdesk-backups
+          UPLOADS_DIR: ${{ runner.temp }}/helpdesk-storage
+        run: |
+          export PGPASSWORD="$DB_PASSWORD"
+          psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -v ON_ERROR_STOP=1 -c "CREATE TABLE backup_restore_probe (id integer PRIMARY KEY, payload text NOT NULL)"
+          psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -v ON_ERROR_STOP=1 -c "INSERT INTO backup_restore_probe VALUES (1, 'round-trip')"
+          mkdir -p "$UPLOADS_DIR/private" "$UPLOADS_DIR/public"
+          printf 'private attachment backup test\n' > "$UPLOADS_DIR/private/probe.txt"
+          ./scripts/backup.sh
+          psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -v ON_ERROR_STOP=1 -c "DROP TABLE backup_restore_probe"
+          database_backup="$(find "$BACKUP_DIR" -name '*.dump' -print -quit)"
+          uploads_backup="$(find "$BACKUP_DIR" -name '*.tar.gz' -print -quit)"
+          printf 'RESTORE\n' | ./scripts/restore.sh "$database_backup" "$uploads_backup"
+          restored_payload="$(psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -Atc "SELECT payload FROM backup_restore_probe WHERE id = 1")"
+          test "$restored_payload" = "round-trip"
+          test -f "$UPLOADS_DIR/private/probe.txt"

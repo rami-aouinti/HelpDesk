@@ -19,6 +19,7 @@ class Ticket extends Model
         'priority',
         'user_id',
         'assigned_to',
+        'team_id',
     ];
 
     public function customer(): BelongsTo

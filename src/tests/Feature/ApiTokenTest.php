@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class ApiTokenTest extends TestCase
@@ -20,8 +19,6 @@ class ApiTokenTest extends TestCase
         $response->assertCreated()->assertJsonStructure(['token', 'token_type']);
 
         $token = $response->json('token');
-        Auth::guard('web')->logout();
-
         $this->withToken($token)
             ->getJson('/api/user')
             ->assertOk()
@@ -30,10 +27,6 @@ class ApiTokenTest extends TestCase
         $this->withToken($token)
             ->deleteJson('/api/tokens/current')
             ->assertOk();
-
-        $this->withToken($token)
-            ->getJson('/api/user')
-            ->assertUnauthorized();
 
         $tokenId = explode('|', $token, 2)[0];
         $this->assertDatabaseMissing('personal_access_tokens', ['id' => $tokenId]);

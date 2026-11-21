@@ -21,12 +21,8 @@
 
     <section class="content-card data-table-card">
         <div class="table-toolbar">
-            <div class="table-search"><label for="team-search">Search teams</label><input id="team-search" type="search" wire:model.live.debounce.300ms="search" placeholder="Team name or description..."></div>
             <div class="table-filter"><label for="team-membership">Membership</label><select id="team-membership" wire:model.live="membership"><option value="">All teams</option><option value="with_members">With members</option><option value="without_members">Without members</option></select></div>
             <button type="button" class="btn btn-secondary toolbar-reset" wire:click="resetFilters">Reset filters</button>
-            @can('create', \App\Models\Team::class)
-                <button type="button" class="btn btn-primary toolbar-reset" wire:click="create">+ Create team</button>
-            @endcan
         </div>
         <div class="table-meta"><span>{{ $teams->total() }} teams</span><label>Rows per page <select wire:model.live="perPage"><option value="10">10</option><option value="15">15</option><option value="25">25</option><option value="50">50</option></select></label></div>
         <div class="table-wrapper" wire:loading.class="table-loading" wire:target="search,membership,perPage,sort,gotoPage,nextPage,previousPage">

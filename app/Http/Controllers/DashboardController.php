@@ -3,6 +3,7 @@
 namespace App\\Http\\Controllers;
 
 use App\\Models\\Ticket;
+use App\\Models\\TicketHistory;
 use Illuminate\\Contracts\\View\\View;
 
 class DashboardController extends Controller
@@ -43,15 +44,53 @@ class DashboardController extends Controller
             'resolved' => (clone $tickets)->where('status', 'resolved')->count(),
         ];
 
+        $priorityLabels = [
+            'urgent' => 'Urgent',
+            'high' => 'High',
+            'normal' => 'Normal',
+            'low' => 'Low',
+        ];
+
+        $priorityBreakdown = [];
+        foreach ($priorityLabels as $priority => $label) {
+            $count = (clone $tickets)->where('priority', $priority)->count();
+
+            $priorityBreakdown[] = [
+                'key' => $priority,
+                'label' => $label,
+                'count' => $count,
+                'percentage' => $statistics['total'] > 0
+                    ? (int) round(($count / $statistics['total']) * 100)
+                    : 0,
+            ];
+        }
+
         $recentTickets = (clone $tickets)
             ->with(['customer', 'assignedAgent'])
             ->latest()
             ->limit(8)
             ->get();
 
+        $recentActivity = TicketHistory::query()
+            ->whereIn('ticket_id', (clone $tickets)->select('tickets.id'))
+            ->with(['ticket', 'user'])
+            ->latest()
+            ->limit(6)
+            ->get();
+
+        $dashboardAudience = match (true) {
+            $user->can('tickets.view.all') => 'Workspace overview',
+            $user->hasRole('agent') => 'Your team queue',
+            $user->hasRole('customer') => 'Your support requests',
+            default => 'Your workspace',
+        };
+
         return view('dashboard.index', [
             'statistics' => $statistics,
+            'priorityBreakdown' => $priorityBreakdown,
             'recentTickets' => $recentTickets,
+            'recentActivity' => $recentActivity,
+            'dashboardAudience' => $dashboardAudience,
         ]);
     }
 }

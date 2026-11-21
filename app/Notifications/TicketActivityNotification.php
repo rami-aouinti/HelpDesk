@@ -29,7 +29,9 @@ class TicketActivityNotification extends Notification implements \Illuminate\Con
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ($notifiable->email_notifications_enabled ?? true)
+            ? ['database', 'mail']
+            : ['database'];
     }
 
     /**

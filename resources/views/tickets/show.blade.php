@@ -26,6 +26,7 @@
         <p><strong>Subject:</strong> {{ $ticket->subject }}</p>
         <p><strong>Description:</strong> {{ $ticket->description }}</p>
         <p><strong>Customer:</strong> {{ $ticket->customer?->name ?? 'Unassigned' }}</p>
+        <p><strong>Project:</strong> {{ $ticket->project?->name ?? 'No project' }}</p>
         <p><strong>Team:</strong> {{ $ticket->team?->name ?? 'Not assigned' }}</p>
         <p><strong>Assigned agent:</strong> {{ $ticket->assignedAgent?->name ?? 'Not assigned' }}</p>
         <p><strong>Created:</strong> {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
@@ -110,6 +111,7 @@
                 </select>
             </div>
 
+            <div class="form-group"><label for="project_id">Project</label><select name="project_id" id="project_id"><option value="">No project</option>@foreach ($projects as $project)<option value="{{ $project->id }}" @selected((string) old('project_id', $ticket->project_id) === (string) $project->id)>{{ $project->name }}</option>@endforeach</select></div>
             <div class="form-group">
                 <label for="assigned_to">Assigned agent</label>
                 <select name="assigned_to" id="assigned_to">

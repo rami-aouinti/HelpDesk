@@ -26,7 +26,7 @@
         </div>
     @endif
 
-    <div class="content-card ticket-information-card">
+    <div class="content-card ticket-information-card ticket-detail-section">
         <h2>Ticket overview</h2>
         <div class="ticket-overview">
             <div class="ticket-description">
@@ -181,7 +181,7 @@
     </div>
 
 
-    <div class="content-card ticket-conversation-card" style="margin-top: 24px;">
+    <div class="content-card ticket-conversation-card ticket-detail-section">
         <div class="ticket-section-heading"><div><span class="eyebrow">MESSAGES</span><h2>Conversation</h2><p>Replies are visible to the customer and the support team.</p></div><span class="ticket-message-count">{{ $messages->count() }} messages</span></div>
 
         @if ($errors->any())
@@ -194,34 +194,43 @@
             </div>
         @endif
 
-        <div style="margin: 20px 0;">
+        <div class="ticket-message-list">
             @forelse ($messages as $message)
-                <article style="padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: {{ $message->is_internal ? '#fffbeb' : '#ffffff' }};">
-                    <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                        <strong>{{ $message->user->name }}</strong>
-                        <small>{{ $message->created_at->format('d.m.Y H:i') }}</small>
-                    </div>
-                    @if ($message->is_internal)
-                        <small style="display: inline-block; margin-top: 6px; color: #92400e; font-weight: 600;">Internal note · visible to support team only</small>
-                    @endif
-                    <p style="margin-top: 10px; white-space: pre-wrap;">{{ $message->body }}</p>
+                <article class="ticket-message {{ $message->is_internal ? 'ticket-message-internal' : '' }}">
+                    <div class="ticket-message-avatar" aria-hidden="true">{{ strtoupper(substr($message->user?->name ?? 'HD', 0, 2)) }}</div>
+                    <div class="ticket-message-content">
+                        <div class="ticket-message-meta">
+                            <div class="ticket-message-author">
+                                <strong>{{ $message->user?->name ?? 'Former user' }}</strong>
+                                @if ($message->is_internal)
+                                    <span class="ticket-internal-label">Internal note</span>
+                                @else
+                                    <span class="ticket-reply-label">Public reply</span>
+                                @endif
+                            </div>
+                            <time datetime="{{ $message->created_at->toIso8601String() }}">{{ $message->created_at->format('d.m.Y · H:i') }}</time>
+                        </div>
+                        <p class="ticket-message-body">{{ $message->body }}</p>
 
-                    @if ($message->attachments->isNotEmpty())
-                        <ul style="margin-top: 12px; padding-left: 20px; list-style: disc;">
-                            @foreach ($message->attachments as $attachment)
-                                <li style="margin-bottom: 6px;">
-                                    <a href="{{ route('tickets.attachments.download', [$ticket, $attachment]) }}"
-                                       style="color: #2563eb; text-decoration: underline;">
-                                        {{ $attachment->original_name }}
+                        @if ($message->attachments->isNotEmpty())
+                            <div class="ticket-attachments">
+                                @foreach ($message->attachments as $attachment)
+                                    <a class="ticket-attachment" href="{{ route('tickets.attachments.download', [$ticket, $attachment]) }}">
+                                        <span class="ticket-attachment-icon" aria-hidden="true">↳</span>
+                                        <span class="ticket-attachment-name">{{ $attachment->original_name }}<small>{{ number_format($attachment->size / 1024, 1) }} KB</small></span>
+                                        <span class="ticket-attachment-download" aria-hidden="true">↓</span>
                                     </a>
-                                    <small style="color: #64748b;">({{ number_format($attachment->size / 1024, 1) }} KB)</small>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 </article>
             @empty
-                <p>No replies yet. Start the conversation below.</p>
+                <div class="ticket-conversation-empty">
+                    <span aria-hidden="true">✉</span>
+                    <strong>No replies yet</strong>
+                    <p>Start the conversation by sending the first message below.</p>
+                </div>
             @endforelse
         </div>
 
@@ -257,26 +266,43 @@
         </form>
     </div>
 
-    <div class="content-card ticket-history-card" style="margin-top: 24px;">
+    <div class="content-card ticket-history-card ticket-detail-section">
         <div class="ticket-section-heading"><div><span class="eyebrow">AUDIT TRAIL</span><h2>Activity history</h2><p>Important changes made to this ticket.</p></div></div>
 
         @forelse ($ticket->histories as $history)
-            <div style="padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
-                <strong>{{ ucfirst(str_replace('_', ' ', $history->action)) }}</strong>
-
-                <p>
-                    {{ $history->old_value ?? '—' }}
-                    →
-                    {{ $history->new_value ?? '—' }}
-                </p>
-
-                <small>
-                    {{ $history->user?->name ?? 'System / Unauthenticated user' }}
-                    · {{ $history->created_at->format('d.m.Y H:i') }}
-                </small>
-            </div>
+            @php
+                $historyLabels = [
+                    'status' => 'Status changed',
+                    'priority' => 'Priority changed',
+                    'assigned_to' => 'Agent assignment changed',
+                    'team_id' => 'Team changed',
+                    'project_id' => 'Project changed',
+                    'estimated_minutes' => 'Time estimate updated',
+                    'elapsed_minutes' => 'Tracked time updated',
+                ];
+                $historyValue = in_array($history->action, ['status', 'priority'], true)
+                    ? fn ($value) => $value ? ucfirst(str_replace('_', ' ', $value)) : '—'
+                    : fn ($value) => $value === null ? '—' : 'Updated';
+            @endphp
+            <article class="ticket-history-item">
+                <span class="ticket-history-marker" aria-hidden="true"></span>
+                <div class="ticket-history-content">
+                    <div class="ticket-history-heading">
+                        <strong>{{ $historyLabels[$history->action] ?? ucfirst(str_replace('_', ' ', $history->action)) }}</strong>
+                        <time datetime="{{ $history->created_at->toIso8601String() }}">{{ $history->created_at->format('d.m.Y · H:i') }}</time>
+                    </div>
+                    @if (in_array($history->action, ['status', 'priority'], true))
+                        <p><span>{{ $historyValue($history->old_value) }}</span><span class="ticket-history-arrow">→</span><strong>{{ $historyValue($history->new_value) }}</strong></p>
+                    @elseif (in_array($history->action, ['estimated_minutes', 'elapsed_minutes'], true))
+                        <p>{{ $history->old_value ?? '—' }} min <span class="ticket-history-arrow">→</span> <strong>{{ $history->new_value ?? '—' }} min</strong></p>
+                    @else
+                        <p class="ticket-history-generic">The ticket details were updated.</p>
+                    @endif
+                    <small>By {{ $history->user?->name ?? 'System' }}</small>
+                </div>
+            </article>
         @empty
-            <p>No activity recorded yet.</p>
+            <div class="ticket-history-empty">No activity has been recorded for this ticket yet.</div>
         @endforelse
     </div>
 @endsection

@@ -11,8 +11,6 @@ class TicketActivityNotification extends Notification implements \Illuminate\Con
 {
     use Queueable;
 
-    public bool $afterCommit = true;
-
     /**
      * @param array<string, string> $changes
      */
@@ -23,6 +21,7 @@ class TicketActivityNotification extends Notification implements \Illuminate\Con
         public array $changes = [],
     ) {
         $this->onQueue('notifications');
+        $this->afterCommit = true;
     }
 
     /**

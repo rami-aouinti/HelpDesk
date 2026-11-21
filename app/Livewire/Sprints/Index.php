@@ -74,6 +74,8 @@ class Index extends Component
 
     public function save(SprintManagementService $sprints): void
     {
+        $this->name = trim($this->name);
+
         $this->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('sprints', 'name')->ignore($this->sprintId)],
             'description' => ['nullable', 'string', 'max:5000'],

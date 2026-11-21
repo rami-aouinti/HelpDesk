@@ -24,4 +24,24 @@ class ProjectManagementTest extends TestCase { use RefreshDatabase; protected fu
   $outsider=User::factory()->create();$outsider->assignRole('customer');
   $this->actingAs($outsider)->get(route('projects.documents.download',$doc))->assertForbidden();
  }
+ public function test_admin_can_save_project_budget_dates_and_status():void
+ {
+  $admin=User::where('email','admin@helpdesk.test')->firstOrFail();
+  Livewire::actingAs($admin)->test('projects.index')
+   ->call('create')
+   ->set('name','Budgeted Project')
+   ->set('description','Project with a defined budget and delivery period.')
+   ->set('budget','15000.50')
+   ->set('startDate','2026-11-01')
+   ->set('endDate','2027-02-28')
+   ->set('status','active')
+   ->call('save')
+   ->assertHasNoErrors();
+  $project=Project::where('name','Budgeted Project')->firstOrFail();
+  $this->assertSame('15000.50',$project->budget);
+  $this->assertSame('2026-11-01',$project->start_date->format('Y-m-d'));
+  $this->assertSame('2027-02-28',$project->end_date->format('Y-m-d'));
+  $this->assertSame('active',$project->status);
+ }
+
 }

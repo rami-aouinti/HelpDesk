@@ -75,7 +75,9 @@ class TicketController extends Controller
                     }
                 });
             })
-            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint'])
+            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
+                ->withCount('tickets')
+                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),])
             ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_direction'] ?? 'desc')
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
@@ -93,7 +95,9 @@ class TicketController extends Controller
 
         event(new TicketCreated($ticket));
 
-        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint'])))
+        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
+                ->withCount('tickets')
+                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),])))
             ->response()
             ->setStatusCode(201);
     }
@@ -107,7 +111,9 @@ class TicketController extends Controller
             'assignedAgent',
             'team',
             'project',
-            'sprint',
+            'sprint' => fn (Builder $query) => $query
+                ->withCount('tickets')
+                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),
             'messages' => function (Builder $query) use ($request): void {
                 $query->with(['user', 'attachments'])->oldest();
 
@@ -131,7 +137,9 @@ class TicketController extends Controller
             $request->user()->id,
         );
 
-        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint']));
+        return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => fn (Builder $query) => $query
+                ->withCount('tickets')
+                ->withCount(['tickets as unfinished_tickets_count' => fn (Builder $tickets) => $tickets->where('status', '!=', 'closed')]),]));
     }
 
     public function storeMessage(

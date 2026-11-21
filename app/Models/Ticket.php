@@ -21,6 +21,7 @@ class Ticket extends Model
         'assigned_to',
         'team_id',
         'project_id',
+        'sprint_id',
         'estimated_minutes',
         'elapsed_minutes',
     ];
@@ -56,6 +57,11 @@ class Ticket extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function sprint(): BelongsTo
+    {
+        return $this->belongsTo(Sprint::class);
     }
 
     public function messages(): HasMany

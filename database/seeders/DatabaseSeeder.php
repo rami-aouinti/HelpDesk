@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             TeamSeeder::class,
             TicketSeeder::class,
+            ProjectSeeder::class,
         ]);
     }
 }

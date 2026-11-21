@@ -51,7 +51,9 @@ class TicketNotificationTest extends TestCase
     {
         [$customer, $agent, $ticket] = $this->ticketWithAssignedAgent();
 
-        $this->actingAs($agent)->post(route('tickets.messages.store', $ticket), [
+        $noteAuthor = User::where('email', 'sarah.agent@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($noteAuthor)->post(route('tickets.messages.store', $ticket), [
             'body' => 'Internal troubleshooting details.',
             'is_internal' => true,
         ])->assertRedirect(route('tickets.show', $ticket));
@@ -86,7 +88,9 @@ class TicketNotificationTest extends TestCase
             'user_id' => $customer->id,
         ]);
 
-        $this->actingAs($agent)->patch(route('tickets.update', $ticket), [
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($admin)->patch(route('tickets.update', $ticket), [
             'team_id' => $team->id,
             'assigned_to' => $agent->id,
         ])->assertRedirect(route('tickets.show', $ticket));

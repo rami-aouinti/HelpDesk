@@ -48,5 +48,10 @@ class DatabaseSeeder extends Seeder
 
             $user->assignRole($definition['role']);
         }
+
+        $this->call([
+            UserSeeder::class,
+            TeamSeeder::class,
+        ]);
     }
 }

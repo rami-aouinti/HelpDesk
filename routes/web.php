@@ -28,6 +28,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
 
     Route::view('/teams', 'teams.index')->name('teams.index');
     Route::view('/projects', 'projects.index')->name('projects.index');
+    Route::get('/projects/{project}/cover', [ProjectDocumentController::class, 'cover'])->name('projects.cover');
     Route::get('/project-documents/{document}/download', [ProjectDocumentController::class, 'download'])->name('projects.documents.download');
 
     Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);

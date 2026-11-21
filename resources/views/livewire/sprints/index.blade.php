@@ -54,7 +54,7 @@
                             @else <span class="sprint-status is-active">Active</span> @endif
                         </div>
                         <p>{{ $sprint->description ?: 'No sprint goal added.' }}</p>
-                        <div class="sprint-meta"><span>◷ {{ $sprint->start_date->format('M d, Y') }} — {{ $sprint->end_date->format('M d, Y') }}</span><span>♧ {{ $sprint->tickets_count }} tickets</span><span>✓ {{ $sprint->done_tickets_count }} done</span></div>
+                        <div class="sprint-meta"><span>◷ {{ $sprint->start_date->format('M d, Y') }} — {{ $sprint->end_date->format('M d, Y') }}</span><span>♧ {{ $sprint->tickets_count }} tickets</span><span>✓ {{ $sprint->done_tickets_count }} done</span><span>By {{ $sprint->creator?->name ?? 'Unknown' }}</span></div>
                         <div class="sprint-progress"><span style="width: {{ $progress }}%"></span></div>
                     </div>
                     <strong class="sprint-progress-value">{{ $progress }}%</strong>

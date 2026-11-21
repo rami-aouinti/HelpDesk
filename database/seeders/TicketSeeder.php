@@ -50,6 +50,8 @@ class TicketSeeder extends Seeder
                     'description' => $definition['description'],
                     'status' => $definition['status'],
                     'priority' => $definition['priority'],
+                    'estimated_minutes' => 60 + ($index * 30),
+                    'elapsed_minutes' => 30 + ($index * 15),
                     'team_id' => $definition['team']->id,
                     'assigned_to' => $agent?->id,
                     'created_at' => $createdAt,

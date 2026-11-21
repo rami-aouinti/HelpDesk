@@ -104,7 +104,7 @@ class ProfileController extends Controller
 
     public function updatePreferences(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'email_notifications_enabled' => ['required', 'boolean'],
         ]);
 

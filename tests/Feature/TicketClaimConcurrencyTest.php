@@ -47,9 +47,11 @@ class TicketClaimConcurrencyTest extends TestCase
 
         $this->assertSame($firstAgent->id, $ticket->fresh()->assigned_to);
 
-        $this->expectException(ValidationException::class);
-        $service->claim($ticket, $secondAgent, $team->id);
-
-        $this->assertSame($firstAgent->id, $ticket->fresh()->assigned_to);
+        try {
+            $service->claim($ticket, $secondAgent, $team->id);
+            $this->fail('A ticket must not be claimed by a second agent.');
+        } catch (ValidationException) {
+            $this->assertSame($firstAgent->id, $ticket->fresh()->assigned_to);
+        }
     }
 }

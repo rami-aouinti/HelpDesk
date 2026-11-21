@@ -48,6 +48,10 @@ class TicketTable extends Component
 
     public function render(): View
     {
+        $sortColumn = in_array($this->sortBy, ['id', 'subject', 'priority', 'status', 'created_at'], true) ? $this->sortBy : 'created_at';
+        $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+        $perPage = min(max($this->perPage, 5), 50);
+
         $query = Ticket::query()
             ->with(['customer', 'assignedAgent', 'team'])
             ->when(auth()->user()->hasRole('customer'), fn ($builder) => $builder->where('user_id', auth()->id()))
@@ -59,10 +63,10 @@ class TicketTable extends Component
             ->when($this->status !== '', fn ($builder) => $builder->where('status', $this->status))
             ->when($this->priority !== '', fn ($builder) => $builder->where('priority', $this->priority))
             ->when($this->team !== '', fn ($builder) => $builder->where('team_id', $this->team))
-            ->orderBy($this->sortBy, $this->sortDirection);
+            ->orderBy($sortColumn, $sortDirection);
 
         return view('livewire.tickets.ticket-table', [
-            'tickets' => $query->paginate($this->perPage),
+            'tickets' => $query->paginate($perPage),
             'teams' => Team::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }

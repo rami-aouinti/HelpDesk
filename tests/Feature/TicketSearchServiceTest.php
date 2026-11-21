@@ -13,7 +13,7 @@ class TicketSearchServiceTest extends TestCase
 {
     public function test_it_returns_ticket_ids_from_elasticsearch(): void
     {
-        config(['services.elasticsearch.url' => 'http://elasticsearch:9200']);
+        config(['services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);
         Http::fake([
             'elasticsearch:9200/helpdesk-tickets/_search*' => Http::response([
                 'hits' => [

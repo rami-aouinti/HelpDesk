@@ -126,7 +126,12 @@ class Board extends Component
     public function render(): View
     {
         $user = auth()->user();
-        $sprints = Sprint::query()->orderByDesc('start_date')->orderByDesc('id')->get();
+        $sprints = Sprint::query()
+            ->withCount('tickets')
+            ->withCount(['tickets as unfinished_tickets_count' => fn ($query) => $query->where('status', '!=', 'closed')])
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->get();
         $sprint = $this->sprintId === null ? null : Sprint::query()->find($this->sprintId);
         $tickets = collect();
 

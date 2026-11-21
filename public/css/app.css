@@ -823,3 +823,26 @@ html[data-theme="dark"] .btn-danger { background: #482a32; color: #ffc0c5; }
 @media (max-width: 700px) {
     .page-actions { margin-bottom: 14px; }
 }
+
+
+/* Centered page search and create actions in the workspace appbar */
+.topbar-page-tools { display:flex; align-items:center; justify-content:center; gap:12px; flex:1 1 auto; min-width:0; margin:0 28px; }
+.topbar-search { display:flex; align-items:center; gap:9px; width:min(100%,360px); min-width:150px; height:40px; padding:0 12px; border:1px solid var(--hd-border); border-radius:10px; background:var(--hd-surface); color:var(--hd-muted); }
+.topbar-search > span { font-size:21px; line-height:1; }
+.topbar-search input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--hd-ink); font:inherit; font-size:12px; }
+.topbar-search input::placeholder { color:#9aa5b5; }
+.topbar-search:focus-within { border-color:#8884ef; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+.topbar-create { flex:0 0 auto; white-space:nowrap; }
+html[data-theme="dark"] .topbar-search { background:#151f30; border-color:#3a465b; }
+@media (max-width:1100px) { .topbar-page-tools { margin:0 14px; gap:8px; } .topbar-search { width:min(100%,260px); } }
+@media (max-width:700px) {
+ .topbar { gap:8px; }
+ .topbar-heading { flex:0 0 auto; gap:5px; font-size:11px; }
+ .topbar-heading strong { max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .topbar-page-tools { margin:0 4px; gap:6px; }
+ .topbar-search { min-width:0; height:36px; padding:0 8px; }
+ .topbar-search > span { display:none; }
+ .topbar-search input { font-size:11px; }
+ .topbar-create { min-height:36px; padding:7px 9px; font-size:10px; }
+ .topbar-actions { margin:0 4px 0 0; }
+}

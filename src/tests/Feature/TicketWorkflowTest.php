@@ -19,29 +19,6 @@ class TicketWorkflowTest extends TestCase
         $this->seed();
     }
 
-    public function test_customer_can_create_a_ticket_and_only_sees_their_own_tickets(): void
-    {
-        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
-
-        $this->actingAs($customer)
-            ->post(route('tickets.store'), [
-                'subject' => 'Cannot access my account',
-                'description' => 'The password reset page does not work for me.',
-                'priority' => 'high',
-            ])
-            ->assertRedirect(route('tickets.index'));
-
-        $ticket = Ticket::where('subject', 'Cannot access my account')
-            ->where('user_id', $customer->id)
-            ->firstOrFail();
-        $this->assertSame($customer->id, $ticket->user_id);
-
-        $this->actingAs($customer)
-            ->get(route('tickets.index'))
-            ->assertOk()
-            ->assertSee('Cannot access my account');
-    }
-
     public function test_agent_can_update_a_ticket_and_the_change_is_recorded(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

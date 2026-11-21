@@ -24,6 +24,14 @@ class ApiTokenTest extends TestCase
             ->getJson('/api/user')
             ->assertOk()
             ->assertJsonPath('email', $user->email);
+
+        $this->withToken($token)
+            ->deleteJson('/api/tokens/current')
+            ->assertOk();
+
+        $this->withToken($token)
+            ->getJson('/api/user')
+            ->assertUnauthorized();
     }
 
     public function test_api_token_creation_requires_authentication(): void

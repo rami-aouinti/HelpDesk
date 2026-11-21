@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
@@ -237,5 +236,29 @@ class FortifyAuthenticationTest extends TestCase
         ])->assertSessionHasErrors('password');
 
         $this->assertSame($originalHash, $user->fresh()->password);
+    }
+    public function test_authenticated_user_can_log_out(): void
+    {
+        $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $this->actingAs($user)->post(route('logout'))->assertRedirect('/');
+        $this->assertGuest();
+    }
+
+    public function test_email_verification_rejects_a_valid_signature_with_wrong_email_hash(): void
+    {
+        $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $user->forceFill(['email_verified_at' => null])->save();
+        $url = URL::temporarySignedRoute('verification.verify', now()->addMinutes(30), ['id' => $user->id, 'hash' => sha1('different@example.test')]);
+        $this->actingAs($user)->get($url)->assertForbidden();
+        $this->assertNull($user->fresh()->email_verified_at);
+    }
+
+    public function test_password_reset_rejects_expired_token(): void
+    {
+        $user = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $token = Password::broker()->createToken($user);
+        $this->travel(61)->minutes();
+        $this->post(route('password.update'), ['token' => $token, 'email' => $user->email, 'password' => 'BrandNewPassword123!', 'password_confirmation' => 'BrandNewPassword123!'])->assertSessionHasErrors('email');
+        $this->assertFalse(Hash::check('BrandNewPassword123!', $user->fresh()->password));
     }
 }

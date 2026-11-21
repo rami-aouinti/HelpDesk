@@ -1,0 +1,165 @@
+openapi: 3.1.0
+info:
+  title: HelpDesk REST API
+  version: 1.0.0
+  description: Versioned HelpDesk API. All endpoints require an active, verified user authenticated with a Laravel Sanctum bearer token.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /user:
+    get:
+      summary: Get the authenticated user
+      responses:
+        '200':
+          description: Authenticated user
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /tickets:
+    get:
+      summary: List visible tickets
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [open, in_progress, waiting_for_customer, resolved, closed] }
+        - in: query
+          name: priority
+          schema: { type: string, enum: [low, normal, high, urgent] }
+        - in: query
+          name: team_id
+          schema: { type: integer }
+        - in: query
+          name: project_id
+          schema: { type: integer }
+        - in: query
+          name: assigned_to
+          schema: { type: integer }
+        - in: query
+          name: search
+          description: Search subject, description, or ticket ID
+          schema: { type: string, maxLength: 100 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Paginated ticket resources
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create a ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketInput'
+      responses:
+        '201':
+          description: Ticket created
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /tickets/{ticket}:
+    parameters:
+      - $ref: '#/components/parameters/TicketId'
+    get:
+      summary: Show a ticket and its visible conversation
+      responses:
+        '200':
+          description: Ticket resource
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    patch:
+      summary: Update ticket fields
+      responses:
+        '200':
+          description: Updated ticket
+        '403':
+          description: Forbidden
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /tickets/{ticket}/messages:
+    parameters:
+      - $ref: '#/components/parameters/TicketId'
+    post:
+      summary: Reply to a ticket or add an internal note
+      description: Customers may only create public replies. Staff with ticket update permission may create internal notes.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                body: { type: string, maxLength: 10000 }
+                is_internal: { type: boolean, default: false }
+                attachments:
+                  type: array
+                  maxItems: 5
+                  items: { type: string, format: binary }
+          application/json:
+            schema:
+              type: object
+              properties:
+                body: { type: string, minLength: 2, maxLength: 10000 }
+                is_internal: { type: boolean, default: false }
+              required: [body]
+      responses:
+        '201':
+          description: Message created
+        '403':
+          description: Forbidden
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /tickets/{ticket}/attachments/{attachment}:
+    parameters:
+      - $ref: '#/components/parameters/TicketId'
+      - name: attachment
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Download a ticket attachment
+      description: Downloads are private and checked against ticket visibility and internal-note visibility.
+      responses:
+        '200':
+          description: Attachment stream
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+  parameters:
+    TicketId:
+      name: ticket
+      in: path
+      required: true
+      schema: { type: integer }
+  schemas:
+    TicketInput:
+      type: object
+      required: [subject, description, priority]
+      properties:
+        subject: { type: string, minLength: 5, maxLength: 255 }
+        description: { type: string, minLength: 10 }
+        priority: { type: string, enum: [low, normal, high, urgent] }
+        project_id: { type: integer, nullable: true }
+  responses:
+    Unauthorized:
+      description: Unauthenticated
+    ValidationError:
+      description: Validation failed

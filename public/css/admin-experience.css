@@ -101,3 +101,39 @@ body:has(.hd-modal-panel:not(.hd-detail-modal)):not(:has(.hd-modal-backdrop))::b
 .notification-inbox-empty p{margin:0;color:var(--muted,#64748b);font-size:13px}
 .notification-inbox-pagination{margin-top:20px}
 @media(max-width:640px){.notification-inbox-heading{flex-direction:column}.notification-inbox-actions{width:100%;justify-content:space-between}.notification-inbox-item{padding:13px}.notification-inbox-item-heading{display:grid;gap:4px}.notification-inbox-status{align-self:flex-start}}
+
+
+/* Workspace activity timeline */
+.workspace-activity{max-width:1180px;margin:0 auto}
+.workspace-activity-header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:8px 0 22px}
+.workspace-activity-header h1{margin:6px 0;font-size:clamp(25px,3vw,34px);font-weight:800;color:var(--text,#111827)}
+.workspace-activity-header p{margin:5px 0;color:var(--muted,#64748b);font-size:14px}
+.workspace-activity-count{padding:8px 12px;border:1px solid var(--border,#e5e7eb);border-radius:99px;color:var(--muted,#64748b);font-size:12px;font-weight:700}
+.workspace-activity-filters{display:grid;grid-template-columns:1.2fr 1.2fr 1fr 1fr auto;align-items:end;gap:12px;padding:17px;margin-bottom:18px;border:1px solid var(--border,#e5e7eb);border-radius:15px;background:var(--surface,#fff)}
+.workspace-activity-filters label{display:grid;gap:6px;min-width:0}
+.workspace-activity-filters label span{color:var(--muted,#64748b);font-size:11px;font-weight:700}
+.workspace-activity-filters select,.workspace-activity-filters input{width:100%;min-height:39px;padding:8px 10px;border:1px solid var(--border,#dbe1ea);border-radius:9px;background:var(--surface,#fff);color:var(--text,#111827);font:inherit;font-size:12px}
+.workspace-activity-filter-actions{display:flex;gap:7px}
+.workspace-activity-filter-actions .btn{white-space:nowrap}
+.workspace-activity-feed{display:grid;gap:9px}
+.workspace-activity-item{display:flex;align-items:flex-start;gap:13px;padding:16px;border:1px solid var(--border,#e5e7eb);border-radius:14px;background:var(--surface,#fff)}
+.workspace-activity-avatar{display:grid;place-items:center;width:39px;height:39px;flex:none;overflow:hidden;border-radius:50%;background:var(--surface-muted,#eef2ff);color:var(--primary,#4f46e5);font-size:11px;font-weight:800}
+.workspace-activity-avatar img{width:100%;height:100%;object-fit:cover}
+.workspace-activity-body{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex:1;min-width:0}
+.workspace-activity-main{min-width:0}
+.workspace-activity-main p{margin:1px 0 6px;color:var(--muted,#64748b);font-size:13px;line-height:1.55}
+.workspace-activity-main p strong{color:var(--text,#111827)}
+.workspace-activity-main p a{color:var(--primary,#4f46e5);font-weight:700;text-decoration:none}
+.workspace-activity-main p a:hover{text-decoration:underline}
+.workspace-activity-project{display:inline-block;margin:0 0 7px;padding:3px 7px;border-radius:6px;background:var(--surface-muted,#f1f5f9);color:var(--muted,#64748b);font-size:10px;font-weight:700}
+.workspace-activity-change{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted,#64748b);font-size:11px}
+.workspace-activity-change>span:first-child{padding:4px 7px;border-radius:6px;background:var(--surface-muted,#f1f5f9);text-decoration:line-through}
+.workspace-activity-change>strong{padding:4px 8px;border-radius:6px;background:rgba(16,185,129,.1);color:#059669}
+.workspace-activity-body time{flex:none;color:var(--muted,#64748b);font-size:10px}
+.workspace-activity-empty{padding:54px 18px;text-align:center;border:1px dashed var(--border,#cbd5e1);border-radius:15px;background:var(--surface,#fff)}
+.workspace-activity-empty>span{font-size:25px;color:var(--primary,#6366f1)}
+.workspace-activity-empty h2{margin:10px 0 5px;font-size:18px;color:var(--text,#111827)}
+.workspace-activity-empty p{margin:0 0 14px;color:var(--muted,#64748b);font-size:13px}
+.workspace-activity-pagination{margin-top:20px}
+@media(max-width:900px){.workspace-activity-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-activity-filter-actions{grid-column:1/-1}}
+@media(max-width:600px){.workspace-activity-header{align-items:flex-start;flex-direction:column}.workspace-activity-filters{grid-template-columns:1fr}.workspace-activity-filter-actions{grid-column:auto}.workspace-activity-body{flex-direction:column;gap:7px}.workspace-activity-item{padding:13px}}

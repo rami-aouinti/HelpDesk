@@ -1,0 +1,47 @@
+name: Resolve Horizon Composer lockfile
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/horizon-lockfile-bootstrap.yml
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  resolve:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v5
+        with:
+          ref: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: bcmath, curl, dom, exif, gd, intl, mbstring, opcache, pcntl, pdo_pgsql, pdo_sqlite, simplexml, xml, xmlreader, xmlwriter, zip, redis
+          tools: composer:v2
+          coverage: none
+
+      - name: Resolve Horizon and update composer.lock
+        run: composer update laravel/horizon --with-all-dependencies --prefer-dist --no-interaction --no-progress
+
+      - name: Commit the Composer lockfile and remove this temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/horizon-lockfile-bootstrap.yml
+          git add composer.json composer.lock
+          git commit -m "build(deps): lock Laravel Horizon dependencies"
+          git push origin master
+
+      - name: Dispatch the regular CI workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run ci.yml --ref master

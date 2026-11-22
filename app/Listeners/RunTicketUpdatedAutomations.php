@@ -13,7 +13,7 @@ class RunTicketUpdatedAutomations implements ShouldQueue
     public function handle(TicketUpdated $event, AutomationRuleEngine $engine): void
     {
         if (array_key_exists('priority', $event->changes)) {
-            $engine->dispatch('ticket.priority_changed', $event->ticket->fresh(), [
+            $engine->dispatch('ticket.priority_changed', $event->ticket->fresh() ?? $event->ticket, [
                 'old_priority' => $event->changes['priority']['old'] ?? null,
                 'new_priority' => $event->changes['priority']['new'] ?? null,
             ]);

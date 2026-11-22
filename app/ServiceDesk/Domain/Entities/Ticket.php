@@ -162,7 +162,7 @@ final class Ticket
         ];
 
         if (! $mayOverrideWorkflow && ! in_array($newStatus, $allowedTransitions[$this->status->value], true)) {
-            throw new \\App\\ServiceDesk\\Domain\\Exceptions\\InvalidTicketTransition(
+            throw new \App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition(
                 sprintf('The transition from "%s" to "%s" is not allowed.', $this->status->value, $newStatus->value),
             );
         }

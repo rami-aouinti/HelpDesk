@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Events\TicketMessageCreated;
+use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
+use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentHandler;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
@@ -149,6 +151,7 @@ class TicketController extends Controller
         TicketService $ticketService,
         ChangeTicketStatusHandler $statusHandler,
         ChangeTicketPriorityHandler $priorityHandler,
+        AssignTicketToTeamHandler $teamAssignmentHandler,
         AssignTicketToAgentHandler $assignmentHandler,
     ): TicketResource {
         $data = $request->validated();
@@ -181,6 +184,19 @@ class TicketController extends Controller
                 ]);
             }
 
+            $updatedTicket = $ticket->fresh();
+        } elseif (array_keys($data) === ['team_id']) {
+            try {
+                $teamAssignmentHandler->handle(new AssignTicketToTeamCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    teamId: $data['team_id'] === null ? null : (int) $data['team_id'],
+                ));
+            } catch (TicketAssignmentRejected $exception) {
+                throw ValidationException::withMessages([
+                    $exception->field => $exception->getMessage(),
+                ]);
+            }
             $updatedTicket = $ticket->fresh();
         } elseif (array_keys($data) === ['priority']) {
             $priorityHandler->handle(new ChangeTicketPriorityCommand(

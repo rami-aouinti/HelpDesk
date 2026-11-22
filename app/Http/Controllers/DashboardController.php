@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
 use Illuminate\Contracts\View\View;

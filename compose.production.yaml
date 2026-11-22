@@ -6,6 +6,9 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
+      QUEUE_CONNECTION: redis
+      REDIS_QUEUE_CONNECTION: queue
+      REDIS_QUEUE_HOST: redis
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:
@@ -18,11 +21,16 @@ services:
   queue:
     image: ${HELPDESK_IMAGE:?Set HELPDESK_IMAGE to an immutable GHCR image tag}
     restart: unless-stopped
-    init: true\n    stop_grace_period: 30s\n    command: php artisan horizon
+    init: true
+    stop_grace_period: 30s
+    command: php artisan horizon
     env_file: .env
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
+      QUEUE_CONNECTION: redis
+      REDIS_QUEUE_CONNECTION: queue
+      REDIS_QUEUE_HOST: redis
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:

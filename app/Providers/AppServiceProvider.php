@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Insights\Application\Contracts\ReportReadRepository;
+use App\Insights\Application\Contracts\ReportCsvExportRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportReadRepository;
+use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportCsvExportRepository;
 
 use App\Events\TicketCreated;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;

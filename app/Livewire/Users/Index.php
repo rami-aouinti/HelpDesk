@@ -5,6 +5,7 @@ namespace App\Livewire\Users;
 use App\Models\User;
 use App\Services\UserManagementService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;

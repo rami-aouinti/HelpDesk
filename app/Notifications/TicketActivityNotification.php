@@ -26,9 +26,6 @@ class TicketActivityNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * @return array<int, string>
-     */
-    /**
      * Tag notification jobs so Horizon can monitor the notifications queue.
      *
      * @return array<int, string>

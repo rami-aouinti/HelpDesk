@@ -79,7 +79,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(NotificationInboxRepository::class, EloquentNotificationInboxRepository::class);
         $this->app->bind(NotificationDeliveryRepository::class, EloquentNotificationDeliveryRepository::class);
-        $this->app->bind(NotificationDeliveryRepository::class, EloquentNotificationDeliveryRepository::class);
         $this->app->bind(DashboardReadRepository::class, EloquentDashboardReadRepository::class);
         $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
         $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);

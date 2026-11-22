@@ -14,7 +14,6 @@ use App\ServiceDesk\Application\Contracts\TransactionManager;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
 use App\ServiceDesk\Domain\Enums\TicketStatus;
 use App\ServiceDesk\Domain\Events\TicketWasUpdated;
-use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Domain\Repositories\TicketRepository;

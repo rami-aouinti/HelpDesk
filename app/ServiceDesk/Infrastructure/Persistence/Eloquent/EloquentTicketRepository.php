@@ -26,6 +26,8 @@ final class EloquentTicketRepository implements TicketRepository
             status: TicketStatus::from($record->status),
             teamId: $record->team_id === null ? null : (int) $record->team_id,
             assignedAgentId: $record->assigned_to === null ? null : (int) $record->assigned_to,
+            estimatedMinutes: $record->estimated_minutes === null ? null : (int) $record->estimated_minutes,
+            elapsedMinutes: $record->elapsed_minutes === null ? null : (int) $record->elapsed_minutes,
         );
     }
 
@@ -40,6 +42,8 @@ final class EloquentTicketRepository implements TicketRepository
             'user_id' => $ticket->customerId(),
             'team_id' => $ticket->teamId(),
             'assigned_to' => $ticket->assignedAgentId(),
+            'estimated_minutes' => $ticket->estimatedMinutes(),
+            'elapsed_minutes' => $ticket->elapsedMinutes(),
         ];
 
         if ($ticket->id() === null) {

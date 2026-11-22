@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Cache\TaggableStore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ class CacheApiGetResponse
             ! $request->isMethod('GET')
             || ! $request->user()
             || app()->environment('testing')
+            || ! self::supportsTagging()
         ) {
             return $next($request);
         }
@@ -76,6 +78,13 @@ class CacheApiGetResponse
 
     public static function flush(): void
     {
-        Cache::tags([self::CACHE_TAG])->flush();
+        if (self::supportsTagging()) {
+            Cache::tags([self::CACHE_TAG])->flush();
+        }
+    }
+
+    private static function supportsTagging(): bool
+    {
+        return Cache::getStore() instanceof TaggableStore;
     }
 }

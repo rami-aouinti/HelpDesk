@@ -204,7 +204,17 @@ class TicketController extends Controller
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
         ]);
 
-        try {\n            $handler->handle(new ClaimTicketCommand(\n                ticketId: (int) $ticket->getKey(),\n                agentId: (int) $request->user()->getKey(),\n                teamId: isset($data['team_id']) ? (int) $data['team_id'] : null,\n            ));\n        } catch (TicketClaimRejected $exception) {\n            throw ValidationException::withMessages([\n                $exception->field => $exception->getMessage(),\n            ]);\n        }
+        try {
+            $handler->handle(new ClaimTicketCommand(
+                ticketId: (int) $ticket->getKey(),
+                agentId: (int) $request->user()->getKey(),
+                teamId: isset($data['team_id']) ? (int) $data['team_id'] : null,
+            ));
+        } catch (TicketClaimRejected $exception) {
+            throw ValidationException::withMessages([
+                $exception->field => $exception->getMessage(),
+            ]);
+        }
 
         return redirect()
             ->route('tickets.show', $ticket)

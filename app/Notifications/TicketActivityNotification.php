@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Communications\Domain\Services\NotificationChannelPolicy;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,9 +38,22 @@ class TicketActivityNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ($notifiable->email_notifications_enabled ?? true)
-            ? ['database', 'mail']
-            : ['database'];
+        $policy = new NotificationChannelPolicy(
+            inAppEnabled: (bool) ($notifiable->in_app_notifications_enabled ?? true),
+            emailEnabled: (bool) ($notifiable->email_notifications_enabled ?? true),
+        );
+
+        $channels = [];
+
+        if ($policy->shouldDeliverInApp()) {
+            $channels[] = 'database';
+        }
+
+        if ($policy->shouldDeliverEmail()) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     /**

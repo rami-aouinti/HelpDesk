@@ -4,9 +4,17 @@ namespace App\Providers;
 
 use App\Events\TicketCreated;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;
+use App\ServiceDesk\Application\Contracts\TicketClaimedPublisher;
+use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
+use App\ServiceDesk\Application\Contracts\TicketTeamMembership;
+use App\ServiceDesk\Application\Contracts\TransactionManager;
 use App\ServiceDesk\Domain\Repositories\TicketRepository;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketCreatedPublisher;
+use App\ServiceDesk\Infrastructure\Events\LaravelTicketClaimedPublisher;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketRepository;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketHistoryRecorder;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketTeamMembership;
+use App\ServiceDesk\Infrastructure\Persistence\LaravelDatabaseTransactionManager;
 use App\Events\TicketMessageCreated;
 use App\Events\TicketUpdated;
 use App\Listeners\SendTicketCreatedNotifications;
@@ -32,7 +40,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
-        $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);\n        $this->app->bind(TicketClaimedPublisher::class, LaravelTicketClaimedPublisher::class);\n        $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);\n        $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);\n        $this->app->bind(TransactionManager::class, LaravelDatabaseTransactionManager::class);
+        $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);
+        $this->app->bind(TicketClaimedPublisher::class, LaravelTicketClaimedPublisher::class);
+        $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);
+        $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);
+        $this->app->bind(TransactionManager::class, LaravelDatabaseTransactionManager::class);
     }
 
     public function boot(): void

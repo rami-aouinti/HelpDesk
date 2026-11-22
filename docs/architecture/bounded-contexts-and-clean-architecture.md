@@ -83,9 +83,10 @@ SLA policy targets are represented by the ServiceDesk domain value object `SlaPo
 
 The Eloquent repository uses conditional updates (`WHERE ... IS NULL`) to initialize deadlines and atomically create one outbox record per ticket/SLA-type/state. The dispatcher marks an outbox record as dispatched only after handing the notification to Laravel's notification system; failures remain pending with a retry delay. The scheduler prevents overlapping dispatcher runs. Delivery is at-least-once: a process crash after queue submission but before marking the outbox row dispatched can cause a duplicate queue submission, while Laravel's notification queue handles subsequent job retries. The handler contains no Eloquent, Carbon, Laravel configuration or notification dependencies. The old `TicketSlaService` and temporary processor adapter have been removed.
 
-
 ## Insights read side
 
 The reports page is the first Insights query slice. The HTTP controller validates filter input and delegates to `BuildReportHandler`; the application query is represented by `BuildReportQuery`. The `ReportReadRepository` port isolates report-specific read access, while `EloquentReportReadRepository` owns SQL aggregation, joins and Eloquent option lists. This is intentionally a read-model boundary: report queries may use optimized SQL and do not need to load ServiceDesk aggregates. CSV export uses a dedicated query handler and streaming repository.
 
 The Insights CSV export follows the same read-side boundary. `ExportReportCsvQuery` and `ExportReportCsvHandler` delegate to `ReportCsvExportRepository`; the Eloquent adapter streams database rows with a cursor and maps them to the framework-independent `ReportCsvRow` DTO. The HTTP layer writes the CSV response incrementally, preserving low memory usage for large exports.
+
+The dashboard overview now follows the same pattern. `GetDashboardOverviewQuery` carries the authenticated user's visibility scope, `GetDashboardOverviewHandler` builds the presentation-ready overview, and `DashboardReadRepository` isolates ticket statistics, recent activity, recent tickets and calendar team options. `EloquentDashboardReadRepository` retains the existing customer, agent/team and project-membership restrictions. The controller only translates the authenticated user into the query and passes the result to the existing Blade view.

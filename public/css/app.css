@@ -1452,3 +1452,43 @@ html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-op
 @media (max-width: 680px) {
     .project-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* Exact, shared offset from the sticky application bar on Projects and Profile */
+.page-content.page-content-projects,
+.page-content.page-content-profile {
+    display: flow-root;
+    align-self: stretch;
+    width: 100%;
+    max-width: 1600px;
+    box-sizing: border-box;
+    margin: 0 auto !important;
+    padding: 30px 38px 54px !important;
+}
+.page-content-projects > *,
+.page-content-profile > * {
+    margin-block-start: 0 !important;
+}
+.page-content-projects .project-list-shell,
+.page-content-profile .profile-settings-grid {
+    position: relative;
+    inset-block-start: 0;
+    margin-block-start: 0 !important;
+    padding-block-start: 0;
+}
+.page-content-projects .project-grid,
+.page-content-profile .profile-settings-grid {
+    align-self: start;
+}
+@media (max-width: 900px) {
+    .page-content.page-content-projects,
+    .page-content.page-content-profile {
+        padding: 24px 22px 40px !important;
+    }
+}
+@media (max-width: 600px) {
+    .page-content.page-content-projects,
+    .page-content.page-content-profile {
+        padding: 20px 14px 34px !important;
+    }
+}

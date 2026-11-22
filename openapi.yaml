@@ -13,7 +13,44 @@ tags:
   - name: Authentication
   - name: Tickets
   - name: Conversations
+  - name: Users
 paths:
+  /users/search:
+    get:
+      tags: [Users]
+      summary: Search users by name, email, or role
+      description: Requires the users.view permission. Uses Elasticsearch when available and falls back to SQL.
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string, minLength: 2, maxLength: 100 }
+      responses:
+        '200':
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        email: { type: string, format: email }
+                        is_active: { type: boolean }
+                        roles:
+                          type: array
+                          items: { type: string }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
   /tokens:
     post:
       tags: [Authentication]

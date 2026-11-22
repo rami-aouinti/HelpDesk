@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\CacheApiGetResponse;
 use App\Http\Requests\StoreTicketMessageRequest;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
@@ -102,6 +103,7 @@ class TicketController extends Controller
         ]);
 
         event(new TicketCreated($ticket));
+        CacheApiGetResponse::flush();
 
         return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])))
             ->response()
@@ -192,6 +194,7 @@ class TicketController extends Controller
         }
 
         event(new TicketMessageCreated($message));
+        CacheApiGetResponse::flush();
 
         $message->load(['user', 'attachments']);
 

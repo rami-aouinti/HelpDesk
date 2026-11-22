@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CacheApiGetResponse;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\LogHttpRequests;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(LogHttpRequests::class);
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
+            'cache.api.get' => CacheApiGetResponse::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

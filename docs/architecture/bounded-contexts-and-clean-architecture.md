@@ -53,10 +53,10 @@ Platform is not a dumping ground for business features. Business-specific rules 
 2. Migrate ServiceDesk ticket creation as the first vertical slice: pure domain aggregate, command, handler, repository contract, Eloquent adapter and framework binding.
 3. Preserve current notifications, Elasticsearch indexing and API cache invalidation through adapters/listeners; do not silently remove side effects.
 4. Add ticket queries separately from write use cases.
-5. Extract ticket claim invariants into the ServiceDesk domain aggregate; next, migrate the claim command, transactional persistence and event publication behind application/infrastructure contracts.
+5. Migrate ticket claiming as a complete vertical slice: `ClaimTicketCommand` and handler, aggregate invariants, a locked Eloquent repository, team-membership and history contracts, transaction boundary, and an event adapter that preserves existing Laravel listeners.
 6. Migrate update/status transitions and ticket conversations incrementally.
-6. Introduce Insights read models and Communications adapters where they provide clear value.
-7. Move remaining contexts gradually; avoid a big-bang rewrite.
+7. Introduce Insights read models and Communications adapters where they provide clear value.
+8. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
 

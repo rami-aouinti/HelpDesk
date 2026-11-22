@@ -60,6 +60,8 @@ final class Ticket
             status: TicketStatus::OPEN,
             teamId: null,
             assignedAgentId: null,
+            estimatedMinutes: 0,
+            elapsedMinutes: 0,
         );
     }
 

@@ -43,7 +43,9 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
-    init: true\n    stop_grace_period: 30s\n    command: php artisan horizon
+    init: true
+    stop_grace_period: 30s
+    command: php artisan horizon
     env_file:
       - .env
     volumes:

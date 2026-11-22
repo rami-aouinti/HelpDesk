@@ -14,6 +14,10 @@ class TicketPolicy
 
     public function view(User $user, Ticket $ticket): bool
     {
+        if ($user->hasRole('customer')) {
+            return $user->can('tickets.view') && $ticket->user_id === $user->id;
+        }
+
         if ($user->can('tickets.view.all')) {
             return true;
         }
@@ -24,10 +28,6 @@ class TicketPolicy
 
         if ($ticket->project_id !== null && ! $ticket->project->members()->whereKey($user->id)->exists()) {
             return false;
-        }
-
-        if ($user->hasRole('customer')) {
-            return $ticket->user_id === $user->id;
         }
 
         return $user->hasRole('agent')

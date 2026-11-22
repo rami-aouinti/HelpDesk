@@ -62,9 +62,10 @@ Platform is not a dumping ground for business features. Business-specific rules 
 11. Migrate agent unassignment through `UnassignTicketFromAgentCommand`; keep the team association, record the old/new agent in history, and publish the existing update side effects. Only administrators may unassign.
 12. Migrate effort tracking through `UpdateTicketEffortCommand`; keep estimated and elapsed minutes in the Ticket aggregate, preserve omitted values in partial updates, and record each changed field in history.
 13. Handle mixed ticket updates through one atomic UpdateTicketCommand: lock once, validate all requested changes, persist once, record each changed field, and publish one update event. Single-field requests continue using their focused commands during the migration.
-14. Move conversations and attachments behind dedicated use cases.
-15. Introduce Insights read models and Communications adapters where they provide clear value.
-16. Move remaining contexts gradually; avoid a big-bang rewrite.
+14. Migrate text-only ticket replies and internal notes through `AddTicketMessageCommand`; the handler persists transactionally and publishes the existing `TicketMessageCreated` event through an adapter. Attachment uploads remain on the legacy path until their storage lifecycle is migrated separately.
+15. Move attachment upload/download behind dedicated use cases and a storage contract.
+16. Introduce Insights read models and Communications adapters where they provide clear value.
+17. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
 

@@ -9,6 +9,13 @@ use DateTimeImmutable;
 
 interface TicketSlaRepository
 {
+    /**
+     * Process active ticket identifiers in bounded batches.
+     *
+     * @param callable(list<int>): void $callback
+     */
+    public function eachActiveTicketId(callable $callback, int $chunkSize = 100): void;
+
     public function findForProcessing(int $ticketId): ?TicketSlaSnapshot;
 
     public function initializeDeadlines(

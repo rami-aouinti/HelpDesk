@@ -7,7 +7,8 @@ namespace Tests\Unit\ServiceDesk\Domain;
 use App\ServiceDesk\Domain\Entities\Ticket;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
 use App\ServiceDesk\Domain\Enums\TicketStatus;
-use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;\nuse App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

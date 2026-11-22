@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Events\TicketMessageCreated;
@@ -215,7 +217,7 @@ class TicketController extends Controller
             originalName: $attachment->original_name,
             mimeType: $attachment->mime_type,
         ));
-        abort_if($download === null, 404);
+        abort_if(! $download instanceof \App\ServiceDesk\Application\Queries\DownloadTicketAttachment\TicketAttachmentDownload, 404);
 
         return response()->streamDownload(
             static function () use ($download): void {

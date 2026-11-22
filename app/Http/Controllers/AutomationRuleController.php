@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Automation\Application\AutomationRuleEngine;
@@ -18,7 +20,7 @@ class AutomationRuleController extends Controller
         $rules = AutomationRule::query()->with('creator')->withCount('executions')->latest()->paginate(20);
         $executions = AutomationExecution::query()->with(['rule', 'ticket'])->latest()->limit(30)->get();
 
-        return view('automations.index', compact('rules', 'executions'));
+        return view('automations.index', ['rules' => $rules, 'executions' => $executions]);
     }
 
     public function store(Request $request): RedirectResponse

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\CalendarEvent;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,7 +47,7 @@ class CalendarEventsTest extends TestCase
         ]);
         $admin->assignRole('admin');
 
-        \\App\\Models\\CalendarEvent::query()->create([
+        CalendarEvent::query()->create([
             'user_id' => $admin->id,
             'title' => 'Multi-day maintenance',
             'type' => 'maintenance',

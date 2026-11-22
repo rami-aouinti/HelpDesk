@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <a href="{{ route('tickets.index') }}" class="btn btn-secondary">
+        <a href="{{ route(auth()->user()->hasRole('customer') ? 'portal.home' : 'tickets.index') }}" class="btn btn-secondary">
             Back to tickets
         </a>
     </div>

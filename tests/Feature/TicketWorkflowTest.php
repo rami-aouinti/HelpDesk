@@ -340,4 +340,56 @@ class TicketWorkflowTest extends TestCase
         $this->assertSame('open', $ticket->fresh()->status);
         $this->assertSame(0, TicketHistory::where('ticket_id', $ticket->id)->count());
     }
+
+    public function test_agent_can_change_ticket_priority_and_the_change_is_recorded(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Slow application',
+            'description' => 'The application responds slowly.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['priority' => 'urgent'])
+            ->assertRedirect(route('tickets.show', $ticket));
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'priority' => 'urgent',
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'priority',
+            'old_value' => 'normal',
+            'new_value' => 'urgent',
+        ]);
+    }
+
+    public function test_invalid_ticket_priority_is_rejected_by_request_validation(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Slow application',
+            'description' => 'The application responds slowly.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), ['priority' => 'critical'])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('priority');
+
+        $this->assertSame('normal', $ticket->fresh()->priority);
+    }
 }

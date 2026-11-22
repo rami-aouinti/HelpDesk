@@ -51,7 +51,7 @@ class ReportsTest extends TestCase
         Ticket::create(['subject' => 'Included report ticket', 'description' => 'x', 'status' => 'open', 'priority' => 'normal', 'user_id' => $customerId, 'team_id' => $team->id]);
         Ticket::create(['subject' => 'Excluded report ticket', 'description' => 'x', 'status' => 'open', 'priority' => 'normal', 'user_id' => $customerId]);
 
-        $this->actingAs($admin)->get(route('reports.index',['report'=>'tickets','team_id'=>$team->id]))
+        $this->actingAs($admin)->get(route('reports.index', ['report' => 'tickets', 'team_id' => $team->id]))
             ->assertOk()->assertSee('Included report ticket')->assertDontSee('Excluded report ticket');
     }
 }

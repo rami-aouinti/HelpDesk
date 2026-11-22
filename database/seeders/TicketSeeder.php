@@ -12,7 +12,7 @@ class TicketSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('testing')) {
+        if (app()->runningUnitTests()) {
             return;
         }
 

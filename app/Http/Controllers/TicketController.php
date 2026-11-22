@@ -13,6 +13,9 @@ use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketF
 use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentHandler;
 use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortCommand;
 use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortHandler;
+use App\ServiceDesk\Application\Commands\UpdateTicket\UpdateTicketCommand;
+use App\ServiceDesk\Application\Commands\UpdateTicket\UpdateTicketHandler;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
@@ -263,11 +266,32 @@ class TicketController extends Controller
         AssignTicketToAgentHandler $assignmentHandler,
         LinkTicketToProjectHandler $projectLinkHandler,
         UnassignTicketFromAgentHandler $unassignmentHandler,
-        UpdateTicketEffortHandler $effortHandler
+        UpdateTicketEffortHandler $effortHandler,
+        UpdateTicketHandler $mixedUpdateHandler
     ): RedirectResponse {
         $data = $request->validated();
 
-        // Effort tracking updates use their dedicated ServiceDesk command.
+        // Multi-field writes are handled atomically by one application use case.
+        if (count($data) > 1) {
+            try {
+                $mixedUpdateHandler->handle(new UpdateTicketCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    changes: $data,
+                ));
+            } catch (TicketAssignmentRejected|TicketProjectLinkRejected|InvalidTicketTransition|InvalidTicketData $exception) {
+                $field = match (true) {
+                    $exception instanceof TicketAssignmentRejected,
+                    $exception instanceof TicketProjectLinkRejected => $exception->field,
+                    $exception instanceof InvalidTicketTransition => 'status',
+                    default => 'ticket',
+                };
+                throw ValidationException::withMessages([$field => $exception->getMessage()]);
+            }
+        } elseif (
+            $data !== []
+            && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []
+        ) {
         if (
             $data !== []
             && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []

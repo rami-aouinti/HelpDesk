@@ -102,12 +102,20 @@ class TicketController extends Controller
             }
         }
 
+        $histories = $ticket->histories;
+        $userIds = $histories->where('action', 'assigned_to')->flatMap(fn ($history) => [$history->old_value, $history->new_value])->filter()->unique()->values();
+        $teamIds = $histories->where('action', 'team_id')->flatMap(fn ($history) => [$history->old_value, $history->new_value])->filter()->unique()->values();
+        $projectIds = $histories->where('action', 'project_id')->flatMap(fn ($history) => [$history->old_value, $history->new_value])->filter()->unique()->values();
+
         return view('tickets.show', [
             'ticket' => $ticket,
             'messages' => $messagesQuery->get(),
             'teams' => $teams->get(),
             'agents' => $agents->get(),
             'projects' => $user->can('projects.view.all') ? Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get(),
+            'historyUsers' => User::query()->whereIn('id', $userIds)->get()->keyBy('id'),
+            'historyTeams' => Team::query()->whereIn('id', $teamIds)->get()->keyBy('id'),
+            'historyProjects' => Project::query()->whereIn('id', $projectIds)->get()->keyBy('id'),
         ]);
     }
 

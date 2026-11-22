@@ -52,6 +52,9 @@
             <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                 <span class="nav-icon">▤</span><span>Tickets</span>
             </a>
+            <a href="{{ route('notifications.index') }}" class="nav-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                <span class="nav-icon">♧</span><span>Notifications</span>
+            </a>
             @can('viewAny', \App\Models\Sprint::class)
                 <a href="{{ route('sprints.index') }}" class="nav-link {{ request()->routeIs('sprints.*') ? 'active' : '' }}"><span class="nav-icon">◷</span><span>Sprints</span></a>
                 @if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('agent'))

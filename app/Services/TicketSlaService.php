@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Ticket;
+use App\ServiceDesk\Domain\Enums\SlaDeadlineAction;
+use App\ServiceDesk\Domain\Services\SlaDeadlineEvaluator;
+use App\ServiceDesk\Domain\ValueObjects\SlaPolicy;
 use App\Models\TicketMessage;
 use App\Models\User;
 use App\Notifications\TicketSlaAlertNotification;
@@ -11,6 +14,11 @@ use Illuminate\Support\Facades\Notification;
 
 class TicketSlaService
 {
+    public function __construct(
+        private readonly SlaDeadlineEvaluator $deadlineEvaluator,
+    ) {
+    }
+
     /**
      * Initialize SLA deadlines and process one ticket idempotently.
      */
@@ -23,12 +31,17 @@ class TicketSlaService
             return;
         }
 
+        $policy = new SlaPolicy(
+            firstResponseMinutes: (int) $targets['first_response'],
+            resolutionMinutes: (int) $targets['resolution'],
+        );
+
         $updates = [];
         if (! $ticket->first_response_due_at) {
-            $updates['first_response_due_at'] = $ticket->created_at->copy()->addMinutes((int) $targets['first_response']);
+            $updates['first_response_due_at'] = $ticket->created_at->copy()->addMinutes($policy->firstResponseMinutes);
         }
         if (! $ticket->resolution_due_at) {
-            $updates['resolution_due_at'] = $ticket->created_at->copy()->addMinutes((int) $targets['resolution']);
+            $updates['resolution_due_at'] = $ticket->created_at->copy()->addMinutes($policy->resolutionMinutes);
         }
 
         if ($updates !== []) {
@@ -86,18 +99,22 @@ class TicketSlaService
             return;
         }
 
-        $warningAt = $dueAt->copy()->subMinutes((int) config('helpdesk.sla.warning_minutes', 60));
+        $action = $this->deadlineEvaluator->evaluate(
+            dueAt: $dueAt,
+            now: $now,
+            warningSentAt: $ticket->{$warningColumn},
+            breachedAt: $ticket->{$breachColumn},
+            warningMinutes: (int) config('helpdesk.sla.warning_minutes', 60),
+        );
 
-        if ($now->greaterThanOrEqualTo($dueAt)) {
-            if (! $ticket->{$breachColumn}) {
-                $ticket->forceFill([$breachColumn => $now])->save();
-                $this->notify($ticket, $type, 'breached', $dueAt);
-            }
+        if ($action === SlaDeadlineAction::BREACHED) {
+            $ticket->forceFill([$breachColumn => $now])->save();
+            $this->notify($ticket, $type, 'breached', $dueAt);
 
             return;
         }
 
-        if ($now->greaterThanOrEqualTo($warningAt) && ! $ticket->{$warningColumn}) {
+        if ($action === SlaDeadlineAction::WARNING) {
             $ticket->forceFill([$warningColumn => $now])->save();
             $this->notify($ticket, $type, 'warning', $dueAt);
         }

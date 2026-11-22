@@ -51,6 +51,39 @@ final class TicketTest extends TestCase
     }
 
     #[Test]
+    public function an_administrator_can_assign_a_ticket_to_an_agent_and_team(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Cannot login',
+            description: 'The sign-in page returns an error.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $ticket->assignToAgent(agentId: 52, teamId: 7);
+
+        self::assertSame(7, $ticket->teamId());
+        self::assertSame(52, $ticket->assignedAgentId());
+    }
+
+    #[Test]
+    public function assigning_a_ticket_rejects_invalid_identifiers(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Cannot login',
+            description: 'The sign-in page returns an error.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $this->expectException(InvalidTicketData::class);
+
+        $ticket->assignToAgent(agentId: 0, teamId: 7);
+    }
+
+    #[Test]
     public function an_agent_can_claim_an_unassigned_ticket_for_a_team(): void
     {
         $ticket = Ticket::open(

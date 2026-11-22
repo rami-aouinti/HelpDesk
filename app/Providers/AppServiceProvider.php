@@ -54,9 +54,13 @@ use App\ServiceDesk\Infrastructure\Sla\ConfigSlaPolicyProvider;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketSlaRepository;
 use App\Events\TicketMessageCreated;
 use App\Events\TicketUpdated;
+use App\Events\TicketSlaAlertPublished;
 use App\Listeners\SendTicketCreatedNotifications;
 use App\Listeners\SendTicketMessageNotifications;
 use App\Listeners\SendTicketUpdatedNotifications;
+use App\Listeners\RunTicketCreatedAutomations;
+use App\Listeners\RunTicketUpdatedAutomations;
+use App\Listeners\RunTicketSlaAutomations;
 use App\Listeners\IndexTicketInElasticsearch;
 use App\Models\User;
 use App\Observers\UserObserver;
@@ -136,7 +140,8 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(NotificationFailed::class, [TrackNotificationDelivery::class, 'failed']);
         Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);
-        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);\n        Event::listen(TicketCreated::class, RunTicketCreatedAutomations::class);\n        Event::listen(TicketUpdated::class, RunTicketUpdatedAutomations::class);\n        Event::listen(TicketSlaAlertPublished::class, RunTicketSlaAutomations::class);
+        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);
+        Event::listen(TicketCreated::class, RunTicketCreatedAutomations::class);\n        Event::listen(TicketUpdated::class, RunTicketUpdatedAutomations::class);\n        Event::listen(TicketSlaAlertPublished::class, RunTicketSlaAutomations::class);
         Event::listen(TicketCreated::class, IndexTicketInElasticsearch::class);
         Event::listen(TicketUpdated::class, IndexTicketInElasticsearch::class);
 

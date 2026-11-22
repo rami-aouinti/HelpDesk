@@ -62,7 +62,7 @@ The built frontend assets in `public/build` must be available to the web server.
 
 ## 5. Queue worker and scheduler
 
-Run Laravel Horizon as a separate long-lived process with the same release image and environment as the web application. Horizon requires Redis; the production Compose service points the `queue` Redis connection at the private `redis` service. The worker command is:
+Run Laravel Horizon as a separate long-lived process with the same release image and environment as the web application. Horizon requires Redis; the production Compose service points the `queue` Redis connection at the private `redis-queue` service, which uses the `noeviction` policy so queued jobs are not discarded under cache pressure. The worker command is:
 
 ```bash
 php artisan horizon
@@ -143,7 +143,7 @@ The repository currently has automated CI and Semgrep security scanning. The sup
 
 ## 8. Production Docker Compose and releases
 
-The repository includes `compose.production.yaml`, which is separate from the local development/monitoring stack. It runs PHP-FPM, Nginx, the database, Redis and a queue worker. PostgreSQL is published only on 127.0.0.1 for host-side backup tooling; Redis remains private. Uploaded files use the persistent host directory configured by `HELPDESK_STORAGE_PATH` (default `./storage/app`). Configure a production `.env` on the host; never copy the development `.env.example` unchanged. Set `ELASTICSEARCH_ENABLED=false` unless a secured Elasticsearch endpoint is part of the production stack. Set `HELPDESK_STORAGE_PATH` to a durable host directory with sufficient disk space.
+The repository includes `compose.production.yaml`, which is separate from the local development/monitoring stack. It runs PHP-FPM, Nginx, PostgreSQL, a Redis cache, a dedicated no-eviction Redis queue and Laravel Horizon. PostgreSQL is published only on 127.0.0.1 for host-side backup tooling; Redis remains private. Uploaded files use the persistent host directory configured by `HELPDESK_STORAGE_PATH` (default `./storage/app`). Configure a production `.env` on the host; never copy the development `.env.example` unchanged. Set `ELASTICSEARCH_ENABLED=false` unless a secured Elasticsearch endpoint is part of the production stack. Set `HELPDESK_STORAGE_PATH` to a durable host directory with sufficient disk space.
 
 Release images are built from the `app` and `nginx` Dockerfile targets, scanned with Trivy, and published to GHCR under the immutable commit SHA. Create a version tag (for example `v1.0.0`) or run the Release Docker images workflow manually.
 

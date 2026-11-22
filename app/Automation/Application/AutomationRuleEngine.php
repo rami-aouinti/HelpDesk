@@ -73,7 +73,7 @@ final class AutomationRuleEngine
             $results[] = match ($operator) {
                 'equals' => (string) $actual === (string) $expected,
                 'not_equals' => (string) $actual !== (string) $expected,
-                'in' => is_array($expected) && in_array((string) $actual, array_map('strval', $expected), true),
+                'in' => in_array((string) $actual, array_map('trim', is_array($expected) ? array_map('strval', $expected) : explode(',', (string) $expected)), true),
                 'contains' => is_string($actual) && is_string($expected) && str_contains(mb_strtolower($actual), mb_strtolower($expected)),
                 'greater_than' => is_numeric($actual) && is_numeric($expected) && (float) $actual > (float) $expected,
                 'less_than' => is_numeric($actual) && is_numeric($expected) && (float) $actual < (float) $expected,

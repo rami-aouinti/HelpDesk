@@ -77,7 +77,7 @@ function initializeHelpDeskCalendar() {
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     })[character]);
-    const eventKind = (event) => event.extendedProps.source === 'system'
+    const eventKind = (event) => event.extendedProps.origin === 'system'
         ? 'system'
         : (event.extendedProps.visibility || 'personal');
     const isVisible = (event) => {

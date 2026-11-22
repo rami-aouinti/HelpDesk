@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
-        $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);
+        $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);\n        $this->app->bind(TicketClaimedPublisher::class, LaravelTicketClaimedPublisher::class);\n        $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);\n        $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);\n        $this->app->bind(TransactionManager::class, LaravelDatabaseTransactionManager::class);
     }
 
     public function boot(): void

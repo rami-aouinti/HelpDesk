@@ -76,6 +76,9 @@
         <div class="sidebar-bottom">
             <div class="nav-label">ADMINISTRATION</div>
             <nav class="sidebar-nav sidebar-admin-nav" aria-label="Administration">
+                @can('communications.deliveries.view')
+                    <a href="{{ route('admin.communications.deliveries.index') }}" class="nav-link {{ request()->routeIs('admin.communications.deliveries.*') ? 'active' : '' }}"><span class="nav-icon">↗</span><span>Notification deliveries</span></a>
+                @endcan
                 @can('reports.view')
                     <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span class="nav-icon">▥</span><span>Reports &amp; Analytics</span></a>
                     <a href="{{ route('reports.csat') }}" class="nav-link {{ request()->routeIs('reports.csat') ? 'active' : '' }}"><span class="nav-icon">★</span><span>Customer Satisfaction</span></a>

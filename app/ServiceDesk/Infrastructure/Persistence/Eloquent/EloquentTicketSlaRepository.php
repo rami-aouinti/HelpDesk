@@ -116,6 +116,6 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
 
     private function nullableImmutable(?DateTimeInterface $date): ?DateTimeImmutable
     {
-        return $date === null ? null : $this->immutable($date);
+        return $date instanceof \DateTimeInterface ? $this->immutable($date) : null;
     }
 }

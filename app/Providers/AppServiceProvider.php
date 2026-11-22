@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Insights\Application\Contracts\ReportReadRepository;
+use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportReadRepository;
+
 use App\Events\TicketCreated;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketMessageRepository;
@@ -61,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
         $this->app->bind(TicketMessageRepository::class, EloquentTicketMessageRepository::class);
         $this->app->bind(TicketAttachmentStorage::class, LaravelTicketAttachmentStorage::class);

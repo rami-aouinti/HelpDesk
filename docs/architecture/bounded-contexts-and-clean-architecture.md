@@ -61,9 +61,10 @@ Platform is not a dumping ground for business features. Business-specific rules 
 10. Migrate project linking through `LinkTicketToProjectCommand`; enforce project membership (or `projects.view.all`), support unlinking, and record the change in ticket history.
 11. Migrate agent unassignment through `UnassignTicketFromAgentCommand`; keep the team association, record the old/new agent in history, and publish the existing update side effects. Only administrators may unassign.
 12. Migrate effort tracking through `UpdateTicketEffortCommand`; keep estimated and elapsed minutes in the Ticket aggregate, preserve omitted values in partial updates, and record each changed field in history.
-13. Migrate mixed ticket updates incrementally, then move conversations and attachments behind dedicated use cases.
-14. Introduce Insights read models and Communications adapters where they provide clear value.
-15. Move remaining contexts gradually; avoid a big-bang rewrite.
+13. Handle mixed ticket updates through one atomic UpdateTicketCommand: lock once, validate all requested changes, persist once, record each changed field, and publish one update event. Single-field requests continue using their focused commands during the migration.
+14. Move conversations and attachments behind dedicated use cases.
+15. Introduce Insights read models and Communications adapters where they provide clear value.
+16. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
 

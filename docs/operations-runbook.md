@@ -57,6 +57,34 @@ CREATE_TICKETS=true k6 run k6/helpdesk-load.js
 
 This creates one test ticket every five iterations per VU. It writes to the configured database and can enqueue notifications/indexing jobs. Use a disposable local/staging environment, never production without an approved test window, and clean up generated tickets/jobs afterward.
 
+## API read-path and PostgreSQL tuning
+
+Sanctum's `last_used_at` field is activity metadata; token authentication and expiry do not depend on updating it for every request. The default configuration disables that write to avoid one PostgreSQL update per authenticated bearer-token request:
+
+```dotenv
+SANCTUM_TRACK_LAST_USED_AT=false
+```
+
+Set it to `true` only when per-request token activity timestamps are an explicit operational requirement. When disabled, `last_used_at` is not a reliable live activity indicator. After changing the value, rebuild Laravel's cached configuration if configuration caching is enabled:
+
+```bash
+docker compose exec app php artisan config:clear
+docker compose exec app php artisan config:cache
+```
+
+The ticket listing migration adds:
+
+- `(user_id, created_at)` for customer-scoped pagination.
+- `created_at` for globally visible lists sorted newest-first.
+
+Apply it with `docker compose exec app php artisan migrate`. PostgreSQL can still choose a sequential scan for small tables; validate with `EXPLAIN (ANALYZE, BUFFERS)` against representative data rather than assuming an index must be used.
+
+Agent membership filtering uses correlated `EXISTS` predicates against `team_user` and `project_user`, avoiding separate ID-list queries and large `IN (...)` lists. The ticket detail policy also checks project membership only once.
+
+## PHP-FPM capacity decision
+
+Keep the current `pm.max_children = 8` profile until the same k6 scenario is rerun after the API and database changes. The previous run showed both PHP-FPM pool saturation and high application/PostgreSQL CPU; increasing workers could simply increase database concurrency and CPU contention. Do not raise or lower the pool based on a single peak sample. Compare repeated p95/p99, FPM saturation warnings, app/DB CPU, worker RSS and available WSL memory before changing the pool.
+
 ### PHP-FPM worker capacity
 
 The PHP-FPM pool is tuned in the `php-base` stage of the root `Dockerfile`, so the settings are versioned and baked into the application image. The current local/staging profile uses:

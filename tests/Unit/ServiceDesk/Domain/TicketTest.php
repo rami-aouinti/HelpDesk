@@ -15,6 +15,24 @@ use PHPUnit\Framework\TestCase;
 final class TicketTest extends TestCase
 {
     #[Test]
+    public function it_can_change_ticket_priority(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 105,
+            subject: 'Slow application',
+            description: 'The application responds slowly.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::OPEN,
+        );
+
+        $ticket->changePriority(TicketPriority::URGENT);
+
+        self::assertSame(TicketPriority::URGENT, $ticket->priority());
+    }
+
+    #[Test]
     public function it_opens_a_ticket_with_the_expected_initial_state(): void
     {
         $ticket = Ticket::open(

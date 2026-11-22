@@ -1,132 +1,127 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-use App\Models\Ticket;
 use App\ServiceDesk\Application\Contracts\SlaAlertPublisher;
+use App\ServiceDesk\Application\Contracts\SlaPolicyProvider;
+use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use App\ServiceDesk\Application\DTO\SlaAlert;
+use App\ServiceDesk\Application\DTO\TicketSlaSnapshot;
 use App\ServiceDesk\Domain\Enums\SlaDeadlineAction;
 use App\ServiceDesk\Domain\Services\SlaDeadlineEvaluator;
-use App\ServiceDesk\Domain\ValueObjects\SlaPolicy;
-use App\Models\TicketMessage;
-use Illuminate\Support\Carbon;
+use DateTimeImmutable;
+use DateTimeInterface;
 
-class TicketSlaService
+final class TicketSlaService
 {
     public function __construct(
+        private readonly TicketSlaRepository $tickets,
+        private readonly SlaPolicyProvider $policies,
         private readonly SlaDeadlineEvaluator $deadlineEvaluator,
         private readonly SlaAlertPublisher $alertPublisher,
     ) {
     }
 
-    /**
-     * Initialize SLA deadlines and process one ticket idempotently.
-     */
-    public function process(Ticket $ticket, ?Carbon $now = null): void
+    public function process(int $ticketId, ?DateTimeInterface $now = null): void
     {
-        $now ??= now();
-        $targets = config('helpdesk.sla.priorities.' . $ticket->priority);
+        $ticket = $this->tickets->findForProcessing($ticketId);
 
-        if (! is_array($targets)) {
+        if ($ticket === null) {
             return;
         }
 
-        $policy = new SlaPolicy(
-            firstResponseMinutes: (int) $targets['first_response'],
-            resolutionMinutes: (int) $targets['resolution'],
-        );
+        $policy = $this->policies->forPriority($ticket->priority);
 
-        $updates = [];
-        if (! $ticket->first_response_due_at) {
-            $updates['first_response_due_at'] = $ticket->created_at->copy()->addMinutes($policy->firstResponseMinutes);
-        }
-        if (! $ticket->resolution_due_at) {
-            $updates['resolution_due_at'] = $ticket->created_at->copy()->addMinutes($policy->resolutionMinutes);
+        if ($policy === null) {
+            return;
         }
 
-        if ($updates !== []) {
-            $ticket->forceFill($updates)->save();
-            $ticket->refresh();
-        }
+        $now = $now === null
+            ? new DateTimeImmutable()
+            : DateTimeImmutable::createFromInterface($now);
 
-        if (! $ticket->first_response_at) {
-            $firstPublicStaffReply = $ticket->messages()
-                ->where('is_internal', false)
-                ->with('user')
-                ->oldest('created_at')
-                ->get()
-                ->first(fn (TicketMessage $message): bool => ! $message->user?->hasRole('customer'));
+        if ($ticket->firstResponseDueAt === null || $ticket->resolutionDueAt === null) {
+            $this->tickets->initializeDeadlines(
+                $ticketId,
+                $ticket->createdAt->modify(sprintf('+%d minutes', $policy->firstResponseMinutes)),
+                $ticket->createdAt->modify(sprintf('+%d minutes', $policy->resolutionMinutes)),
+            );
 
-            if ($firstPublicStaffReply) {
-                $ticket->forceFill(['first_response_at' => $firstPublicStaffReply->created_at])->save();
-                $ticket->refresh();
+            $ticket = $this->tickets->findForProcessing($ticketId);
+
+            if ($ticket === null) {
+                return;
             }
         }
 
-        if (! $ticket->first_response_at) {
+        if ($ticket->firstResponseAt === null && $ticket->firstPublicStaffReplyAt !== null) {
+            $this->tickets->recordFirstResponse($ticketId, $ticket->firstPublicStaffReplyAt);
+            $ticket = $this->tickets->findForProcessing($ticketId);
+
+            if ($ticket === null) {
+                return;
+            }
+        }
+
+        if ($ticket->firstResponseAt === null && $ticket->firstResponseDueAt !== null) {
             $this->evaluateDeadline(
                 $ticket,
                 'first_response',
-                'first_response_due_at',
-                'first_response_warning_sent_at',
-                'first_response_breached_at',
+                $ticket->firstResponseDueAt,
+                $ticket->firstResponseWarningSentAt,
+                $ticket->firstResponseBreachedAt,
+                $policy->warningMinutes,
                 $now,
             );
         }
 
-        if (! in_array($ticket->status, config('helpdesk.sla.resolved_statuses', []), true)) {
+        if ($policy->tracksResolutionFor($ticket->status) && $ticket->resolutionDueAt !== null) {
             $this->evaluateDeadline(
                 $ticket,
                 'resolution',
-                'resolution_due_at',
-                'resolution_warning_sent_at',
-                'resolution_breached_at',
+                $ticket->resolutionDueAt,
+                $ticket->resolutionWarningSentAt,
+                $ticket->resolutionBreachedAt,
+                $policy->warningMinutes,
                 $now,
             );
         }
     }
 
     private function evaluateDeadline(
-        Ticket $ticket,
+        TicketSlaSnapshot $ticket,
         string $type,
-        string $dueColumn,
-        string $warningColumn,
-        string $breachColumn,
-        Carbon $now,
+        DateTimeImmutable $dueAt,
+        ?DateTimeImmutable $warningSentAt,
+        ?DateTimeImmutable $breachedAt,
+        int $warningMinutes,
+        DateTimeImmutable $now,
     ): void {
-        $dueAt = $ticket->{$dueColumn};
-        if (! $dueAt) {
-            return;
-        }
-
         $action = $this->deadlineEvaluator->evaluate(
             dueAt: $dueAt,
             now: $now,
-            warningSentAt: $ticket->{$warningColumn},
-            breachedAt: $ticket->{$breachColumn},
-            warningMinutes: (int) config('helpdesk.sla.warning_minutes', 60),
+            warningSentAt: $warningSentAt,
+            breachedAt: $breachedAt,
+            warningMinutes: $warningMinutes,
         );
 
-        if ($action === SlaDeadlineAction::BREACHED) {
-            $ticket->forceFill([$breachColumn => $now])->save();
-            $this->publishAlert($ticket, $type, 'breached', $dueAt);
-
+        if ($action === SlaDeadlineAction::NONE) {
             return;
         }
 
-        if ($action === SlaDeadlineAction::WARNING) {
-            $ticket->forceFill([$warningColumn => $now])->save();
-            $this->publishAlert($ticket, $type, 'warning', $dueAt);
-        }
-    }
+        $state = $action === SlaDeadlineAction::BREACHED ? 'breached' : 'warning';
 
-    private function publishAlert(Ticket $ticket, string $type, string $state, Carbon $dueAt): void
-    {
+        if (! $this->tickets->markAlertSent($ticket->ticketId, $type, $state, $now)) {
+            return;
+        }
+
         $this->alertPublisher->publish(new SlaAlert(
-            ticketId: (int) $ticket->getKey(),
+            ticketId: $ticket->ticketId,
             slaType: $type,
             state: $state,
-            dueAt: $dueAt->toDateTimeImmutable(),
+            dueAt: $dueAt,
         ));
     }
 }

@@ -15,7 +15,7 @@ A Laravel-based support desk for managing customer requests, team workflows and 
 
 ## Elasticsearch search
 
-The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted.
+The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted. Laravel jobs are processed by a dedicated Redis-backed queue worker.
 
 Start Elasticsearch and Kibana:
 
@@ -23,7 +23,7 @@ Start Elasticsearch and Kibana:
 docker compose --profile monitoring up -d elasticsearch kibana
 ```
 
-Rebuild the user search index for existing accounts (the queue worker processes the dispatched jobs):
+Rebuild the user search index for existing accounts (the Redis queue worker processes the dispatched jobs):
 
 ```bash
 docker compose exec app php artisan elasticsearch:reindex-users

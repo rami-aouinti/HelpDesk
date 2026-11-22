@@ -670,4 +670,51 @@ class TicketWorkflowTest extends TestCase
         $this->assertSame(90, $ticket->fresh()->estimated_minutes);
     }
 
+    public function test_agent_can_apply_multiple_ticket_changes_atomically(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Combined update',
+            'description' => 'Several fields should be updated in one use case.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'estimated_minutes' => 90,
+            'elapsed_minutes' => 15,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), [
+                'status' => 'in_progress',
+                'priority' => 'high',
+                'elapsed_minutes' => 40,
+            ])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'status' => 'in_progress',
+            'priority' => 'high',
+            'estimated_minutes' => 90,
+            'elapsed_minutes' => 40,
+        ]);
+
+        foreach ([
+            ['status', 'open', 'in_progress'],
+            ['priority', 'normal', 'high'],
+            ['elapsed_minutes', '15', '40'],
+        ] as [$action, $oldValue, $newValue]) {
+            $this->assertDatabaseHas('ticket_histories', [
+                'ticket_id' => $ticket->id,
+                'user_id' => $agent->id,
+                'action' => $action,
+                'old_value' => $oldValue,
+                'new_value' => $newValue,
+            ]);
+        }
+    }
+
 }

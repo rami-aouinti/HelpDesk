@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Insights\Application\Queries\BuildReport\BuildReportHandler;
 use App\Insights\Application\Queries\BuildReport\BuildReportQuery;
+use App\Insights\Application\Queries\ExportReportCsv\ExportReportCsvHandler;
+use App\Insights\Application\Queries\ExportReportCsv\ExportReportCsvQuery;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -29,7 +31,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function csv(Request $request)
+    public function csv(Request $request, ExportReportCsvHandler $handler)
     {
         $filters = $request->validate([
             'from' => 'nullable|date',
@@ -39,39 +41,16 @@ class ReportController extends Controller
             'project_id' => 'nullable|integer',
         ]);
 
-        $query = \Illuminate\Support\Facades\DB::table('tickets')
-            ->leftJoin('users as customer', 'tickets.user_id', '=', 'customer.id')
-            ->leftJoin('users as agent', 'tickets.assigned_to', '=', 'agent.id')
-            ->leftJoin('teams', 'tickets.team_id', '=', 'teams.id')
-            ->leftJoin('projects', 'tickets.project_id', '=', 'projects.id')
-            ->select(
-                'tickets.id',
-                'tickets.subject',
-                'tickets.status',
-                'tickets.priority',
-                'tickets.created_at',
-                'customer.name as customer',
-                'agent.name as agent',
-                'teams.name as team',
-                'projects.name as project',
-                'tickets.elapsed_minutes',
-            )
-            ->when($filters['from'] ?? null, fn ($q, $date) => $q->whereDate('tickets.created_at', '>=', $date))
-            ->when($filters['to'] ?? null, fn ($q, $date) => $q->whereDate('tickets.created_at', '<=', $date))
-            ->when($filters['team_id'] ?? null, fn ($q, $id) => $q->where('tickets.team_id', $id))
-            ->when($filters['agent_id'] ?? null, fn ($q, $id) => $q->where('tickets.assigned_to', $id))
-            ->when($filters['project_id'] ?? null, fn ($q, $id) => $q->where('tickets.project_id', $id));
+        $query = new ExportReportCsvQuery($filters);
 
-        return response()->streamDownload(function () use ($query): void {
+        return response()->streamDownload(function () use ($handler, $query): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
             fputcsv($out, ['ID', 'Subject', 'Status', 'Priority', 'Created', 'Customer', 'Agent', 'Team', 'Project', 'Tracked minutes']);
 
-            $query->orderByDesc('tickets.created_at')->chunk(500, function ($rows) use ($out): void {
-                foreach ($rows as $row) {
-                    fputcsv($out, (array) $row);
-                }
-            });
+            foreach ($handler->handle($query) as $row) {
+                fputcsv($out, $row->toCsv());
+            }
 
             fclose($out);
         }, 'helpdesk-report.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Project;
@@ -30,7 +32,7 @@ class WorkspaceDetailController extends Controller
         $project->load(['members', 'documents.uploader']);
         $project->setRelation('tickets', $ticketQuery->latest()->get());
 
-        return view('projects.show', compact('project'));
+        return view('projects.show', ['project' => $project]);
     }
 
     public function team(Team $team): View
@@ -53,7 +55,7 @@ class WorkspaceDetailController extends Controller
         $team->load('members')->loadCount('tickets');
         $team->setRelation('tickets', $ticketQuery->latest()->get());
 
-        return view('teams.show', compact('team'));
+        return view('teams.show', ['team' => $team]);
     }
 
     public function sprint(Sprint $sprint): View
@@ -76,6 +78,6 @@ class WorkspaceDetailController extends Controller
             ->loadCount(['tickets as done_tickets_count' => fn ($query) => $query->where('status', 'closed')]);
         $sprint->setRelation('tickets', $ticketQuery->latest()->get());
 
-        return view('sprints.show', compact('sprint'));
+        return view('sprints.show', ['sprint' => $sprint]);
     }
 }

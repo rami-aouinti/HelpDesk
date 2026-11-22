@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\TicketMessageCreated;
+use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageCommand;
+use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
 use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectCommand;
@@ -129,7 +131,7 @@ class TicketController extends Controller
         ]);
     }
 
-    public function storeMessage(Request $request, Ticket $ticket): RedirectResponse
+    public function storeMessage(Request $request, Ticket $ticket, AddTicketMessageHandler $handler): RedirectResponse
     {
         abort_unless($request->user()->can('view', $ticket), 403);
 
@@ -148,6 +150,19 @@ class TicketController extends Controller
         $isInternal = $request->boolean('is_internal');
         if ($isInternal) {
             abort_unless($request->user()->can('update', $ticket), 403);
+        }
+
+        if ($request->file('attachments', []) === []) {
+            $handler->handle(new AddTicketMessageCommand(
+                ticketId: (int) $ticket->getKey(),
+                authorId: (int) $request->user()->getKey(),
+                body: trim((string) ($data['body'] ?? '')),
+                isInternal: $isInternal,
+            ));
+
+            return redirect()
+                ->route('tickets.show', $ticket)
+                ->with('success', $isInternal ? 'Internal note added.' : 'Reply sent successfully.');
         }
 
         $storedPaths = [];

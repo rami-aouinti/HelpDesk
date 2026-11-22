@@ -83,6 +83,9 @@
                     <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span class="nav-icon">▥</span><span>Reports &amp; Analytics</span></a>
                     <a href="{{ route('reports.csat') }}" class="nav-link {{ request()->routeIs('reports.csat') ? 'active' : '' }}"><span class="nav-icon">★</span><span>Customer Satisfaction</span></a>
                 @endcan
+                @can('automation.manage')
+                    <a href="{{ route('automations.index') }}" class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}"><span class="nav-icon">⚡</span><span>Automation Rules</span></a>
+                @endcan
                 @can('viewAny', \App\Models\User::class)
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <span class="nav-icon">♙</span><span>Users</span>

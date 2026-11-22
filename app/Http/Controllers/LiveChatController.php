@@ -6,6 +6,7 @@ use App\Models\AgentPresence;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\Ticket;
+use App\Models\User;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
@@ -161,23 +162,30 @@ class LiveChatController extends Controller
                 ->map(fn (ChatMessage $message) => '[' . $message->created_at->format('Y-m-d H:i') . '] ' . $message->user->name . ': ' . $message->body)
                 ->implode("\n");
 
+            $assignedAgentId = $lockedConversation->agent_id;
+            if ($assignedAgentId === null && $request->user()->hasRole('agent')) {
+                $assignedAgentId = $request->user()->id;
+            }
+
+            $agent = $assignedAgentId === null
+                ? null
+                : User::query()->role('agent')->where('is_active', true)->find($assignedAgentId);
+            $teamId = $agent?->teams()->orderBy('teams.id')->value('teams.id');
+            if ($teamId === null) {
+                $assignedAgentId = null;
+            }
+
             $ticketId = $createTicketHandler->handle(new CreateTicketCommand(
                 subject: $lockedConversation->subject ?: 'Live chat conversation #' . $lockedConversation->id,
                 description: "Conversation converted from Live Chat.\n\n" . $transcript,
                 priority: TicketPriority::NORMAL,
                 projectId: null,
                 customerId: (int) $lockedConversation->customer_id,
+                teamId: $teamId === null ? null : (int) $teamId,
+                assignedAgentId: $assignedAgentId === null ? null : (int) $assignedAgentId,
             ));
 
             $ticket = Ticket::query()->findOrFail($ticketId);
-            $assignedAgentId = $lockedConversation->agent_id;
-            if ($assignedAgentId === null && $request->user()->hasRole('agent')) {
-                $assignedAgentId = $request->user()->id;
-            }
-
-            if ($assignedAgentId !== null) {
-                $ticket->forceFill(['assigned_to' => $assignedAgentId])->save();
-            }
 
             $lockedConversation->forceFill([
                 'status' => 'converted',

@@ -73,7 +73,7 @@
                     fetch(item.dataset.readUrl, {
                         method: 'PATCH',
                         credentials: 'same-origin',
-                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }, keepalive: true
                     });
                 });
             });

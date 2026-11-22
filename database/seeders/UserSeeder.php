@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
+use App\\Models\\User;
+use Illuminate\\Database\\Seeder;
+use Spatie\\Permission\\Models\\Role;
 
 class UserSeeder extends Seeder
 {
@@ -19,6 +19,12 @@ class UserSeeder extends Seeder
             ['name' => 'Lucas Schneider', 'email' => 'lucas.agent@helpdesk.test'],
             ['name' => 'Emma Laurent', 'email' => 'emma.agent@helpdesk.test'],
             ['name' => 'Youssef Haddad', 'email' => 'youssef.agent@helpdesk.test'],
+            ['name' => 'Maya Rossi', 'email' => 'maya.agent@helpdesk.test'],
+            ['name' => 'Jonas Fischer', 'email' => 'jonas.agent@helpdesk.test'],
+            ['name' => 'Ines Haddad', 'email' => 'ines.agent@helpdesk.test'],
+            ['name' => 'Noah Klein', 'email' => 'noah.agent@helpdesk.test'],
+            ['name' => 'Lea Bernard', 'email' => 'lea.agent@helpdesk.test'],
+            ['name' => 'Karim Mansour', 'email' => 'karim.agent@helpdesk.test'],
         ];
 
         $customers = [
@@ -30,6 +36,14 @@ class UserSeeder extends Seeder
             ['name' => 'Adam Khelifi', 'email' => 'adam.customer@helpdesk.test'],
             ['name' => 'Clara Wagner', 'email' => 'clara.customer@helpdesk.test'],
             ['name' => 'Mehdi Gharbi', 'email' => 'mehdi.customer@helpdesk.test'],
+            ['name' => 'Elena Schmidt', 'email' => 'elena.customer@helpdesk.test'],
+            ['name' => 'Hugo Petit', 'email' => 'hugo.customer@helpdesk.test'],
+            ['name' => 'Amal Jaziri', 'email' => 'amal.customer@helpdesk.test'],
+            ['name' => 'Felix Braun', 'email' => 'felix.customer@helpdesk.test'],
+            ['name' => 'Meriem Saidi', 'email' => 'meriem.customer@helpdesk.test'],
+            ['name' => 'Paul Meyer', 'email' => 'paul.customer@helpdesk.test'],
+            ['name' => 'Aya Ben Salem', 'email' => 'aya.customer@helpdesk.test'],
+            ['name' => 'Louis Moreau', 'email' => 'louis.customer@helpdesk.test'],
         ];
 
         $this->seedUsers($agents, Role::findByName('agent'), $password);

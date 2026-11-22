@@ -234,6 +234,42 @@ final class TicketTest extends TestCase
     }
 
     #[Test]
+    public function it_can_change_or_remove_a_team(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 106,
+            subject: 'Printer offline',
+            description: 'The printer is unreachable.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::OPEN,
+            teamId: 7,
+        );
+
+        $ticket->changeTeam(8);
+        self::assertSame(8, $ticket->teamId());
+
+        $ticket->changeTeam(null);
+        self::assertNull($ticket->teamId());
+    }
+
+    #[Test]
+    public function it_rejects_a_non_positive_team_identifier(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Printer offline',
+            description: 'The printer is unreachable.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $this->expectException(InvalidTicketData::class);
+        $ticket->changeTeam(0);
+    }
+
+    #[Test]
     public function it_rejects_an_empty_subject(): void
     {
         $this->expectException(InvalidTicketData::class);

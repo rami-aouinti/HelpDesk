@@ -309,14 +309,14 @@ class TicketController extends Controller
         $data = $request->validated();
         $isInternal = $request->boolean('is_internal');
         if ($request->file('attachments', []) === []) {
-            $message = $handler->handle(new AddTicketMessageCommand(
+            $messageId = $handler->handle(new AddTicketMessageCommand(
                 ticketId: (int) $ticket->getKey(),
                 authorId: (int) $request->user()->getKey(),
                 body: trim((string) ($data['body'] ?? '')),
                 isInternal: $isInternal,
             ));
             CacheApiGetResponse::flush();
-            $message->load(['user', 'attachments']);
+            $message = TicketMessage::query()->with(['user', 'attachments'])->findOrFail($messageId);
 
             return (new TicketMessageResource($message))
                 ->response()

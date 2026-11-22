@@ -68,7 +68,7 @@ Run Laravel Horizon as a separate long-lived process with the same release image
 php artisan horizon
 ```
 
-The dashboard is available at `/horizon`. In non-local environments, access is restricted to users with the `administrator` role. Horizon supervises the `notifications` and `default` queues and scales workers according to `config/horizon.php`.
+The dashboard is available at `/horizon`. In non-local environments, access is restricted to users with the `admin` role. Horizon supervises the `notifications` and `default` queues and scales workers according to `config/horizon.php`.
 
 Use the container restart policy or hosting platform to restart Horizon after failures. Gracefully restart Horizon during releases:
 

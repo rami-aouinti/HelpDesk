@@ -10,10 +10,15 @@ class RunTicketSlaAutomations implements ShouldQueue
 {
     public string $queue = 'notifications';
 
-    public function handle(TicketSlaAlertPublished $event, AutomationRuleEngine $engine): void
+    public function __construct(
+        private readonly AutomationRuleEngine $engine,
+    ) {
+    }
+
+    public function handle(TicketSlaAlertPublished $event): void
     {
         if ($event->state === 'breached') {
-            $engine->dispatch('ticket.sla_breached', $event->ticket->fresh() ?? $event->ticket, [
+            $this->engine->dispatch('ticket.sla_breached', $event->ticket->fresh() ?? $event->ticket, [
                 'sla_type' => $event->slaType,
                 'state' => $event->state,
             ]);

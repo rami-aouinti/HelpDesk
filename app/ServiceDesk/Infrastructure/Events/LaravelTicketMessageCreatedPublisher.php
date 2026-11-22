@@ -10,8 +10,9 @@ use App\ServiceDesk\Application\Contracts\TicketMessageCreatedPublisher;
 
 final class LaravelTicketMessageCreatedPublisher implements TicketMessageCreatedPublisher
 {
-    public function publish(TicketMessage $message): void
+    public function publish(int $messageId): void
     {
+        $message = TicketMessage::query()->findOrFail($messageId);
         event(new TicketMessageCreated($message));
     }
 }

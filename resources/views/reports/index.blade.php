@@ -225,8 +225,17 @@
             pdf.text(item[1], x + 5, 70);
         });
 
-        drawBarChart(pdf, 'Tickets by status', chartData.statuses, margin, 87, (pageWidth - margin * 2 - 12) / 2);
-        drawBarChart(pdf, 'Tickets by priority', chartData.priorities, margin + (pageWidth - margin * 2 - 12) / 2 + 12, 87, (pageWidth - margin * 2 - 12) / 2);
+        const chartPairs = {
+            Executive: [['Tickets by status', chartData.statuses], ['Tickets by priority', chartData.priorities]],
+            Tickets: [['Tickets by status', chartData.statuses], ['Tickets by priority', chartData.priorities]],
+            Agents: [['Agent workload', chartData.agents], ['Tickets by status', chartData.statuses]],
+            Teams: [['Team workload', chartData.teams], ['Tickets by status', chartData.statuses]],
+            Projects: [['Tickets by project', chartData.projects], ['Tickets by status', chartData.statuses]],
+        };
+        const selectedCharts = chartPairs[reportName] || chartPairs.Executive;
+        const chartWidth = (pageWidth - margin * 2 - 12) / 2;
+        drawBarChart(pdf, selectedCharts[0][0], selectedCharts[0][1], margin, 87, chartWidth);
+        drawBarChart(pdf, selectedCharts[1][0], selectedCharts[1][1], margin + chartWidth + 12, 87, chartWidth);
 
         let tableY = 166;
         const tables = [...reportArea.querySelectorAll('.report-section table')];

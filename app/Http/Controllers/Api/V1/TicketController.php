@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
+use App\Data\Tickets\CreateTicketData;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\CacheApiGetResponse;
 use App\Http\Requests\StoreTicketMessageRequest;
@@ -89,21 +89,11 @@ class TicketController extends Controller
         return TicketResource::collection($tickets);
     }
 
-    public function store(StoreTicketRequest $request): JsonResponse
+    public function store(StoreTicketRequest $request, TicketService $ticketService): JsonResponse
     {
-        $data = $request->validated();
-
-        $ticket = Ticket::create([
-            'subject' => (string) $data['subject'],
-            'description' => (string) $data['description'],
-            'priority' => (string) $data['priority'],
-            'project_id' => isset($data['project_id']) ? (int) $data['project_id'] : null,
-            'status' => 'open',
-            'user_id' => $request->user()->id,
-        ]);
-
-        event(new TicketCreated($ticket));
-        CacheApiGetResponse::flush();
+        $ticket = $ticketService->create(
+            CreateTicketData::fromValidated($request->validated(), $request->user()),
+        );
 
         return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])))
             ->response()

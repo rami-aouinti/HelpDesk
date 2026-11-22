@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Data\Tickets\CreateTicketData;
+use App\Events\TicketCreated;
 use App\Events\TicketUpdated;
 use App\Http\Middleware\CacheApiGetResponse;
 use App\Models\Team;
@@ -33,6 +35,23 @@ class TicketService
         'high',
         'urgent',
     ];
+
+    public function create(CreateTicketData $data): Ticket
+    {
+        $ticket = Ticket::query()->create([
+            'subject' => $data->subject,
+            'description' => $data->description,
+            'priority' => $data->priority,
+            'project_id' => $data->projectId,
+            'status' => 'open',
+            'user_id' => $data->customerId,
+        ]);
+
+        event(new TicketCreated($ticket));
+        CacheApiGetResponse::flush();
+
+        return $ticket;
+    }
 
     /**
      * @throws Throwable

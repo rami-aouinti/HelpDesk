@@ -207,9 +207,13 @@ class KnowledgeBaseController extends Controller
         $base = Str::slug($title) ?: 'article';
         $slug = $base;
         $counter = 2;
-        while (KnowledgeBaseArticle::query()->where('slug', $slug)
-            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))->exists()) {
-            $slug = $base.'-'.$counter++;
+        while (
+            KnowledgeBaseArticle::query()
+                ->where('slug', $slug)
+                ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $counter++;
         }
 
         return $slug;

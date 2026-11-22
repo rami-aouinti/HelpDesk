@@ -371,6 +371,67 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_assign_a_ticket_to_a_team_without_an_agent(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Unassigned team request',
+            'description' => 'This ticket should belong to a team.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('tickets.update', $ticket), ['team_id' => $team->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'team_id' => $team->id,
+            'assigned_to' => null,
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'action' => 'team_id',
+            'old_value' => null,
+            'new_value' => (string) $team->id,
+        ]);
+    }
+
+    public function test_admin_cannot_move_a_ticket_away_from_its_assigned_agent_team(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $currentTeam = Team::where('name', 'General Support')->firstOrFail();
+        $otherTeam = Team::where('name', 'Technical Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Assigned team request',
+            'description' => 'The assigned agent belongs to the current team.',
+            'status' => 'in_progress',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'team_id' => $currentTeam->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), ['team_id' => $otherTeam->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('team_id');
+
+        $this->assertSame($currentTeam->id, $ticket->fresh()->team_id);
+        $this->assertSame($agent->id, $ticket->fresh()->assigned_to);
+    }
+
     public function test_invalid_ticket_priority_is_rejected_by_request_validation(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

@@ -142,7 +142,7 @@
                         @endcan
                     @elseif ($topbarPage === 'tickets')
                         @can('tickets.create')
-                            <a href="{{ route('tickets.create') }}" class="btn btn-primary topbar-create">+ Create ticket</a>
+                            <button type="button" class="btn btn-primary topbar-create" onclick="document.getElementById('ticket-create-dialog')?.showModal()">+ Create ticket</button>
                         @endcan
                     @elseif ($topbarPage === 'sprints')
                         @can('create', \App\Models\Sprint::class)

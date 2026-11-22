@@ -41,3 +41,4 @@ Schedule::command('horizon:snapshot')->everyFiveMinutes();
 Schedule::command('helpdesk:process-slas')
     ->everyFiveMinutes()
     ->withoutOverlapping();
+\nSchedule::command('helpdesk:dispatch-sla-alerts')\n    ->everyMinute()\n    ->withoutOverlapping();\n

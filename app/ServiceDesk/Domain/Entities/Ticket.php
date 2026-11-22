@@ -142,6 +142,34 @@ final class Ticket
      * The caller must verify team membership; the aggregate protects the
      * invariants that are intrinsic to the ticket lifecycle.
      */
+    /**
+     * Change the ticket status according to the support workflow.
+     *
+     * Administrators may override the normal transition graph.
+     */
+    public function changeStatus(TicketStatus $newStatus, bool $mayOverrideWorkflow = false): void
+    {
+        if ($this->status === $newStatus) {
+            return;
+        }
+
+        $allowedTransitions = [
+            TicketStatus::OPEN->value => [TicketStatus::IN_PROGRESS],
+            TicketStatus::IN_PROGRESS->value => [TicketStatus::WAITING_FOR_CUSTOMER, TicketStatus::RESOLVED],
+            TicketStatus::WAITING_FOR_CUSTOMER->value => [TicketStatus::IN_PROGRESS],
+            TicketStatus::RESOLVED->value => [TicketStatus::CLOSED],
+            TicketStatus::CLOSED->value => [],
+        ];
+
+        if (! $mayOverrideWorkflow && ! in_array($newStatus, $allowedTransitions[$this->status->value], true)) {
+            throw new \\App\\ServiceDesk\\Domain\\Exceptions\\InvalidTicketTransition(
+                sprintf('The transition from "%s" to "%s" is not allowed.', $this->status->value, $newStatus->value),
+            );
+        }
+
+        $this->status = $newStatus;
+    }
+
     public function claimBy(int $agentId, int $teamId): void
     {
         if ($agentId < 1 || $teamId < 1) {

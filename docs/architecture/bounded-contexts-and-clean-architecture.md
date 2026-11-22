@@ -55,8 +55,8 @@ Platform is not a dumping ground for business features. Business-specific rules 
 4. Add ticket queries separately from write use cases.
 5. Extract ticket claim invariants into the ServiceDesk domain aggregate; next, migrate the claim command, transactional persistence and event publication behind application/infrastructure contracts.
 6. Migrate status changes through `ChangeTicketStatusCommand` and its domain transition graph. The HTTP controller delegates status-only updates to the command handler; mixed field updates remain on the legacy workflow until their assignment, project-membership and effort-tracking rules are migrated. Then migrate the remaining ticket update fields and conversations incrementally.
-6. Introduce Insights read models and Communications adapters where they provide clear value.
-7. Move remaining contexts gradually; avoid a big-bang rewrite.
+7. Introduce Insights read models and Communications adapters where they provide clear value.
+8. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
 

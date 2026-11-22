@@ -8,6 +8,8 @@ use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageHandle
 use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\AddTicketMessageWithAttachmentsCommand;
 use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\AddTicketMessageWithAttachmentsHandler;
 use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\TicketAttachmentInput;
+use App\ServiceDesk\Application\Queries\DownloadTicketAttachment\DownloadTicketAttachmentQuery;
+use App\ServiceDesk\Application\Queries\DownloadTicketAttachment\DownloadTicketAttachmentHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
 use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectCommand;

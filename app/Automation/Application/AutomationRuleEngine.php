@@ -93,13 +93,22 @@ final class AutomationRuleEngine
         $type = (string) ($action['type'] ?? '');
         $value = $action['value'] ?? null;
 
-        match ($type) {
-            'assign_agent' => $this->assignAgent($ticket, (int) $value),
-            'set_priority' => $this->setPriority($ticket, (string) $value),
-            'add_tag' => $this->addTag($ticket, (string) $value),
-            'notify_assignee' => $this->notifyAssignee($ticket, (string) ($action['message'] ?? 'An automation rule was triggered.')),
-            default => throw new \InvalidArgumentException("Unsupported automation action: {$type}"),
-        };
+        switch ($type) {
+            case 'assign_agent':
+                $this->assignAgent($ticket, (int) $value);
+                return;
+            case 'set_priority':
+                $this->setPriority($ticket, (string) $value);
+                return;
+            case 'add_tag':
+                $this->addTag($ticket, (string) $value);
+                return;
+            case 'notify_assignee':
+                $this->notifyAssignee($ticket, (string) ($action['message'] ?? 'An automation rule was triggered.'));
+                return;
+            default:
+                throw new \\InvalidArgumentException("Unsupported automation action: {$type}");
+        }
     }
 
     private function assignAgent(Ticket $ticket, int $agentId): void

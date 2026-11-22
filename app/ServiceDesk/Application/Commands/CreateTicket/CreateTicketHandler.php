@@ -26,6 +26,8 @@ final readonly class CreateTicketHandler
             priority: $command->priority,
             projectId: $command->projectId,
             customerId: $command->customerId,
+            teamId: $command->teamId,
+            assignedAgentId: $command->assignedAgentId,
         );
 
         $this->tickets->save($ticket);

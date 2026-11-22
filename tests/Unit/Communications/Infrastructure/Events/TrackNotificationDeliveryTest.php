@@ -19,7 +19,7 @@ final class TrackNotificationDeliveryTest extends TestCase
         $repository = $this->createMock(NotificationDeliveryRepository::class);
         $repository->expects(self::once())
             ->method('recordAttempt')
-            ->with('notification-123', 'users', '42', 'App\\Notifications\\ExampleNotification', 'mail', self::isInstanceOf(\DateTimeInterface::class));
+            ->with('notification-123', 'users', '42', FakeNotification::class, 'mail', self::isInstanceOf(\DateTimeInterface::class));
 
         $listener = new TrackNotificationDelivery($repository);
         $listener->sending(new NotificationSending(

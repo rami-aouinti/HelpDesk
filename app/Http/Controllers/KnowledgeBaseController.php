@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\KnowledgeBaseArticle;
@@ -27,7 +29,7 @@ class KnowledgeBaseController extends Controller
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->latest('updated_at')->paginate(12)->withQueryString();
 
-        return view('knowledge-base.admin.index', compact('articles'));
+        return view('knowledge-base.admin.index', ['articles' => $articles]);
     }
 
     public function publicIndex(Request $request): View
@@ -48,7 +50,7 @@ class KnowledgeBaseController extends Controller
             ->orderBy('sort_order')->orderBy('name')->get();
         $popularArticles = KnowledgeBaseArticle::query()->published()->orderByDesc('view_count')->limit(5)->get();
 
-        return view('knowledge-base.public.index', compact('articles', 'categories', 'popularArticles'));
+        return view('knowledge-base.public.index', ['articles' => $articles, 'categories' => $categories, 'popularArticles' => $popularArticles]);
     }
 
     public function show(KnowledgeBaseArticle $article): View
@@ -60,7 +62,7 @@ class KnowledgeBaseController extends Controller
             ->when($article->category_id, fn ($query) => $query->where('category_id', $article->category_id))
             ->latest('published_at')->limit(4)->get();
 
-        return view('knowledge-base.public.show', compact('article', 'related'));
+        return view('knowledge-base.public.show', ['article' => $article, 'related' => $related]);
     }
 
     public function create(): View

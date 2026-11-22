@@ -17,7 +17,7 @@
                     <th>Customer</th><th>Project</th><th>Time remaining</th><th>Team</th><th>Assigned agent</th>
                     <th><button wire:click="sort('priority')" class="sort-button">Priority <span>{{ $sortBy === 'priority' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
                     <th><button wire:click="sort('status')" class="sort-button">Status <span>{{ $sortBy === 'status' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
-                    <th><button wire:click="sort('created_at')" class="sort-button">Created <span>{{ $sortBy === 'created_at' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th>
+                    <th><button wire:click="sort('created_at')" class="sort-button">Created <span>{{ $sortBy === 'created_at' ? ($sortDirection === 'asc' ? '↑' : '↓') : '↕' }}</span></button></th><th>Actions</th>
                 </tr></thead>
                 <tbody>
                 @forelse ($tickets as $ticket)
@@ -26,9 +26,9 @@
                         <td><span class="hd-person"><span class="hd-avatar">{{ strtoupper(mb_substr($ticket->customer?->name ?? 'U', 0, 1)) }}</span><span>{{ $ticket->customer?->name ?? 'Unassigned' }}</span></span></td><td>{{ $ticket->project?->name ?? '—' }}</td><td>{{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m / {{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</td><td>{{ $ticket->team?->name ?? '—' }}</td><td>@if($ticket->assignedAgent)<span class="hd-person"><span class="hd-avatar">{{ strtoupper(mb_substr($ticket->assignedAgent->name, 0, 1)) }}</span><span>{{ $ticket->assignedAgent->name }}</span></span>@else <span class="hd-muted">Unassigned</span> @endif</td>
                         <td><span class="priority-badge priority-{{ $ticket->priority }}">{{ ucfirst($ticket->priority) }}</span></td>
                         <td><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></td>
-                        <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>
+                        <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td><td><a class="btn btn-secondary" href="{{ route('tickets.show', $ticket) }}">Show</a></td>
                     </tr>
-                @empty <tr><td colspan="10" class="empty-state"><div class="ticket-empty-state"><strong>No tickets found</strong><span>Try changing your search or removing one or more filters.</span><button type="button" class="btn btn-secondary" wire:click="resetFilters">Clear all filters</button></div></td></tr> @endforelse
+                @empty <tr><td colspan="11" class="empty-state"><div class="ticket-empty-state"><strong>No tickets found</strong><span>Try changing your search or removing one or more filters.</span><button type="button" class="btn btn-secondary" wire:click="resetFilters">Clear all filters</button></div></td></tr> @endforelse
                 </tbody>
             </table>
         </div>

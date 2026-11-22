@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Communications\Application\Commands\MarkAllNotificationsAsRead\MarkAllNotificationsAsReadCommand;
+use App\Communications\Application\Commands\MarkAllNotificationsAsRead\MarkAllNotificationsAsReadHandler;
+use App\Communications\Application\Commands\MarkNotificationAsRead\MarkNotificationAsReadCommand;
+use App\Communications\Application\Commands\MarkNotificationAsRead\MarkNotificationAsReadHandler;
 use App\Communications\Application\Queries\GetNotificationInbox\GetNotificationInboxHandler;
 use App\Communications\Application\Queries\GetNotificationInbox\GetNotificationInboxQuery;
 use App\Communications\Application\Queries\GetRecentNotifications\GetRecentNotificationsHandler;
@@ -49,20 +53,31 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function markAsRead(Request $request, string $notification): JsonResponse
-    {
-        $request->user()->notifications()->whereKey($notification)->firstOrFail()->markAsRead();
+    public function markAsRead(
+        Request $request,
+        string $notification,
+        MarkNotificationAsReadHandler $handler,
+    ): JsonResponse {
+        $handler->handle(new MarkNotificationAsReadCommand(
+            userId: (int) $request->user()->id,
+            notificationId: $notification,
+        ));
 
         return response()->json(['success' => true]);
     }
 
-    public function markAllAsRead(Request $request): JsonResponse
-    {
-        $request->user()->unreadNotifications()->update(['read_at' => now()]);
+    public function markAllAsRead(
+        Request $request,
+        MarkAllNotificationsAsReadHandler $handler,
+    ): JsonResponse {
+        $updated = $handler->handle(new MarkAllNotificationsAsReadCommand(
+            userId: (int) $request->user()->id,
+        ));
 
         return response()->json([
             'success' => true,
             'unread_count' => 0,
+            'updated_count' => $updated,
         ]);
     }
 }

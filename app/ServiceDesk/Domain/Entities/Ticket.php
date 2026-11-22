@@ -121,6 +121,15 @@ final class Ticket
         return $this->projectId;
     }
 
+    public function linkToProject(?int $projectId): void
+    {
+        if ($projectId !== null && $projectId < 1) {
+            throw new InvalidTicketData('A project identifier must be positive.');
+        }
+
+        $this->projectId = $projectId;
+    }
+
     public function customerId(): int
     {
         return $this->customerId;

@@ -1,8 +1,4 @@
 <div class="ticket-list-workspace">
-    <div class="ticket-list-intro">
-        <div><span class="eyebrow">SUPPORT WORKSPACE</span><h2>All tickets</h2><p>Find, prioritize and track support requests across your workspace.</p></div>
-        <div class="ticket-list-total"><strong>{{ number_format($tickets->total()) }}</strong><span>matching tickets</span></div>
-    </div>
     <section class="content-card data-table-card">
         <div class="ticket-filter-heading"><div><strong>Filters</strong><span>Narrow down the ticket list by status, priority or team.</span></div><button type="button" class="btn btn-secondary toolbar-reset" wire:click="resetFilters" @disabled($search === '' && $status === '' && $priority === '' && $team === '')>↺ Clear filters</button></div>
         <div class="table-toolbar">

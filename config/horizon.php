@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\\Support\\Str;
+use Illuminate\Support\Str;
 
 return [
     'name' => env('HORIZON_NAME', env('APP_NAME', 'HelpDesk')),

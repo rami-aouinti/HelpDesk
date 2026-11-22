@@ -32,7 +32,7 @@ final class SlaDeadlineEvaluator
 
         $warningAt = DateTimeImmutable::createFromInterface($dueAt)->modify(sprintf('-%d minutes', $warningMinutes));
 
-        if (! $warningSentAt instanceof \DateTimeInterface && $now >= $warningAt) {
+        if (!$warningSentAt instanceof \DateTimeInterface && $now >= $warningAt) {
             return SlaDeadlineAction::WARNING;
         }
 

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'My profile | HelpDesk')
+@section('meta-description', 'Manage your HelpDesk profile, personal information, password, profile photo and notification preferences.')
 @section('page-title', 'My profile')
 
 @section('content')

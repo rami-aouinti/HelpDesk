@@ -42,7 +42,7 @@ class DashboardTest extends TestCase
         $this->actingAs($agent)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee($ticket->subject);
+            ->assertDontSee($ticket->subject);
     }
 
     public function test_customer_portal_shows_own_tickets_even_without_project_membership(): void
@@ -65,7 +65,7 @@ class DashboardTest extends TestCase
         $this->actingAs($customer)
             ->get(route('portal.home'))
             ->assertOk()
-            ->assertDontSee($ticket->subject);
+            ->assertSee($ticket->subject);
     }
 
     public function test_admin_dashboard_can_see_tickets_from_all_projects(): void

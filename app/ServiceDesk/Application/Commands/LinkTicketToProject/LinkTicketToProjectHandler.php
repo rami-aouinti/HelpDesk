@@ -9,6 +9,7 @@ use App\ServiceDesk\Application\Contracts\TicketProjectAccess;
 use App\ServiceDesk\Application\Contracts\TicketUpdatedPublisher;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
 use App\ServiceDesk\Domain\Events\TicketWasUpdated;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Domain\Repositories\TicketRepository;
 
@@ -40,7 +41,11 @@ final class LinkTicketToProjectHandler
                 return null;
             }
 
-            $ticket->linkToProject($command->projectId);
+            try {
+                $ticket->linkToProject($command->projectId);
+            } catch (InvalidTicketData $exception) {
+                throw new TicketProjectLinkRejected('project_id', $exception->getMessage());
+            }
             $this->tickets->save($ticket);
 
             $this->history->record(

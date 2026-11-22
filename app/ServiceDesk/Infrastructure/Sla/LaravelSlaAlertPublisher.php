@@ -22,7 +22,7 @@ final class LaravelSlaAlertPublisher implements SlaAlertPublisher
             return;
         }
 
-        $recipients = collect([$ticket->assignedAgent]);
+        event(new TicketSlaAlertPublished($ticket, $alert->slaType, $alert->state));\n\n        $recipients = collect([$ticket->assignedAgent]);
 
         if ($ticket->team) {
             $recipients = $recipients->merge(

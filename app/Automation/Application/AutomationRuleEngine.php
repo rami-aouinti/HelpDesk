@@ -20,36 +20,46 @@ final class AutomationRuleEngine
             ->where('trigger', $trigger)
             ->where('is_active', true)
             ->orderBy('id')
-            ->each(function (AutomationRule $rule) use ($ticket, $trigger, $context): void {
-                $execution = AutomationExecution::query()->create([
-                    'automation_rule_id' => $rule->id,
-                    'ticket_id' => $ticket->id,
-                    'trigger' => $trigger,
-                    'status' => 'running',
-                    'context' => $context,
-                    'started_at' => now(),
-                ]);
+            ->each(fn (AutomationRule $rule) => $this->executeRule($rule, $ticket, $trigger, $context));
+    }
 
-                try {
-                    if (! $this->matches($rule->conditions ?? [], $ticket)) {
-                        $execution->update(['status' => 'skipped', 'finished_at' => now()]);
-                        return;
-                    }
+    public function retry(AutomationRule $rule, Ticket $ticket, array $context = []): void
+    {
+        if ($rule->is_active) {
+            $this->executeRule($rule, $ticket, $rule->trigger, $context);
+        }
+    }
 
-                    foreach ($rule->actions ?? [] as $action) {
-                        $this->perform($action, $ticket);
-                    }
+    private function executeRule(AutomationRule $rule, Ticket $ticket, string $trigger, array $context): void
+    {
+        $execution = AutomationExecution::query()->create([
+            'automation_rule_id' => $rule->id,
+            'ticket_id' => $ticket->id,
+            'trigger' => $trigger,
+            'status' => 'running',
+            'context' => $context,
+            'started_at' => now(),
+        ]);
 
-                    $execution->update(['status' => 'succeeded', 'finished_at' => now()]);
-                } catch (Throwable $exception) {
-                    report($exception);
-                    $execution->update([
-                        'status' => 'failed',
-                        'error' => mb_substr($exception->getMessage(), 0, 6000),
-                        'finished_at' => now(),
-                    ]);
-                }
-            });
+        try {
+            if (! $this->matches($rule->conditions ?? [], $ticket)) {
+                $execution->update(['status' => 'skipped', 'finished_at' => now()]);
+                return;
+            }
+
+            foreach ($rule->actions ?? [] as $action) {
+                $this->perform($action, $ticket);
+            }
+
+            $execution->update(['status' => 'succeeded', 'finished_at' => now()]);
+        } catch (Throwable $exception) {
+            report($exception);
+            $execution->update([
+                'status' => 'failed',
+                'error' => mb_substr($exception->getMessage(), 0, 6000),
+                'finished_at' => now(),
+            ]);
+        }
     }
 
     private function matches(array $group, Ticket $ticket): bool
@@ -107,7 +117,7 @@ final class AutomationRuleEngine
                 $this->notifyAssignee($ticket, (string) ($action['message'] ?? 'An automation rule was triggered.'));
                 return;
             default:
-                throw new \\InvalidArgumentException("Unsupported automation action: {$type}");
+                throw new \InvalidArgumentException("Unsupported automation action: {$type}");
         }
     }
 

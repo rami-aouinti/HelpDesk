@@ -20,6 +20,8 @@ final class Ticket
         private TicketStatus $status,
         private ?int $teamId = null,
         private ?int $assignedAgentId = null,
+        private ?int $estimatedMinutes = null,
+        private ?int $elapsedMinutes = null,
     ) {
         if (trim($this->subject) === '') {
             throw new InvalidTicketData('A ticket subject is required.');
@@ -36,6 +38,9 @@ final class Ticket
         if ($this->projectId !== null && $this->projectId < 1) {
             throw new InvalidTicketData('A project identifier must be positive.');
         }
+
+        $this->assertValidEffort($this->estimatedMinutes);
+        $this->assertValidEffort($this->elapsedMinutes);
     }
 
     public static function open(
@@ -68,6 +73,8 @@ final class Ticket
         TicketStatus $status,
         ?int $teamId = null,
         ?int $assignedAgentId = null,
+        ?int $estimatedMinutes = null,
+        ?int $elapsedMinutes = null,
     ): self {
         return new self(
             $id,
@@ -79,6 +86,8 @@ final class Ticket
             $status,
             $teamId,
             $assignedAgentId,
+            $estimatedMinutes,
+            $elapsedMinutes,
         );
     }
 
@@ -157,6 +166,32 @@ final class Ticket
     public function assignedAgentId(): ?int
     {
         return $this->assignedAgentId;
+    }
+
+    public function estimatedMinutes(): ?int
+    {
+        return $this->estimatedMinutes;
+    }
+
+    public function elapsedMinutes(): ?int
+    {
+        return $this->elapsedMinutes;
+    }
+
+    public function updateEffort(?int $estimatedMinutes, ?int $elapsedMinutes): void
+    {
+        $this->assertValidEffort($estimatedMinutes);
+        $this->assertValidEffort($elapsedMinutes);
+
+        $this->estimatedMinutes = $estimatedMinutes;
+        $this->elapsedMinutes = $elapsedMinutes;
+    }
+
+    private function assertValidEffort(?int $minutes): void
+    {
+        if ($minutes !== null && ($minutes < 0 || $minutes > 525600)) {
+            throw new InvalidTicketData('Effort values must be between 0 and 525600 minutes.');
+        }
     }
 
     /**

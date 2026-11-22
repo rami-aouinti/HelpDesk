@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\TicketMessageCreated;
-use App\Data\Tickets\CreateTicketData;
+use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
+use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Domain\Enums\TicketPriority;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
@@ -40,15 +42,20 @@ class TicketController extends Controller
         return view('tickets.create', ['projects' => $projects]);
     }
 
-    public function store(StoreTicketRequest $request, TicketService $ticketService): RedirectResponse
+    public function store(StoreTicketRequest $request, CreateTicketHandler $handler): RedirectResponse
     {
-        $ticket = $ticketService->create(
-            CreateTicketData::fromValidated($request->validated(), $request->user()),
-        );
+        $data = $request->validated();
+        $ticketId = $handler->handle(new CreateTicketCommand(
+            subject: $data['subject'],
+            description: $data['description'],
+            priority: TicketPriority::from($data['priority']),
+            projectId: isset($data['project_id']) ? (int) $data['project_id'] : null,
+            customerId: (int) $request->user()->getKey(),
+        ));
 
         return redirect()
             ->route('tickets.index')
-            ->with('success', "Ticket #{$ticket->id} created successfully.");
+            ->with('success', "Ticket #{$ticketId} created successfully.");
     }
 
     public function show(Ticket $ticket): View

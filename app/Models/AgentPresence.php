@@ -11,8 +11,13 @@ class AgentPresence extends Model
 
     protected function casts(): array
     {
-        return ['last_seen_at' => 'datetime'];
+        return [
+            'last_seen_at' => 'datetime',
+        ];
     }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

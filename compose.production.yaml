@@ -18,7 +18,7 @@ services:
   queue:
     image: ${HELPDESK_IMAGE:?Set HELPDESK_IMAGE to an immutable GHCR image tag}
     restart: unless-stopped
-    command: php artisan queue:work database --queue=notifications,default --sleep=3 --tries=3 --timeout=90
+    init: true\n    stop_grace_period: 30s\n    command: php artisan horizon
     env_file: .env
     environment:
       APP_ENV: production

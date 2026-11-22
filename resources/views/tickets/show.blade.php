@@ -39,7 +39,7 @@
                 <span class="ticket-field-label">DESCRIPTION</span>
                 <p>{{ $ticket->description }}</p>
             </div>
-            <div class="ticket-detail-item"><span>Customer</span><strong class="hd-person">@if($ticket->customer?->profile_photo_path)<img class="hd-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::disk('public')->url($ticket->customer->profile_photo_path) }}" alt="">@else<span class="hd-avatar">{{ strtoupper(mb_substr($ticket->customer?->name ?? 'U',0,1)) }}</span>@endif{{ $ticket->customer?->name ?? 'Unassigned' }}</strong></div>
+            <div class="ticket-detail-item"><span>Customer</span><strong class="hd-person">@if($ticket->customer?->profile_photo_path)<img class="hd-avatar hd-avatar-photo" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($ticket->customer->profile_photo_path) }}" alt="">@else<span class="hd-avatar">{{ strtoupper(mb_substr($ticket->customer?->name ?? 'U',0,1)) }}</span>@endif{{ $ticket->customer?->name ?? 'Unassigned' }}</strong></div>
             <div class="ticket-detail-item"><span>Project</span><strong>{{ $ticket->project?->name ?? 'No project' }}</strong></div>
             <div class="ticket-detail-item"><span>Sprint</span><strong>{{ $ticket->sprint?->name ?? 'No sprint' }}</strong></div>
             <div class="ticket-detail-item"><span>Team</span><strong>{{ $ticket->team?->name ?? 'Not assigned' }}</strong></div>
@@ -202,7 +202,7 @@
         <div class="ticket-message-list">
             @forelse ($messages as $message)
                 <article class="ticket-message {{ $message->is_internal ? 'ticket-message-internal' : '' }}">
-                    <div class="ticket-message-avatar" aria-hidden="true">@if($message->user?->profile_photo_path)<img src="{{ \\Illuminate\\Support\\Facades\\Storage::disk('public')->url($message->user->profile_photo_path) }}" alt="">@else{{ strtoupper(substr($message->user?->name ?? 'HD', 0, 2)) }}@endif</div>
+                    <div class="ticket-message-avatar" aria-hidden="true">@if($message->user?->profile_photo_path)<img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($message->user->profile_photo_path) }}" alt="">@else{{ strtoupper(substr($message->user?->name ?? 'HD', 0, 2)) }}@endif</div>
                     <div class="ticket-message-content">
                         <div class="ticket-message-meta">
                             <div class="ticket-message-author">
@@ -423,7 +423,7 @@
                     @else
                         <p class="ticket-history-generic">The ticket details were updated.</p>
                     @endif
-                    <small class="hd-person hd-history-actor">@if($history->user?->profile_photo_path)<img class="hd-avatar hd-avatar-photo hd-avatar-sm" src="{{ \\Illuminate\\Support\\Facades\\Storage::disk('public')->url($history->user->profile_photo_path) }}" alt="">@else<span class="hd-avatar hd-avatar-sm">{{ strtoupper(mb_substr($history->user?->name ?? 'S',0,1)) }}</span>@endif By {{ $history->user?->name ?? 'System' }}</small>
+                    <small class="hd-person hd-history-actor">@if($history->user?->profile_photo_path)<img class="hd-avatar hd-avatar-photo hd-avatar-sm" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($history->user->profile_photo_path) }}" alt="">@else<span class="hd-avatar hd-avatar-sm">{{ strtoupper(mb_substr($history->user?->name ?? 'S',0,1)) }}</span>@endif By {{ $history->user?->name ?? 'System' }}</small>
                 </div>
             </article>
         @empty

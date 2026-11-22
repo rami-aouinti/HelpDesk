@@ -21,11 +21,11 @@ Artisan::command('inspire', function () {
 |
 */
 Artisan::command('horizon:monitor-tags', function (TagRepository $tags): void {
-    foreach (['ticket-search-indexing', 'user-search-indexing'] as $tag) {
+    foreach (['ticket-notifications', 'ticket-search-indexing', 'user-search-indexing'] as $tag) {
         $tags->monitor($tag);
     }
 
-    $this->info('Horizon monitoring tags registered: ticket-search-indexing, user-search-indexing.');
+    $this->info('Horizon monitoring tags registered: ticket-notifications, ticket-search-indexing, user-search-indexing.');
 })->purpose('Register HelpDesk job tags in Horizon Monitoring');
 
 Schedule::command('queue:monitor redis:default,redis:notifications --max=100')

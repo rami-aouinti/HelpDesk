@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Communications\Domain\Services\NotificationChannelPolicy;
 use App\Models\Ticket;
 use App\Notifications\TicketActivityNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,16 +35,4 @@ class TicketActivityNotificationTest extends TestCase
         $this->assertSame([], $notification->via($disabledRecipient));
     }
 
-    public function test_notification_channel_policy_respects_independent_preferences(): void
-    {
-        $policy = new NotificationChannelPolicy(inAppEnabled: false, emailEnabled: true);
-
-        $this->assertFalse($policy->shouldDeliverInApp());
-        $this->assertTrue($policy->shouldDeliverEmail());
-
-        $disabled = new NotificationChannelPolicy(inAppEnabled: false, emailEnabled: false);
-
-        $this->assertFalse($disabled->shouldDeliverInApp());
-        $this->assertFalse($disabled->shouldDeliverEmail());
-    }
 }

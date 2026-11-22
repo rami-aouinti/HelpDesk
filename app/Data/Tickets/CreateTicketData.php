@@ -14,7 +14,8 @@ final readonly class CreateTicketData
         public string $priority,
         public ?int $projectId,
         public int $customerId,
-    ) {}
+    ) {
+    }
 
     /**
      * @param array{subject: string, description: string, priority: string, project_id?: int|string|null} $data

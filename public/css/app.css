@@ -1300,7 +1300,7 @@ html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-op
     min-width: 0;
 }
 .topbar-page-tools {
-    margin-left: auto;
+    margin-left: 0;
 }
 .topbar-right {
     display: flex;

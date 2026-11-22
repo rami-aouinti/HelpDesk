@@ -75,11 +75,38 @@ final class Ticket
         $this->id = $id;
     }
 
-    public function id(): ?int { return $this->id; }
-    public function subject(): string { return $this->subject; }
-    public function description(): string { return $this->description; }
-    public function priority(): TicketPriority { return $this->priority; }
-    public function projectId(): ?int { return $this->projectId; }
-    public function customerId(): int { return $this->customerId; }
-    public function status(): TicketStatus { return $this->status; }
+    public function id(): ?int
+    {
+        return $this->id;
+    }
+
+    public function subject(): string
+    {
+        return $this->subject;
+    }
+
+    public function description(): string
+    {
+        return $this->description;
+    }
+
+    public function priority(): TicketPriority
+    {
+        return $this->priority;
+    }
+
+    public function projectId(): ?int
+    {
+        return $this->projectId;
+    }
+
+    public function customerId(): int
+    {
+        return $this->customerId;
+    }
+
+    public function status(): TicketStatus
+    {
+        return $this->status;
+    }
 }

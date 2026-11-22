@@ -62,6 +62,9 @@
         <div class="sidebar-bottom">
             <div class="nav-label">ADMINISTRATION</div>
             <nav class="sidebar-nav sidebar-admin-nav" aria-label="Administration">
+                @can('reports.view')
+                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span class="nav-icon">▥</span><span>Reports &amp; Analytics</span></a>
+                @endcan
                 @can('viewAny', \App\Models\User::class)
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <span class="nav-icon">♙</span><span>Users</span>

@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\\Seeders;
+namespace Database\Seeders;
 
-use App\\Models\\Project;
-use App\\Models\\Ticket;
-use App\\Models\\User;
-use Illuminate\\Database\\Seeder;
+use App\Models\Project;
+use App\Models\Ticket;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class ProjectSeeder extends Seeder
 {

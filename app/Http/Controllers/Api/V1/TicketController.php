@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Events\TicketMessageCreated;
-use App\Data\Tickets\CreateTicketData;
+use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
+use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Domain\Enums\TicketPriority;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\CacheApiGetResponse;
 use App\Http\Requests\StoreTicketMessageRequest;
@@ -89,13 +91,22 @@ class TicketController extends Controller
         return TicketResource::collection($tickets);
     }
 
-    public function store(StoreTicketRequest $request, TicketService $ticketService): JsonResponse
+    public function store(StoreTicketRequest $request, CreateTicketHandler $handler): JsonResponse
     {
-        $ticket = $ticketService->create(
-            CreateTicketData::fromValidated($request->validated(), $request->user()),
-        );
+        $data = $request->validated();
+        $ticketId = $handler->handle(new CreateTicketCommand(
+            subject: $data['subject'],
+            description: $data['description'],
+            priority: TicketPriority::from($data['priority']),
+            projectId: isset($data['project_id']) ? (int) $data['project_id'] : null,
+            customerId: (int) $request->user()->getKey(),
+        ));
 
-        return (new TicketResource($ticket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])))
+        $ticket = Ticket::query()
+            ->with(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()])
+            ->findOrFail($ticketId);
+
+        return (new TicketResource($ticket))
             ->response()
             ->setStatusCode(201);
     }

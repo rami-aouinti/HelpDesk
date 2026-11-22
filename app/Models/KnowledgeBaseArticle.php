@@ -46,7 +46,7 @@ class KnowledgeBaseArticle extends Model
     /** @return BelongsToMany<KnowledgeBaseTag, $this> */
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(KnowledgeBaseTag::class, 'knowledge_base_article_tag');
+        return $this->belongsToMany(KnowledgeBaseTag::class, 'knowledge_base_article_tag', 'article_id', 'tag_id');
     }
 
     /** @return HasMany<KnowledgeBaseAttachment, $this> */

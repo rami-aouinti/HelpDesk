@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
+use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketCommand;
+use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketHandler;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
 use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusCommand;
 use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
 use App\ServiceDesk\Domain\Enums\TicketStatus;
 use App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition;
+use App\ServiceDesk\Domain\Exceptions\TicketClaimRejected;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
@@ -196,7 +199,7 @@ class TicketController extends Controller
         );
     }
 
-    public function claim(Request $request, Ticket $ticket, TicketService $ticketService): RedirectResponse
+    public function claim(Request $request, Ticket $ticket, ClaimTicketHandler $handler): RedirectResponse
     {
         abort_unless($request->user()->hasRole('agent'), 403);
         abort_unless($request->user()->can('update', $ticket), 403);
@@ -205,7 +208,17 @@ class TicketController extends Controller
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
         ]);
 
-        $ticketService->claim($ticket, $request->user(), isset($data['team_id']) ? (int) $data['team_id'] : null);
+        try {
+            $handler->handle(new ClaimTicketCommand(
+                ticketId: (int) $ticket->getKey(),
+                agentId: (int) $request->user()->getKey(),
+                teamId: isset($data['team_id']) ? (int) $data['team_id'] : null,
+            ));
+        } catch (TicketClaimRejected $exception) {
+            throw ValidationException::withMessages([
+                $exception->field => $exception->getMessage(),
+            ]);
+        }
 
         return redirect()
             ->route('tickets.show', $ticket)

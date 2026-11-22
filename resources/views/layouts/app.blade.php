@@ -40,6 +40,9 @@
         </a>
 
         <div class="nav-label">WORKSPACE</div>
+        @if (auth()->user()->hasRole('customer'))
+            <nav class="sidebar-nav"><a href="{{ route('portal.home') }}" class="nav-link {{ request()->routeIs('portal.*') ? 'active' : '' }}"><span class="nav-icon">⌂</span><span>My Support Portal</span></a></nav>
+        @endif
         <nav class="sidebar-nav">
             @can('viewAny', \App\Models\Project::class)
                 <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}"><span class="nav-icon">▣</span><span>Projects</span></a>
@@ -75,6 +78,7 @@
             <nav class="sidebar-nav sidebar-admin-nav" aria-label="Administration">
                 @can('reports.view')
                     <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span class="nav-icon">▥</span><span>Reports &amp; Analytics</span></a>
+                    <a href="{{ route('reports.csat') }}" class="nav-link {{ request()->routeIs('reports.csat') ? 'active' : '' }}"><span class="nav-icon">★</span><span>Customer Satisfaction</span></a>
                 @endcan
                 @can('viewAny', \App\Models\User::class)
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">

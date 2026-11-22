@@ -85,13 +85,13 @@ class DashboardController extends Controller
             default => 'Your workspace',
         };
 
-        return view('dashboard.index', [
+        $calendarTeams = $user->hasRole('admin')\n            ? Team::query()->orderBy('name')->get(['id', 'name'])\n            : $user->teams()->orderBy('name')->get(['teams.id', 'teams.name']);\n\n        return view('dashboard.index', [
             'statistics' => $statistics,
             'priorityBreakdown' => $priorityBreakdown,
             'recentTickets' => $recentTickets,
             'recentActivity' => $recentActivity,
             'dashboardAudience' => $dashboardAudience,
-            'calendarTeams' => $user->teams()->orderBy('name')->get(['teams.id', 'teams.name']),
+            'calendarTeams' => $calendarTeams,
         ]);
     }
 }

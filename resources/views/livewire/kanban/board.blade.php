@@ -5,7 +5,7 @@
         <div class="kanban-summary kanban-summary-compact"><div class="kanban-summary-progress"><span style="width: {{ (int) round(($doneTickets / $totalTickets) * 100) }}%"></span></div><strong>{{ (int) round(($doneTickets / $totalTickets) * 100) }}%</strong><small>completed</small></div>
     @endif
 
-
+    @if (! $sprint)
         <section class="content-card kanban-empty"><div class="kanban-empty-icon">▦</div><h3>No sprint available</h3><p>Create your first sprint, then add tickets to it from the Kanban board.</p>@can('create', \App\Models\Sprint::class)<a href="{{ route('sprints.index') }}" class="btn btn-primary">Create a sprint</a>@endcan</section>
     @else
         <section class="kanban-backlog content-card">

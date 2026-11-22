@@ -28,7 +28,6 @@ final class DispatchSlaAlertsHandler
                 $this->outbox->releaseForRetry(
                     $message->id,
                     $exception->getMessage(),
-                    1,
                 );
             }
         }

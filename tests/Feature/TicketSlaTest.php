@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\TicketSlaAlertNotification;
-use App\Services\TicketSlaService;
+use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaHandler;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\TicketMessageCreated;
+use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentCommand;
+use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentHandler;
+use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketCommand;
 use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketHandler;
@@ -232,13 +235,40 @@ class TicketController extends Controller
         UpdateTicketRequest $request,
         Ticket $ticket,
         TicketService $ticketService,
-        ChangeTicketStatusHandler $statusHandler
+        ChangeTicketStatusHandler $statusHandler,
+        AssignTicketToAgentHandler $assignmentHandler
     ): RedirectResponse {
         $data = $request->validated();
 
-        // Status changes now use the ServiceDesk command handler.
-        // Other update fields remain on the legacy workflow during migration.
-        if (array_keys($data) === ['status']) {
+        // Assignment-only updates use the dedicated ServiceDesk command.
+        if (
+            array_key_exists('assigned_to', $data)
+            && $data['assigned_to'] !== null
+            && array_diff(array_keys($data), ['team_id', 'assigned_to']) === []
+        ) {
+            $teamId = array_key_exists('team_id', $data)
+                ? $data['team_id']
+                : $ticket->team_id;
+
+            if ($teamId === null) {
+                throw ValidationException::withMessages([
+                    'assigned_to' => 'Select a team before assigning an agent.',
+                ]);
+            }
+
+            try {
+                $assignmentHandler->handle(new AssignTicketToAgentCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    agentId: (int) $data['assigned_to'],
+                    teamId: (int) $teamId,
+                ));
+            } catch (TicketAssignmentRejected $exception) {
+                throw ValidationException::withMessages([
+                    $exception->field => $exception->getMessage(),
+                ]);
+            }
+        } elseif (array_keys($data) === ['status']) {
             try {
                 $statusHandler->handle(new ChangeTicketStatusCommand(
                     ticketId: (int) $ticket->getKey(),

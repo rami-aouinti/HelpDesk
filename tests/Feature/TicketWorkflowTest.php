@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
+use App\Models\TicketAttachment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -783,7 +784,7 @@ class TicketWorkflowTest extends TestCase
             'disk' => 'local',
         ]);
 
-        $attachment = \\App\\Models\\TicketAttachment::query()
+        $attachment = TicketAttachment::query()
             ->where('ticket_id', $ticket->id)
             ->firstOrFail();
         Storage::disk('local')->assertExists($attachment->path);

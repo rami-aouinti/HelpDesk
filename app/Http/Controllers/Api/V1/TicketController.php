@@ -13,6 +13,9 @@ use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketF
 use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentHandler;
 use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortCommand;
 use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortHandler;
+use App\ServiceDesk\Application\Commands\UpdateTicket\UpdateTicketCommand;
+use App\ServiceDesk\Application\Commands\UpdateTicket\UpdateTicketHandler;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
@@ -163,10 +166,28 @@ class TicketController extends Controller
         LinkTicketToProjectHandler $projectLinkHandler,
         UnassignTicketFromAgentHandler $unassignmentHandler,
         UpdateTicketEffortHandler $effortHandler,
+        UpdateTicketHandler $mixedUpdateHandler,
     ): TicketResource {
         $data = $request->validated();
 
-        if (
+        if (count($data) > 1) {
+            try {
+                $mixedUpdateHandler->handle(new UpdateTicketCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    changes: $data,
+                ));
+            } catch (TicketAssignmentRejected|TicketProjectLinkRejected|InvalidTicketTransition|InvalidTicketData $exception) {
+                $field = match (true) {
+                    $exception instanceof TicketAssignmentRejected,
+                    $exception instanceof TicketProjectLinkRejected => $exception->field,
+                    $exception instanceof InvalidTicketTransition => 'status',
+                    default => 'ticket',
+                };
+                throw ValidationException::withMessages([$field => $exception->getMessage()]);
+            }
+            $updatedTicket = $ticket->fresh();
+        } elseif (
             $data !== []
             && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []
         ) {

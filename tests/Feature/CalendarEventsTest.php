@@ -38,6 +38,32 @@ class CalendarEventsTest extends TestCase
             ->assertJsonFragment(['title' => 'Company town hall']);
     }
 
+    public function test_feed_includes_events_that_started_before_the_requested_range(): void
+    {
+        $admin = User::factory()->create([
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+        $admin->assignRole('admin');
+
+        \\App\\Models\\CalendarEvent::query()->create([
+            'user_id' => $admin->id,
+            'title' => 'Multi-day maintenance',
+            'type' => 'maintenance',
+            'visibility' => 'company',
+            'starts_at' => '2026-11-20 09:00:00',
+            'ends_at' => '2026-11-23 17:00:00',
+        ]);
+
+        $this->actingAs($admin)
+            ->getJson(route('calendar.feed', [
+                'start' => '2026-11-22T00:00:00',
+                'end' => '2026-11-29T00:00:00',
+            ]))
+            ->assertOk()
+            ->assertJsonFragment(['title' => 'Multi-day maintenance']);
+    }
+
     public function test_personal_events_are_not_visible_to_other_users(): void
     {
         $owner = User::factory()->create([

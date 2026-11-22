@@ -16,6 +16,16 @@ class IndexTicketInElasticsearch implements ShouldQueue
     /** @var array<int, int> */
     public array $backoff = [5, 30, 60];
 
+    /**
+     * Tags this listener so Horizon can monitor ticket indexing separately.
+     *
+     * @return array<int, string>
+     */
+    public function tags(mixed $event = null): array
+    {
+        return ['ticket-search-indexing'];
+    }
+
     public function handle(TicketCreated|TicketUpdated $event): void
     {
         $ticket = $event->ticket;

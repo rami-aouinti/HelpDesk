@@ -194,7 +194,8 @@ class TicketController extends Controller
     public function downloadAttachment(
         Request $request,
         Ticket $ticket,
-        TicketAttachment $attachment
+        TicketAttachment $attachment,
+        DownloadTicketAttachmentHandler $handler,
     ): StreamedResponse {
         abort_unless($request->user()->can('view', $ticket), 403);
         abort_unless($attachment->ticket_id === $ticket->id, 404);
@@ -206,16 +207,29 @@ class TicketController extends Controller
             abort(404);
         }
 
-        $disk = Storage::disk($attachment->disk);
-        abort_unless($disk->exists($attachment->path), 404);
+        $download = $handler->handle(new DownloadTicketAttachmentQuery(
+            disk: $attachment->disk,
+            path: $attachment->path,
+            originalName: $attachment->original_name,
+            mimeType: $attachment->mime_type,
+        ));
+        abort_if($download === null, 404);
 
-        return $disk->download(
-            $attachment->path,
-            basename($attachment->original_name),
+        return response()->streamDownload(
+            static function () use ($download): void {
+                try {
+                    fpassthru($download->stream);
+                } finally {
+                    if (is_resource($download->stream)) {
+                        fclose($download->stream);
+                    }
+                }
+            },
+            $download->filename,
             [
-                'Content-Type' => $attachment->mime_type ?: 'application/octet-stream',
+                'Content-Type' => $download->mimeType,
                 'X-Content-Type-Options' => 'nosniff',
-            ]
+            ],
         );
     }
 

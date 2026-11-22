@@ -136,6 +136,15 @@ final class Ticket
         return $this->teamId;
     }
 
+    public function changeTeam(?int $teamId): void
+    {
+        if ($teamId !== null && $teamId < 1) {
+            throw new InvalidTicketData('A team identifier must be positive.');
+        }
+
+        $this->teamId = $teamId;
+    }
+
     public function assignedAgentId(): ?int
     {
         return $this->assignedAgentId;

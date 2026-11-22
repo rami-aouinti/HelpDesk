@@ -133,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(NotificationFailed::class, [TrackNotificationDelivery::class, 'failed']);
         Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);
-        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);
+        Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);\n        Event::listen(TicketCreated::class, RunTicketCreatedAutomations::class);\n        Event::listen(TicketUpdated::class, RunTicketUpdatedAutomations::class);\n        Event::listen(TicketSlaAlertPublished::class, RunTicketSlaAutomations::class);
         Event::listen(TicketCreated::class, IndexTicketInElasticsearch::class);
         Event::listen(TicketUpdated::class, IndexTicketInElasticsearch::class);
 

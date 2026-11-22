@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
@@ -23,6 +24,7 @@ Route::get('/api/openapi.yaml', function () {
 
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/activity', [ActivityController::class, 'index'])->name('activity.index');
     Route::get('/calendar/events', [CalendarController::class, 'feed'])->name('calendar.feed');
     Route::post('/calendar/events', [CalendarController::class, 'store'])->name('calendar.events.store');
     Route::patch('/calendar/events/{event}', [CalendarController::class, 'update'])->name('calendar.events.update');

@@ -34,5 +34,4 @@ class TicketActivityNotificationTest extends TestCase
 
         $this->assertSame([], $notification->via($disabledRecipient));
     }
-
 }

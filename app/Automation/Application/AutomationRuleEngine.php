@@ -20,7 +20,9 @@ final class AutomationRuleEngine
             ->where('trigger', $trigger)
             ->where('is_active', true)
             ->orderBy('id')
-            ->each(fn (AutomationRule $rule) => $this->executeRule($rule, $ticket, $trigger, $context));
+            ->each(function (AutomationRule $rule) use ($ticket, $trigger, $context): void {
+                $this->executeRule($rule, $ticket, $trigger, $context);
+            });
     }
 
     public function retry(AutomationRule $rule, Ticket $ticket, array $context = []): void
@@ -76,7 +78,11 @@ final class AutomationRuleEngine
             $field = (string) ($rule['field'] ?? '');
             $operator = (string) ($rule['operator'] ?? 'equals');
             $actual = match ($field) {
-                'status', 'priority', 'team_id', 'assigned_to', 'user_id' => $ticket->{$field},
+                'status' => $ticket->status,
+                'priority' => $ticket->priority,
+                'team_id' => $ticket->team_id,
+                'assigned_to' => $ticket->assigned_to,
+                'user_id' => $ticket->user_id,
                 default => null,
             };
             $expected = $rule['value'] ?? null;

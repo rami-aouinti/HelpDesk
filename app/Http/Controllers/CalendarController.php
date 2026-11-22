@@ -42,7 +42,7 @@ class CalendarController extends Controller
             ->orderBy('starts_at')
             ->get()
             ->map(fn (CalendarEvent $event): array => [
-                'id' => 'event-'.$event->id,
+                'id' => 'event-' . $event->id,
                 'event_id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
@@ -64,8 +64,8 @@ class CalendarController extends Controller
         $this->applyTicketVisibility($ticketQuery, $user);
 
         $ticketEvents = $ticketQuery->get()->map(fn (Ticket $ticket): array => [
-            'id' => 'ticket-'.$ticket->id,
-            'title' => 'Ticket created: '.$ticket->subject,
+            'id' => 'ticket-' . $ticket->id,
+            'title' => 'Ticket created: ' . $ticket->subject,
             'start' => $ticket->created_at->toIso8601String(),
             'allDay' => false,
             'type' => 'ticket',

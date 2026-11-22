@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\TicketUpdated;
+use App\Http\Middleware\CacheApiGetResponse;
 use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
@@ -100,6 +101,8 @@ class TicketService
 
             return $ticket->refresh()->load(['customer', 'assignedAgent', 'team']);
         });
+
+        CacheApiGetResponse::flush();
 
         if ($userId !== null) {
             event(new TicketUpdated(
@@ -201,6 +204,7 @@ class TicketService
         });
 
         event(new TicketUpdated($claimedTicket, $agent, $changes));
+        CacheApiGetResponse::flush();
 
         return $claimedTicket;
     }

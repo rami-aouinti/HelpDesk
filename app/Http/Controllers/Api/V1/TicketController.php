@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageCommand;
 use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageHandler;
+use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\AddTicketMessageWithAttachmentsCommand;
+use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\AddTicketMessageWithAttachmentsHandler;
+use App\ServiceDesk\Application\Commands\AddTicketMessageWithAttachments\TicketAttachmentInput;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
 use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectCommand;
@@ -305,6 +308,7 @@ class TicketController extends Controller
         StoreTicketMessageRequest $request,
         Ticket $ticket,
         AddTicketMessageHandler $handler,
+        AddTicketMessageWithAttachmentsHandler $attachmentHandler,
     ): JsonResponse {
         $data = $request->validated();
         $isInternal = $request->boolean('is_internal');
@@ -323,51 +327,25 @@ class TicketController extends Controller
                 ->setStatusCode(201);
         }
 
-        $storedPaths = [];
+        $attachmentInputs = array_map(
+            static fn ($file): TicketAttachmentInput => new TicketAttachmentInput(
+                temporaryPath: $file->getPathname(),
+                originalName: $file->getClientOriginalName(),
+                mimeType: $file->getMimeType(),
+                size: $file->getSize(),
+            ),
+            $request->file('attachments', []),
+        );
 
-        try {
-            $message = DB::transaction(function () use ($ticket, $request, $data, $isInternal, &$storedPaths): TicketMessage {
-                $message = $ticket->messages()->create([
-                    'user_id' => $request->user()->id,
-                    'body' => trim((string) ($data['body'] ?? '')) ?: 'Shared attachments.',
-                    'is_internal' => $isInternal,
-                ]);
-
-                foreach ($request->file('attachments', []) as $file) {
-                    $path = $file->store("ticket-attachments/{$ticket->id}", 'local');
-
-                    if ($path === false) {
-                        throw new \RuntimeException('The attachment could not be stored.');
-                    }
-
-                    $storedPaths[] = $path;
-                    $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
-
-                    $message->attachments()->create([
-                        'ticket_id' => $ticket->id,
-                        'user_id' => $request->user()->id,
-                        'disk' => 'local',
-                        'path' => $path,
-                        'original_name' => mb_strcut($originalName, 0, 255, 'UTF-8'),
-                        'mime_type' => $file->getMimeType(),
-                        'size' => $file->getSize(),
-                    ]);
-                }
-
-                return $message;
-            });
-        } catch (Throwable $exception) {
-            if ($storedPaths !== []) {
-                Storage::disk('local')->delete($storedPaths);
-            }
-
-            throw $exception;
-        }
-
-        event(new TicketMessageCreated($message));
+        $messageId = $attachmentHandler->handle(new AddTicketMessageWithAttachmentsCommand(
+            ticketId: (int) $ticket->getKey(),
+            authorId: (int) $request->user()->getKey(),
+            body: trim((string) ($data['body'] ?? '')),
+            isInternal: $isInternal,
+            attachments: $attachmentInputs,
+        ));
         CacheApiGetResponse::flush();
-
-        $message->load(['user', 'attachments']);
+        $message = TicketMessage::query()->with(['user', 'attachments'])->findOrFail($messageId);
 
         return (new TicketMessageResource($message))
             ->response()

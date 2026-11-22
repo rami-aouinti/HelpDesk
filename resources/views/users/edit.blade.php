@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Edit user | HelpDesk')
+@section('meta-description', 'Update a HelpDesk user account, profile details and assigned role.')
 @section('page-title', 'Edit user')
 
 @section('content')

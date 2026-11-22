@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AutomationRuleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\CsatReportController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -52,6 +54,23 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
     Route::view('/help', 'help')->name('help');
+
+    Route::get('/live-chat', [LiveChatController::class, 'index'])->name('live-chat.index');
+    Route::get('/live-chat/conversations', [LiveChatController::class, 'conversations'])->name('live-chat.conversations');
+    Route::post('/live-chat/conversations', [LiveChatController::class, 'start'])->name('live-chat.start');
+    Route::get('/live-chat/conversations/{conversation}/messages', [LiveChatController::class, 'messages'])->name('live-chat.messages');
+    Route::post('/live-chat/conversations/{conversation}/messages', [LiveChatController::class, 'send'])->name('live-chat.send');
+    Route::patch('/live-chat/conversations/{conversation}/claim', [LiveChatController::class, 'claim'])->name('live-chat.claim');
+    Route::post('/live-chat/presence', [LiveChatController::class, 'presence'])->name('live-chat.presence');
+    Route::get('/live-chat/agents', [LiveChatController::class, 'agents'])->name('live-chat.agents');
+    Route::post('/live-chat/conversations/{conversation}/convert', [LiveChatController::class, 'convert'])->name('live-chat.convert');
+
+    Route::middleware('can:automation.manage')->group(function (): void {
+        Route::get('/automations', [AutomationRuleController::class, 'index'])->name('automations.index');
+        Route::post('/automations', [AutomationRuleController::class, 'store'])->name('automations.store');
+        Route::patch('/automations/{automationRule}/toggle', [AutomationRuleController::class, 'toggle'])->name('automations.toggle');
+        Route::delete('/automations/{automationRule}', [AutomationRuleController::class, 'destroy'])->name('automations.destroy');
+    });
 
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');

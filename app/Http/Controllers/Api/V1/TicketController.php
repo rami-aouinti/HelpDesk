@@ -8,6 +8,8 @@ use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgent
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Application\Commands\ChangeTicketPriority\ChangeTicketPriorityCommand;
+use App\ServiceDesk\Application\Commands\ChangeTicketPriority\ChangeTicketPriorityHandler;
 use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusCommand;
 use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
@@ -146,6 +148,7 @@ class TicketController extends Controller
         Ticket $ticket,
         TicketService $ticketService,
         ChangeTicketStatusHandler $statusHandler,
+        ChangeTicketPriorityHandler $priorityHandler,
         AssignTicketToAgentHandler $assignmentHandler,
     ): TicketResource {
         $data = $request->validated();

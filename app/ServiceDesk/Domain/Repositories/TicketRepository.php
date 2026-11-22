@@ -8,6 +8,9 @@ use App\ServiceDesk\Domain\Entities\Ticket;
 
 interface TicketRepository
 {
-    /** Persist a new ticket and assign its generated identifier. */
+    /** Load an aggregate while holding a database write lock. */
+    public function findForUpdate(int $ticketId): Ticket;
+
+    /** Persist a new or existing aggregate. */
     public function save(Ticket $ticket): void;
 }

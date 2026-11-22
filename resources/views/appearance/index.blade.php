@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Appearance | HelpDesk')
+@section('meta-description', 'Personalize your HelpDesk workspace with your preferred theme, accent color and display settings.')
 @section('page-title', 'Appearance')
 
 @section('content')

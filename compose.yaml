@@ -78,15 +78,6 @@ services:
       - helpdesk
 
   db:
-        condition: service_healthy
-      redis-queue:
-        condition: service_healthy
-      app:
-        condition: service_started
-    networks:
-      - helpdesk
-
-  db:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:

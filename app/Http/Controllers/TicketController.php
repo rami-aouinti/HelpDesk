@@ -89,7 +89,7 @@ class TicketController extends Controller
         ));
 
         return redirect()
-            ->route('tickets.index')
+            ->route($request->user()->hasRole('customer') ? 'portal.home' : 'tickets.index')
             ->with('success', "Ticket #{$ticketId} created successfully.");
     }
 

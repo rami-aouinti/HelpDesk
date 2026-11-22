@@ -28,3 +28,5 @@ body:has(.hd-modal-panel:not(.hd-detail-modal)):not(:has(.hd-modal-backdrop))::b
 .hd-choice-card>span:last-child{display:grid;gap:3px;min-width:0}.hd-choice-card strong{font-size:12px}.hd-choice-card small{font-size:10px;color:var(--muted,#64748b);overflow-wrap:anywhere}
 .project-card-members{margin-top:12px}.project-card-members small{margin-left:5px}
 @media(max-width:640px){.hd-choice-grid{grid-template-columns:1fr}}
+
+.hd-people-line{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}

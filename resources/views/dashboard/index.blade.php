@@ -139,6 +139,7 @@
                         <tr>
                             <th>Ticket</th>
                             <th>Customer</th>
+                            <th>Assigned to</th>
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Created</th>
@@ -153,8 +154,22 @@
                                 </td>
                                 <td>
                                     <span class="dashboard-customer">
-                                        <span class="dashboard-mini-avatar" aria-hidden="true">{{ strtoupper(substr($ticket->customer?->name ?? 'NA', 0, 2)) }}</span>
+                                        @if ($ticket->customer?->profile_photo_path)
+                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::url($ticket->customer->profile_photo_path) }}" alt="">
+                                        @else
+                                            <span class="dashboard-mini-avatar" aria-hidden="true">{{ strtoupper(substr($ticket->customer?->name ?? 'NA', 0, 2)) }}</span>
+                                        @endif
                                         {{ $ticket->customer?->name ?? 'Unassigned' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="dashboard-customer">
+                                        @if ($ticket->assignedAgent?->profile_photo_path)
+                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::url($ticket->assignedAgent->profile_photo_path) }}" alt="">
+                                        @else
+                                            <span class="dashboard-mini-avatar" aria-hidden="true">{{ strtoupper(substr($ticket->assignedAgent?->name ?? '—', 0, 2)) }}</span>
+                                        @endif
+                                        {{ $ticket->assignedAgent?->name ?? 'Unassigned' }}
                                     </span>
                                 </td>
                                 <td><span class="priority-badge priority-{{ $ticket->priority }}">{{ ucfirst($ticket->priority) }}</span></td>

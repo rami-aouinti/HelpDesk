@@ -69,6 +69,60 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_agent_cannot_make_an_invalid_status_transition(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Resolved issue',
+            'description' => 'This ticket is already resolved.',
+            'status' => 'resolved',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), ['status' => 'in_progress'])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('status');
+
+        $this->assertSame('resolved', $ticket->fresh()->status);
+        $this->assertDatabaseMissing('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'status',
+            'new_value' => 'in_progress',
+        ]);
+    }
+
+    public function test_admin_can_override_the_status_workflow(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Closed issue',
+            'description' => 'An administrator needs to reopen it.',
+            'status' => 'closed',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('tickets.update', $ticket), ['status' => 'open'])
+            ->assertRedirect(route('tickets.show', $ticket));
+
+        $this->assertSame('open', $ticket->fresh()->status);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'action' => 'status',
+            'old_value' => 'closed',
+            'new_value' => 'open',
+        ]);
+    }
+
     public function test_admin_can_assign_ticket_to_a_team_and_its_member(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

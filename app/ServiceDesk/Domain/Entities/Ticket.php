@@ -112,21 +112,34 @@ final class Ticket
         $this->id = $id;
     }
 
-    public function id(): ?int { return $this->id; }
-    public function subject(): string { return $this->subject; }
-    public function description(): string { return $this->description; }
-    public function priority(): TicketPriority { return $this->priority; }
-    public function projectId(): ?int { return $this->projectId; }
-    public function customerId(): int { return $this->customerId; }
-    public function status(): TicketStatus { return $this->status; }
-    public function teamId(): ?int { return $this->teamId; }
-    public function assignedAgentId(): ?int { return $this->assignedAgentId; }
-    public function estimatedMinutes(): ?int { return $this->estimatedMinutes; }
-    public function elapsedMinutes(): ?int { return $this->elapsedMinutes; }
+    public function id(): ?int
+    {
+        return $this->id;
+    }
+
+    public function subject(): string
+    {
+        return $this->subject;
+    }
+
+    public function description(): string
+    {
+        return $this->description;
+    }
+
+    public function priority(): TicketPriority
+    {
+        return $this->priority;
+    }
 
     public function changePriority(TicketPriority $newPriority): void
     {
         $this->priority = $newPriority;
+    }
+
+    public function projectId(): ?int
+    {
+        return $this->projectId;
     }
 
     public function linkToProject(?int $projectId): void
@@ -138,6 +151,21 @@ final class Ticket
         $this->projectId = $projectId;
     }
 
+    public function customerId(): int
+    {
+        return $this->customerId;
+    }
+
+    public function status(): TicketStatus
+    {
+        return $this->status;
+    }
+
+    public function teamId(): ?int
+    {
+        return $this->teamId;
+    }
+
     public function changeTeam(?int $teamId): void
     {
         if ($teamId !== null && $teamId < 1) {
@@ -145,6 +173,21 @@ final class Ticket
         }
 
         $this->teamId = $teamId;
+    }
+
+    public function assignedAgentId(): ?int
+    {
+        return $this->assignedAgentId;
+    }
+
+    public function estimatedMinutes(): ?int
+    {
+        return $this->estimatedMinutes;
+    }
+
+    public function elapsedMinutes(): ?int
+    {
+        return $this->elapsedMinutes;
     }
 
     public function updateEffort(?int $estimatedMinutes, ?int $elapsedMinutes): void
@@ -164,7 +207,14 @@ final class Ticket
     }
 
     /**
+     * Claim this ticket for an agent belonging to the selected team.
+     *
+     * The caller must verify team membership; the aggregate protects the
+     * invariants that are intrinsic to the ticket lifecycle.
+     */
+    /**
      * Change the ticket status according to the support workflow.
+     *
      * Administrators may override the normal transition graph.
      */
     public function changeStatus(TicketStatus $newStatus, bool $mayOverrideWorkflow = false): void

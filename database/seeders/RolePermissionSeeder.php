@@ -32,6 +32,7 @@ class RolePermissionSeeder extends Seeder
             'projects.create',
             'projects.update',
             'projects.delete',
+            'reports.view',
         ];
 
         foreach ($permissions as $permission) {

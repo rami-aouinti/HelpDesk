@@ -1,5 +1,8 @@
 @extends('layouts.guest')
 
+@section('title', 'Choose a new password | HelpDesk')
+@section('meta-description', 'Set a new password for your HelpDesk account and restore secure access to your workspace.')
+
 @section('content')
     <h1 class="mb-2 text-2xl font-semibold">Choose a new password</h1>
     @if ($errors->any()) <div class="mb-4 text-sm text-red-700">{{ $errors->first() }}</div> @endif

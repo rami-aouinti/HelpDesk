@@ -33,6 +33,8 @@ class Index extends Component
 
     public int $perPage = 10;
 
+    public ?int $selectedUserId = null;
+
     public function mount(): void
     {
         Gate::authorize('viewAny', User::class);
@@ -71,6 +73,18 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function showUser(int $userId): void
+    {
+        $user = User::query()->findOrFail($userId);
+        Gate::authorize('view', $user);
+        $this->selectedUserId = $user->id;
+    }
+
+    public function closeUser(): void
+    {
+        $this->selectedUserId = null;
+    }
+
     public function toggleActive(int $userId, UserManagementService $users): void
     {
         $user = User::query()->findOrFail($userId);
@@ -98,7 +112,10 @@ class Index extends Component
             ->orderBy($sortColumn, $sortDirection)
             ->paginate($perPage);
 
+        $selectedUser = $this->selectedUserId ? User::query()->with(['roles', 'teams', 'projects'])->find($this->selectedUserId) : null;
+
         return view('livewire.users.index', [
+            'selectedUser' => $selectedUser,
             'users' => $users,
             'roles' => Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name'),
         ]);

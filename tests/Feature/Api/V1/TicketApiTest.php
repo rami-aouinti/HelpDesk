@@ -573,5 +573,4 @@ class TicketApiTest extends TestCase
             'new_value' => '40',
         ]);
     }
-
 }

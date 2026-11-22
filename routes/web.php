@@ -58,6 +58,6 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::get('/projects/{project}/cover', [ProjectDocumentController::class, 'cover'])->name('projects.cover');
     Route::get('/project-documents/{document}/download', [ProjectDocumentController::class, 'download'])->name('projects.documents.download');
 
-    Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('users', UserController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
     Route::patch('/users/{user}/active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
 });

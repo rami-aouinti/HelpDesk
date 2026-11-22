@@ -87,6 +87,31 @@
         @endif
 
         @if(in_array($report,['executive','tickets']))
+            <section class="content-card report-section">
+                <h3>Ticket details</h3>
+                <div class="table-responsive">
+                    <table class="admin-data-table">
+                        <thead><tr><th>Ticket</th><th>Customer</th><th>Agent</th><th>Status</th><th>Priority</th><th>Created</th></tr></thead>
+                        <tbody>
+                        @forelse($ticketRows as $ticket)
+                            <tr>
+                                <td>{{ $ticket->subject }}</td>
+                                <td>{{ $ticket->customer_name ?? '—' }}</td>
+                                <td>{{ $ticket->agent_name ?? 'Unassigned' }}</td>
+                                <td>{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</td>
+                                <td>{{ ucfirst($ticket->priority) }}</td>
+                                <td>{{ $ticket->created_at ? \Carbon\Carbon::parse($ticket->created_at)->format('d.m.Y') : '—' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6">No tickets for this selection.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if($ticketRows->count() === 100)
+                    <p class="report-note">Showing the latest 100 tickets in this selection. Export CSV for the complete result.</p>
+                @endif
+            </section>
             <div class="reports-chart-grid reports-chart-grid-secondary">
                 <section class="content-card report-section"><h3>Status breakdown</h3><div class="table-responsive"><table class="admin-data-table"><thead><tr><th>Status</th><th>Tickets</th><th>Share</th></tr></thead><tbody>
                     @forelse($statuses as $row)<tr><td>{{ ucfirst(str_replace('_',' ',$row->status)) }}</td><td>{{ $row->total }}</td><td>{{ $total?round($row->total/$total*100,1):0 }}%</td></tr>@empty<tr><td colspan="3">No data</td></tr>@endforelse

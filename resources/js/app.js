@@ -2,10 +2,6 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import '@fullcalendar/core/index.css';
-import '@fullcalendar/daygrid/index.css';
-import '@fullcalendar/timegrid/index.css';
-
 const themeKey = 'helpdesk-theme';
 const accentKey = 'helpdesk-accent';
 const availableAccents = ['indigo', 'blue', 'emerald', 'rose', 'amber', 'violet', 'cyan'];
@@ -165,7 +161,7 @@ function initializeHelpDeskCalendar() {
             }
             item.append(dot, content);
             item.addEventListener('click', () => {
-                if (props.source === 'system' && event.url) {
+                if (props.origin === 'system' && event.url) {
                     window.location.assign(event.url);
                 } else if (props.editable) {
                     openForm(event);
@@ -219,20 +215,36 @@ function initializeHelpDeskCalendar() {
             right: 'dayGridMonth,timeGridWeek,timeGridDay',
         },
         buttonText: { today: 'Today', month: 'Month', week: 'Week', day: 'Day' },
-        events: {
-            url: root.dataset.feedUrl,
-            method: 'GET',
-            failure: () => window.alert('Calendar events could not be loaded. Please try again.'),
+        events: async (fetchInfo, successCallback, failureCallback) => {
+            const url = new URL(root.dataset.feedUrl, window.location.origin);
+            url.searchParams.set('start', fetchInfo.startStr);
+            url.searchParams.set('end', fetchInfo.endStr);
+
+            try {
+                const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                if (!response.ok) throw new Error('Calendar events could not be loaded.');
+                const payload = await response.json();
+                successCallback(payload.events || []);
+            } catch (error) {
+                failureCallback(error);
+                window.alert(error.message || 'Calendar events could not be loaded. Please try again.');
+            }
         },
-        eventDataTransform: (event) => ({
-            ...event,
-            classNames: ['visibility-' + (event.source === 'system' ? 'system' : event.visibility || 'personal')],
-            editable: Boolean(event.editable),
-            startEditable: Boolean(event.editable),
-            durationEditable: Boolean(event.editable),
-        }),
+        eventDataTransform: (event) => {
+            const { source, ...calendarEvent } = event;
+            const kind = source === 'system' ? 'system' : (event.visibility || 'personal');
+
+            return {
+                ...calendarEvent,
+                origin: source,
+                classNames: ['visibility-' + kind],
+                editable: Boolean(event.editable),
+                startEditable: Boolean(event.editable),
+                durationEditable: Boolean(event.editable),
+            };
+        },
         eventClick(info) {
-            if (info.event.extendedProps.source === 'system' && info.event.url) {
+            if (info.event.extendedProps.origin === 'system' && info.event.url) {
                 info.jsEvent.preventDefault();
                 window.location.assign(info.event.url);
                 return;
@@ -276,8 +288,7 @@ function initializeHelpDeskCalendar() {
         filter.addEventListener('change', () => {
             calendar.getEvents().forEach((event) => {
                 const visible = isVisible(event);
-                const element = calendarElement.querySelector('[data-event-id="' + event.id + '"]');
-                if (element) element.style.display = visible ? '' : 'none';
+                event.setProp('display', visible ? 'auto' : 'none');
             });
             renderAgenda();
         });

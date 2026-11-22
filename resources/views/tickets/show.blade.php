@@ -127,7 +127,7 @@
                 <div class="hd-choice-grid">
                     <label class="hd-choice-card"><input type="radio" name="team_id" value="" @checked(old('team_id', $ticket->team_id) === null)><span class="hd-avatar">—</span><span><strong>No team</strong><small>Keep this ticket unassigned to a team</small></span></label>
                     @foreach ($teams as $team)
-                        <label class="hd-choice-card"><input type="radio" name="team_id" value="{{ $team->id }}" @checked((string) old('team_id', $ticket->team_id) === (string) $team->id)><span class="hd-avatar">{{ strtoupper(mb_substr($team->name,0,1)) }}</span><span><strong>{{ $team->name }}</strong><small>{{ $team->members_count ?? $team->members()->count() }} members</small></span></label>
+                        <label class="hd-choice-card"><input type="radio" name="team_id" value="{{ $team->id }}" @checked((string) old('team_id', $ticket->team_id) === (string) $team->id)><span class="hd-avatar">{{ strtoupper(mb_substr($team->name,0,1)) }}</span><span><strong>{{ $team->name }}</strong><small>Team assignment</small></span></label>
                     @endforeach
                 </div>
             </div>

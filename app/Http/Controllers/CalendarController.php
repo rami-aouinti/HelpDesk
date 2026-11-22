@@ -81,8 +81,20 @@ class CalendarController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $this->validatedData($request);
-        $data['user_id'] = $request->user()->id;
-        $event = CalendarEvent::query()->create($data);
+        $event = new CalendarEvent([
+            'user_id' => (int) $request->user()->getKey(),
+            'team_id' => $data['team_id'] ?? null,
+            'ticket_id' => $data['ticket_id'] ?? null,
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'type' => $data['type'],
+            'visibility' => $data['visibility'],
+            'location' => $data['location'] ?? null,
+            'starts_at' => $data['starts_at'],
+            'ends_at' => $data['ends_at'] ?? null,
+            'all_day' => $data['all_day'],
+        ]);
+        $event->save();
 
         return response()->json(['message' => 'Event created.', 'event' => ['id' => $event->id]], 201);
     }

@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(QueueBusy::class, function (QueueBusy $event): void {
             Log::warning('queue.backlog.threshold_exceeded', [
                 'event' => 'queue.backlog.threshold_exceeded',
-                'connection' => $event->connection,
+                'connection' => $event->connectionName,
                 'queue' => $event->queue,
                 'size' => $event->size,
             ]);

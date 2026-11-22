@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\TicketCreated;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;
+use App\ServiceDesk\Application\Contracts\TicketAssignmentPermission;
 use App\ServiceDesk\Application\Contracts\TicketClaimedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketTeamMembership;
 use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
@@ -15,6 +16,7 @@ use App\ServiceDesk\Infrastructure\Events\LaravelTicketCreatedPublisher;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketClaimedPublisher;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketUpdatedPublisher;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketRepository;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketAssignmentPermission;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketTeamMembership;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketHistoryRecorder;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketWorkflowPermission;
@@ -44,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
+        $this->app->bind(TicketAssignmentPermission::class, EloquentTicketAssignmentPermission::class);
         $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);
         $this->app->bind(TicketClaimedPublisher::class, LaravelTicketClaimedPublisher::class);
         $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);

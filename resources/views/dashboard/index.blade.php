@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard | HelpDesk')
+@section('meta-description', 'Your HelpDesk overview: monitor ticket volume, priorities, team activity and the latest updates across your support workspace.')
 @section('page-title', 'Dashboard')
 
 @section('content')

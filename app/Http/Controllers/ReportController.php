@@ -33,6 +33,21 @@ class ReportController extends Controller
         $urgent = (clone $query)->where('priority', 'urgent')->count();
         $statuses = (clone $query)->select('status', DB::raw('COUNT(*) as total'))->groupBy('status')->orderByDesc('total')->get();
         $priorities = (clone $query)->select('priority', DB::raw('COUNT(*) as total'))->groupBy('priority')->orderByDesc('total')->get();
+        $ticketRows = (clone $query)
+            ->leftJoin('users as customers', 'tickets.user_id', '=', 'customers.id')
+            ->leftJoin('users as assigned_agents', 'tickets.assigned_to', '=', 'assigned_agents.id')
+            ->select([
+                'tickets.id',
+                'tickets.subject',
+                'tickets.status',
+                'tickets.priority',
+                'tickets.created_at',
+                'customers.name as customer_name',
+                'assigned_agents.name as agent_name',
+            ])
+            ->orderByDesc('tickets.created_at')
+            ->limit(100)
+            ->get();
         $agents = (clone $query)->leftJoin('users', 'tickets.assigned_to', '=', 'users.id')
             ->selectRaw("COALESCE(users.name, 'Unassigned') as name, COUNT(*) as total, SUM(CASE WHEN tickets.status IN ('resolved','closed') THEN 1 ELSE 0 END) as resolved, SUM(COALESCE(tickets.elapsed_minutes,0)) as minutes")
             ->groupBy('users.id','users.name')->orderByDesc('total')->get();
@@ -44,7 +59,7 @@ class ReportController extends Controller
         return view('reports.index', [
             'report'=>$report,'filters'=>$filters,'total'=>$total,'resolved'=>$resolved,'open'=>$open,'urgent'=>$urgent,
             'resolutionRate'=>$total ? round($resolved/$total*100,1) : 0,'statuses'=>$statuses,'priorities'=>$priorities,
-            'agents'=>$agents,'teamsReport'=>$teamsReport,'projectsReport'=>$projectsReport,
+            'agents'=>$agents,'teamsReport'=>$teamsReport,'projectsReport'=>$projectsReport,'ticketRows'=>$ticketRows,
             'teams'=>Team::orderBy('name')->get(['id','name']),
             'agentOptions'=>User::role('agent')->orderBy('name')->get(['id','name']),
             'projectOptions'=>Project::orderBy('name')->get(['id','name']),

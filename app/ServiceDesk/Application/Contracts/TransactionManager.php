@@ -6,6 +6,6 @@ namespace App\ServiceDesk\Application\Contracts;
 
 interface TransactionManager
 {
-    /** @template T @param callable(): T $operation @return T */
+    /** @param callable(): mixed $operation */
     public function run(callable $operation): mixed;
 }

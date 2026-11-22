@@ -717,4 +717,31 @@ class TicketWorkflowTest extends TestCase
         }
     }
 
+
+    public function test_customer_can_post_a_public_ticket_reply_through_the_web_use_case(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = Ticket::create([
+            'subject' => 'Conversation use case',
+            'description' => 'A reply should be created through the application layer.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($customer)
+            ->post(route('tickets.messages.store', $ticket), [
+                'body' => 'Here is the additional information you requested.',
+            ])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('ticket_messages', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $customer->id,
+            'body' => 'Here is the additional information you requested.',
+            'is_internal' => false,
+        ]);
+    }
+
 }

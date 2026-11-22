@@ -169,7 +169,7 @@ class KnowledgeBaseController extends Controller
 
     public function download(KnowledgeBaseAttachment $attachment)
     {
-        abort_unless($attachment->article()->where('status', 'published')->exists(), 404);
+        abort_unless($attachment->article()->published()->exists(), 404);
         abort_unless(Storage::disk($attachment->disk)->exists($attachment->path), 404);
 
         return Storage::disk($attachment->disk)->download($attachment->path, $attachment->original_name);
@@ -241,9 +241,9 @@ class KnowledgeBaseController extends Controller
         }
 
         foreach ($request->file('attachments', []) as $file) {
-            $path = $file->store('knowledge-base/attachments', 'public');
+            $path = $file->store('knowledge-base/attachments', 'local');
             $article->attachments()->create([
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
                 'original_name' => $file->getClientOriginalName(),
                 'mime_type' => $file->getMimeType() ?: 'application/octet-stream',

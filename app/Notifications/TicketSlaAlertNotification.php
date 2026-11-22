@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Communications\Domain\Services\NotificationChannelPolicy;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +25,12 @@ class TicketSlaAlertNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        $policy = new NotificationChannelPolicy(
+            inAppEnabled: (bool) ($notifiable->in_app_notifications_enabled ?? true),
+            emailEnabled: false,
+        );
+
+        return $policy->shouldDeliverInApp() ? ['database'] : [];
     }
 
     /** @return array<string, mixed> */

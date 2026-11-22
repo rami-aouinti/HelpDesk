@@ -106,10 +106,14 @@ class ProfileController extends Controller
     {
         $request->validate([
             'email_notifications_enabled' => ['required', 'boolean'],
+            'in_app_notifications_enabled' => ['sometimes', 'boolean'],
         ]);
 
         $request->user()->forceFill([
             'email_notifications_enabled' => $request->boolean('email_notifications_enabled'),
+            'in_app_notifications_enabled' => $request->has('in_app_notifications_enabled')
+                ? $request->boolean('in_app_notifications_enabled')
+                : (bool) $request->user()->in_app_notifications_enabled,
         ])->save();
 
         return redirect()

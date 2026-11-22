@@ -21,7 +21,7 @@ Install k6 on the host (see the official k6 installation guide), then create San
 Example using Laravel Tinker to create tokens for the demo accounts:
 
 ```bash
-docker compose exec app php artisan tinker --execute='$tokens = []; App\\Models\\User::query()->where("email", "like", "%.helpdesk.test")->orWhereIn("email", ["admin@helpdesk.test", "agent@helpdesk.test", "customer@helpdesk.test"])->orderBy("id")->each(function ($user) use (&$tokens) { if ($user->is_active && $user->email_verified_at) { $tokens[] = $user->createToken("k6-load-test")->plainTextToken; } }); echo json_encode($tokens, JSON_THROW_ON_ERROR);'
+docker compose exec app php artisan tinker --execute='$tokens = []; App\Models\User::query()->where("email", "like", "%@helpdesk.test")->orWhereIn("email", ["admin@helpdesk.test", "agent@helpdesk.test", "customer@helpdesk.test"])->orderBy("id")->each(function ($user) use (&$tokens) { if ($user->is_active && $user->email_verified_at) { $tokens[] = $user->createToken("k6-load-test")->plainTextToken; } }); echo json_encode($tokens, JSON_THROW_ON_ERROR);'
 ```
 
 Copy the JSON array printed by Tinker. Keep it private: these are real bearer credentials. Revoke the generated tokens after testing (or remove the `k6-load-test` tokens from the `personal_access_tokens` table in your local database).

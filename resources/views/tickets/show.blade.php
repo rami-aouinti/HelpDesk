@@ -125,7 +125,7 @@
             <div class="form-group">
                 <label>Team</label>
                 <div class="hd-choice-grid">
-                    <label class="hd-choice-card"><input type="radio" name="team_id" value="" @checked(old('team_id', $ticket->team_id) === null)><span class="hd-avatar">—</span><span><strong>No team</strong><small>Keep this ticket unassigned to a team</small></span></label>
+                    <label class="hd-choice-card"><input type="radio" name="team_id" value="" @checked((string) old('team_id', $ticket->team_id ?? '') === '')><span class="hd-avatar">—</span><span><strong>No team</strong><small>Keep this ticket unassigned to a team</small></span></label>
                     @foreach ($teams as $team)
                         <label class="hd-choice-card"><input type="radio" name="team_id" value="{{ $team->id }}" @checked((string) old('team_id', $ticket->team_id) === (string) $team->id)><span class="hd-avatar">{{ strtoupper(mb_substr($team->name,0,1)) }}</span><span><strong>{{ $team->name }}</strong><small>Team assignment</small></span></label>
                     @endforeach
@@ -147,7 +147,7 @@
             <div class="form-group">
                 <label>Assigned agent</label>
                 <div class="hd-choice-grid">
-                    <label class="hd-choice-card"><input type="radio" name="assigned_to" value="" @checked(old('assigned_to', $ticket->assigned_to) === null)><span class="hd-avatar">—</span><span><strong>Unassigned</strong><small>No agent selected</small></span></label>
+                    <label class="hd-choice-card"><input type="radio" name="assigned_to" value="" @checked((string) old('assigned_to', $ticket->assigned_to ?? '') === '')><span class="hd-avatar">—</span><span><strong>Unassigned</strong><small>No agent selected</small></span></label>
                     @foreach ($agents as $agent)
                         <label class="hd-choice-card"><input type="radio" name="assigned_to" value="{{ $agent->id }}" @checked((string) old('assigned_to', $ticket->assigned_to) === (string) $agent->id)><span class="hd-avatar">{{ strtoupper(mb_substr($agent->name,0,1)) }}</span><span><strong>{{ $agent->name }}</strong><small>{{ $agent->email }}</small></span></label>
                     @endforeach

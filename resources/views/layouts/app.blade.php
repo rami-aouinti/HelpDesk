@@ -211,7 +211,7 @@
             </div>
         </header>
 
-        <section class="page-content{{ request()->routeIs('projects.index') ? ' page-content-projects' : '' }}{{ request()->routeIs('profile.edit') ? ' page-content-profile' : '' }}">
+        <section class="page-content{{ request()->routeIs('projects.index') ? ' page-content-projects' : '' }}{{ request()->routeIs('profile.edit') ? ' page-content-profile' : '' }}{{ request()->routeIs('tickets.show') ? ' page-content-ticket-detail' : '' }}">
             @yield('content')
         </section>
     </main>

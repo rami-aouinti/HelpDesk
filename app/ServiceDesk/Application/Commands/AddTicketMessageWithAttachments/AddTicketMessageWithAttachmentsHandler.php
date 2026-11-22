@@ -32,7 +32,7 @@ final class AddTicketMessageWithAttachmentsHandler
                 $attachments[] = [
                     ...$location,
                     'original_name' => mb_strcut(
-                        basename(str_replace('\\\\', '/', $attachment->originalName)),
+                        basename(str_replace('\\', '/', $attachment->originalName)),
                         0,
                         255,
                         'UTF-8',

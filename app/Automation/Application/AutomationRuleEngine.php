@@ -65,7 +65,7 @@ final class AutomationRuleEngine
     }
 
     /**
-     * @param array<string, mixed> $group
+     * @param array{logic?: string, rules?: array<int, array<string, mixed>>} $group
      */
     private function matches(array $group, Ticket $ticket): bool
     {

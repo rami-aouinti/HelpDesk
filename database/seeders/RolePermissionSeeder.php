@@ -18,7 +18,7 @@ class RolePermissionSeeder extends Seeder
             'users.view', 'users.create', 'users.update', 'users.deactivate',
             'teams.view', 'teams.create', 'teams.update', 'teams.delete',
             'projects.view', 'projects.view.all', 'projects.create', 'projects.update', 'projects.delete',
-            'reports.view', 'knowledge-base.manage', 'automation.manage',
+            'reports.view', 'knowledge-base.manage', 'automation.manage', 'communications.deliveries.view',
         ];
 
         foreach ($permissions as $permission) {

@@ -37,3 +37,7 @@ Schedule::command('horizon:monitor-tags')
     ->withoutOverlapping();
 
 Schedule::command('horizon:snapshot')->everyFiveMinutes();
+
+Schedule::command('helpdesk:process-slas')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();

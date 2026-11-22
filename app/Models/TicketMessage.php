@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id
  * @property string $body
  * @property bool $is_internal
+ * @property Carbon|null $created_at
  * @property-read Ticket $ticket
  * @property-read User $user
  * @property-read Collection<int, TicketAttachment> $attachments

@@ -29,7 +29,6 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261122-5">
     <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-10">
     <link rel="stylesheet" href="{{ asset('css/admin-experience.css') }}?v=20261122-5">
-    <link rel="stylesheet" href="{{ asset('css/knowledge-base.css') }}?v=20261122-1">
     @livewireStyles
 </head>
 <body>

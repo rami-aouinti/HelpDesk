@@ -1,15 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\CalendarEvent;
-use App\\Models\\Ticket;
-use App\\Models\\User;
-use Illuminate\\Http\\JsonResponse;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Validation\\Rule;
-use Illuminate\\Validation\\ValidationException;
+use App\Models\CalendarEvent;
+use App\Models\Ticket;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class CalendarController extends Controller
 {
@@ -127,9 +126,12 @@ class CalendarController extends Controller
 
         if (! empty($data['ticket_id'])) {
             $ticket = Ticket::query()->findOrFail($data['ticket_id']);
-            abort_unless($user->can('tickets.view.all') || $ticket->user_id === $user->id
-                || $ticket->assigned_to === $user->id
-                || ($ticket->team_id && $user->teams()->whereKey($ticket->team_id)->exists()), 403);
+            $canViewTicket = $user->can('tickets.view.all')
+                || ($user->hasRole('customer') && $ticket->user_id === $user->id)
+                || ($user->hasRole('agent') && $user->can('tickets.view')
+                    && ($ticket->team_id === null || $user->teams()->whereKey($ticket->team_id)->exists())
+                    && ($ticket->project_id === null || $user->projects()->whereKey($ticket->project_id)->exists()));
+            abort_unless($canViewTicket, 403);
         }
 
         $data['all_day'] = (bool) ($data['all_day'] ?? false);
@@ -147,8 +149,7 @@ class CalendarController extends Controller
             $query->where('user_id', $user->id);
         } elseif ($user->hasRole('agent')) {
             $teamIds = $user->teams()->pluck('teams.id');
-            $query->where(fn ($scope) => $scope->where('assigned_to', $user->id)
-                ->orWhereNull('team_id')->orWhereIn('team_id', $teamIds));
+            $query->where(fn ($scope) => $scope->whereNull('team_id')->orWhereIn('team_id', $teamIds));
             $query->where(fn ($scope) => $scope->whereNull('project_id')
                 ->orWhereHas('project.members', fn ($members) => $members->whereKey($user->id)));
         } else {

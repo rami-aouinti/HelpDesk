@@ -49,15 +49,19 @@ final class UpdateTicketHandler
                 throw new TicketAssignmentRejected('team_id', 'Only administrators can assign or reassign tickets.');
             }
 
+            $targetProjectId = array_key_exists('project_id', $input)
+                ? ($input['project_id'] === null ? null : (int) $input['project_id'])
+                : $ticket->projectId();
+
+            if (! $this->projectAccess->mayLinkToProject($command->actorId, $targetProjectId)) {
+                throw new TicketProjectLinkRejected('project_id', 'You must be a member of the selected project.');
+            }
+
             if (array_key_exists('project_id', $input)) {
-                $projectId = $input['project_id'] === null ? null : (int) $input['project_id'];
-                if (! $this->projectAccess->mayLinkToProject($command->actorId, $projectId)) {
-                    throw new TicketProjectLinkRejected('project_id', 'You must be a member of the selected project.');
-                }
                 $old = $ticket->projectId();
-                if ($old !== $projectId) {
-                    $ticket->linkToProject($projectId);
-                    $this->addChange($changes, $history, 'project_id', $old, $projectId);
+                if ($old !== $targetProjectId) {
+                    $ticket->linkToProject($targetProjectId);
+                    $this->addChange($changes, $history, 'project_id', $old, $targetProjectId);
                 }
             }
 

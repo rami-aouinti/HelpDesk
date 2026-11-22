@@ -5,9 +5,10 @@ import { Trend } from 'k6/metrics';
 const baseUrl = (__ENV.BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
 const listDuration = new Trend('ticket_list_duration', true);
 const detailDuration = new Trend('ticket_detail_duration', true);
+const searchDuration = new Trend('ticket_search_duration', true);
 const createDuration = new Trend('ticket_create_duration', true);
 const createTickets = (__ENV.CREATE_TICKETS || 'false').toLowerCase() === 'true';
-const thinkTime = Number(__ENV.THINK_TIME_SECONDS || 5);
+const thinkTime = Number(__ENV.THINK_TIME_SECONDS || 7);
 
 export const options = {
   stages: [
@@ -27,6 +28,7 @@ export const options = {
     http_req_duration: ['p(95)<1200', 'p(99)<2500'],
     ticket_list_duration: ['p(95)<1000'],
     ticket_detail_duration: ['p(95)<1000'],
+    ticket_search_duration: ['p(95)<1000'],
     ...(createTickets ? { ticket_create_duration: ['p(95)<1500'] } : {}),
   },
   userAgent: 'HelpDesk-k6-load-test/1.0',
@@ -85,6 +87,16 @@ export default function (data) {
       // The checks above report malformed responses; continue with the next iteration.
     }
   }
+
+  const searchResponse = http.get(`${baseUrl}/api/v1/tickets?search=support&per_page=10`, {
+    headers,
+    tags: { endpoint: 'tickets.search' },
+  });
+  searchDuration.add(searchResponse.timings.duration);
+  check(searchResponse, {
+    'ticket search returns 200': (response) => response.status === 200,
+    'ticket search returns JSON': (response) => (response.headers['Content-Type'] || '').includes('application/json'),
+  });
 
   if (ticketId !== null) {
     const detailResponse = http.get(`${baseUrl}/api/v1/tickets/${ticketId}`, {

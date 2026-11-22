@@ -142,8 +142,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(container_network_receive_bytes_total{id=~\"/docker/(b6ae7fdf0f9a.*|7629e24862b8.*|b6cba87107c0.*|9a479b4a3d7d.*)\"}[5m])/1024/1024",
-          "legendFormat": "{{id}}",
+          "expr": "rate(container_network_receive_bytes_total{id=\"/\"}[5m]) / 1024 / 1024",
+          "legendFormat": "Host network RX",
           "range": true
         }
       ]
@@ -184,8 +184,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(container_network_transmit_bytes_total{id=~\"/docker/(b6ae7fdf0f9a.*|7629e24862b8.*|b6cba87107c0.*|9a479b4a3d7d.*)\"}[5m])/1024/1024",
-          "legendFormat": "{{id}}",
+          "expr": "rate(container_network_transmit_bytes_total{id=\"/\"}[5m]) / 1024 / 1024",
+          "legendFormat": "Host network TX",
           "range": true
         }
       ]

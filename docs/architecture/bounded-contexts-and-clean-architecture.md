@@ -1,7 +1,6 @@
 # HelpDesk Architecture: Bounded Contexts, Clean Architecture and CQRS
 
 ## Architecture decision
-
 HelpDesk remains a modular monolith. Business capabilities are separated into bounded contexts; each context owns its application use cases and domain model. Laravel is the delivery/runtime framework and an infrastructure detail, not the domain model.
 
 The architecture uses four layers inside each context:
@@ -39,7 +38,6 @@ Owns cross-cutting technical capabilities: audit infrastructure where not part o
 Platform is not a dumping ground for business features. Business-specific rules remain in their owning context.
 
 ## CQRS conventions
-
 - Commands express intent and change state: CreateTicketCommand, ClaimTicketCommand, ResolveTicketCommand.
 - Queries retrieve data and do not mutate state: GetTicketQuery, SearchTicketsQuery.
 - Each command/query has a handler. Start with direct handler invocation through Laravel's container; do not introduce a message-bus package until there is a concrete need.
@@ -48,7 +46,6 @@ Platform is not a dumping ground for business features. Business-specific rules 
 - Do not introduce event sourcing. Persist current state normally; use events for side effects and projections.
 
 ## Initial implementation sequence
-
 1. Establish the context boundaries and dependency rules documented here.
 2. Migrate ServiceDesk ticket creation as the first vertical slice: pure domain aggregate, command, handler, repository contract, Eloquent adapter and framework binding.
 3. Preserve current notifications, Elasticsearch indexing and API cache invalidation through adapters/listeners; do not silently remove side effects.
@@ -61,20 +58,19 @@ Platform is not a dumping ground for business features. Business-specific rules 
 10. Migrate project linking through `LinkTicketToProjectCommand`; enforce project membership (or `projects.view.all`), support unlinking, and record the change in ticket history.
 11. Migrate agent unassignment through `UnassignTicketFromAgentCommand`; keep the team association, record the old/new agent in history, and publish the existing update side effects. Only administrators may unassign.
 12. Migrate effort tracking through `UpdateTicketEffortCommand`; keep estimated and elapsed minutes in the Ticket aggregate, preserve omitted values in partial updates, and record each changed field in history.
-13. Handle mixed ticket updates through one atomic UpdateTicketCommand: lock once, validate all requested changes, persist once, record each changed field, and publish one update event. Single-field requests continue using their focused commands during the migration.
-14. Migrate text-only ticket replies and internal notes through `AddTicketMessageCommand`; the handler persists transactionally and publishes the existing `TicketMessageCreated` event through an adapter. Attachment uploads remain on the legacy path until their storage lifecycle is migrated separately.
-15. Move ticket attachment uploads behind `AddTicketMessageWithAttachmentsCommand` and the `TicketAttachmentStorage` port. Laravel filesystem operations are isolated in an Infrastructure adapter; database metadata is persisted through the message repository, and stored files are cleaned up if persistence fails. Attachment downloads use `DownloadTicketAttachmentQuery` and the same storage port to check existence and obtain a stream. Ticket visibility and internal-note authorization plus the HTTP streaming response remain in the presentation layer.
-16. Introduce Insights read models and Communications adapters where they provide clear value.
-17. Move remaining contexts gradually; avoid a big-bang rewrite.
+13. Handle mixed ticket updates through one atomic UpdateTicketCommand: lock once, validate all requested changes, persist once, record each changed field, and publish one update event after the transaction.
+14. Migrate text-only ticket replies and internal notes through `AddTicketMessageCommand`; the handler persists transactionally and publishes the existing `TicketMessageCreated` event through an adapter.
+15. Move ticket attachment uploads behind `AddTicketMessageWithAttachmentsCommand` and the `TicketAttachmentStorage` port. Laravel filesystem operations are isolated in an Infrastructure adapter; database metadata is persisted through the message repository, and stored files are cleaned up if persistence fails. Attachment downloads use `DownloadTicketAttachmentQuery` and the same storage port.
+16. Introduce the SLA processing use case through `ProcessTicketSlaCommand`. The scheduled console command selects active ticket IDs and delegates to the application handler. A temporary Infrastructure adapter calls the existing SLA service; the SLA calculation and notification delivery can now be migrated behind dedicated domain/application contracts without coupling the scheduler to Eloquent.
+17. Introduce Insights read models and Communications adapters where they provide clear value.
+18. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
-
 Prefer business language in each context. Avoid generic global folders such as app/Services, app/DTOs or app/Repositories for new use cases. Existing legacy code can remain during migration, but new code should live inside its owning context.
 
 The existing Eloquent models and HTTP controllers are legacy/framework-facing components until migrated. Do not rename or move them in bulk before routes, policies, jobs, listeners, tests and relationships have been adapted.
 
 ## Testing strategy
-
 - Domain unit tests: no database, Laravel bootstrapping or mocks of Eloquent.
 - Application tests: handlers with repository/clock/event contracts.
 - Infrastructure integration tests: Eloquent mappings, transactions and database constraints.

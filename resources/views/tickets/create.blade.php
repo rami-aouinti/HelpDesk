@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Create Ticket')
+@section('meta-description', 'Submit a support ticket with the details your team needs to understand, prioritize and resolve your request.')
 
 @section('content')
     <div class="page-header">

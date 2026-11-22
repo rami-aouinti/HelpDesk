@@ -255,6 +255,41 @@ final class TicketTest extends TestCase
     }
 
     #[Test]
+    public function it_can_link_or_unlink_a_project(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 107,
+            subject: 'Project ticket',
+            description: 'The request belongs to a project.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::OPEN,
+        );
+
+        $ticket->linkToProject(15);
+        self::assertSame(15, $ticket->projectId());
+
+        $ticket->linkToProject(null);
+        self::assertNull($ticket->projectId());
+    }
+
+    #[Test]
+    public function it_rejects_a_non_positive_project_identifier(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Project ticket',
+            description: 'The request belongs to a project.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $this->expectException(InvalidTicketData::class);
+        $ticket->linkToProject(0);
+    }
+
+    #[Test]
     public function it_rejects_a_non_positive_team_identifier(): void
     {
         $ticket = Ticket::open(

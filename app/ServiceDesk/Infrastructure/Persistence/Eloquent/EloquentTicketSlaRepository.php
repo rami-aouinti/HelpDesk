@@ -13,6 +13,22 @@ use DateTimeInterface;
 
 final class EloquentTicketSlaRepository implements TicketSlaRepository
 {
+    public function eachActiveTicketId(callable $callback, int $chunkSize = 100): void
+    {
+        $statuses = config('helpdesk.sla.active_statuses', []);
+
+        if ($statuses === [] || $chunkSize < 1) {
+            return;
+        }
+
+        Ticket::query()
+            ->whereIn('status', $statuses)
+            ->select('id')
+            ->chunkById($chunkSize, static function ($tickets) use ($callback): void {
+                $callback($tickets->map(static fn (Ticket $ticket): int => (int) $ticket->getKey())->all());
+            });
+    }
+
     public function findForProcessing(int $ticketId): ?TicketSlaSnapshot
     {
         $ticket = Ticket::query()->find($ticketId);
@@ -81,7 +97,7 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
             ['first_response', 'breached'] => 'first_response_breached_at',
             ['resolution', 'warning'] => 'resolution_warning_sent_at',
             ['resolution', 'breached'] => 'resolution_breached_at',
-            default => throw new \InvalidArgumentException('Unsupported SLA alert marker.'),
+            default => throw new InvalidArgumentException('Unsupported SLA alert marker.'),
         };
 
         return Ticket::query()

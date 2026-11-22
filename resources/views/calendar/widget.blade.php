@@ -68,12 +68,12 @@
                 </label>
                 <label>Visibility
                     <select name="visibility" id="calendar-visibility">
-                        <option value="personal">Only me</option><option value="team">My team</option>
+                        <option value="personal">Only me</option>@if ($calendarTeams->isNotEmpty())<option value="team">My team</option>@endif
                         @if (auth()->user()->hasRole('admin'))<option value="company">Everyone</option>@endif
                     </select>
                 </label>
             </div>
-            <label id="calendar-team-field" hidden>Team
+            @if ($calendarTeams->isNotEmpty())<label id="calendar-team-field" hidden>Team
                 <select name="team_id">
                     <option value="">Select a team</option>
                     @foreach ($calendarTeams as $team)<option value="{{ $team->id }}">{{ $team->name }}</option>@endforeach

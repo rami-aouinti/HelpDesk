@@ -79,4 +79,45 @@ class CalendarEventsTest extends TestCase
             'starts_at' => now()->addDay()->toDateTimeString(),
         ])->assertUnprocessable();
     }
+    public function test_only_the_owner_or_an_admin_can_edit_and_delete_an_event(): void
+    {
+        $owner = User::factory()->create([
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+        $owner->assignRole('agent');
+
+        $this->actingAs($owner)->postJson(route('calendar.events.store'), [
+            'title' => 'My reminder',
+            'type' => 'reminder',
+            'visibility' => 'personal',
+            'starts_at' => now()->addDay()->toDateTimeString(),
+        ])->assertCreated();
+
+        $eventId = \\App\\Models\\CalendarEvent::query()->firstOrFail()->id;
+        $otherUser = User::factory()->create([
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+        $otherUser->assignRole('agent');
+
+        $this->actingAs($otherUser)
+            ->patchJson(route('calendar.events.update', $eventId), [
+                'title' => 'Not mine',
+                'type' => 'reminder',
+                'visibility' => 'personal',
+                'starts_at' => now()->addDay()->toDateTimeString(),
+            ])->assertForbidden();
+
+        $this->actingAs($owner)
+            ->patchJson(route('calendar.events.update', $eventId), [
+                'title' => 'Updated reminder',
+                'type' => 'reminder',
+                'visibility' => 'personal',
+                'starts_at' => now()->addDay()->toDateTimeString(),
+            ])->assertOk();
+
+        $this->deleteJson(route('calendar.events.destroy', $eventId))->assertOk();
+    }
+
 }

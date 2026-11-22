@@ -5,6 +5,11 @@
 @section('page-title', 'Ticket #' . $ticket->id)
 
 @section('content')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.location.hash === '#edit-ticket') document.getElementById('ticket-edit-dialog')?.showModal();
+        });
+    </script>
     <div class="page-header ticket-page-header">
         <div>
             <span class="eyebrow">SUPPORT WORKSPACE / TICKET</span>
@@ -79,7 +84,9 @@
         <hr>
 
         @can('update', $ticket)
-        <h2>Update ticket</h2>
+        <div class="ticket-edit-launch"><div><h2>Ticket settings</h2><p>Change status, priority, assignment and planning details.</p></div><button type="button" class="btn btn-primary" onclick="document.getElementById('ticket-edit-dialog').showModal()">Edit ticket</button></div>
+        <dialog class="hd-ticket-dialog" id="ticket-edit-dialog" aria-labelledby="ticket-edit-title">
+            <div class="hd-modal-heading"><div><span class="hd-eyebrow">TICKET #{{ $ticket->id }}</span><h2 id="ticket-edit-title">Edit ticket</h2><p>Update the ticket and save your changes.</p></div><button type="button" class="hd-modal-close" aria-label="Close" onclick="document.getElementById('ticket-edit-dialog').close()">×</button></div>
 
         @if ($errors->any())
             <div class="alert alert-error">
@@ -172,6 +179,7 @@
                 Save changes
             </button>
         </form>
+        </dialog>
         @else
             <p class="text-sm text-slate-500">Only support agents and administrators can update this ticket.</p>
         @endcan

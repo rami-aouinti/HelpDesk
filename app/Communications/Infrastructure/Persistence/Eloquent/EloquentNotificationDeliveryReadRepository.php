@@ -6,33 +6,44 @@ namespace App\Communications\Infrastructure\Persistence\Eloquent;
 
 use App\Communications\Application\Contracts\NotificationDeliveryReadRepository;
 use Illuminate\Database\Query\Builder;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 final class EloquentNotificationDeliveryReadRepository implements NotificationDeliveryReadRepository
 {
     public function paginate(array $filters, int $perPage): mixed
     {
-        return $this->filteredQuery($filters)
-            ->select([
-                'notification_deliveries.id',
-                'notification_deliveries.notification_id',
-                'notification_deliveries.notifiable_type',
-                'notification_deliveries.notifiable_id',
-                'notification_deliveries.notification_type',
-                'notification_deliveries.channel',
-                'notification_deliveries.status',
-                'notification_deliveries.attempts',
-                'notification_deliveries.last_error',
-                'notification_deliveries.last_attempt_at',
-                'notification_deliveries.sent_at',
-                'notification_deliveries.failed_at',
-                'notification_deliveries.created_at',
-                'users.name as recipient_name',
-                'users.email as recipient_email',
-            ])
+        $deliveries = $this->filteredQuery($filters)
+            ->select('notification_deliveries.*')
             ->orderByDesc('notification_deliveries.created_at')
             ->paginate($perPage)
             ->withQueryString();
+
+        // Resolve recipients separately: notifiable_id is a string by design.
+        $userIds = $deliveries->getCollection()
+            ->filter(fn (object $delivery): bool => in_array($delivery->notifiable_type, [User::class, 'users'], true))
+            ->pluck('notifiable_id')
+            ->map(fn (string $id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values();
+
+        $users = $userIds->isEmpty()
+            ? collect()
+            : User::query()->whereIn('id', $userIds)->get(['id', 'name', 'email'])->keyBy('id');
+
+        $deliveries->getCollection()->transform(function (object $delivery) use ($users): object {
+            $user = in_array($delivery->notifiable_type, [User::class, 'users'], true)
+                ? $users->get((int) $delivery->notifiable_id)
+                : null;
+
+            $delivery->recipient_name = $user?->name;
+            $delivery->recipient_email = $user?->email;
+
+            return $delivery;
+        });
+
+        return $deliveries;
     }
 
     public function summary(array $filters): array
@@ -55,14 +66,7 @@ final class EloquentNotificationDeliveryReadRepository implements NotificationDe
     /** @param array{status?: string, channel?: string, search?: string, from?: string, to?: string} $filters */
     private function filteredQuery(array $filters): Builder
     {
-        $query = DB::table('notification_deliveries')
-            ->leftJoin('users', function ($join): void {
-                $join->on('users.id', '=', 'notification_deliveries.notifiable_id')
-                    ->whereIn('notification_deliveries.notifiable_type', [
-                        'App\\Models\\User',
-                        'users',
-                    ]);
-            });
+        $query = DB::table('notification_deliveries');
 
         if (isset($filters['status'])) {
             $query->where('notification_deliveries.status', $filters['status']);
@@ -86,8 +90,12 @@ final class EloquentNotificationDeliveryReadRepository implements NotificationDe
                 $nested->where('notification_deliveries.notification_id', 'like', $term)
                     ->orWhere('notification_deliveries.notification_type', 'like', $term)
                     ->orWhere('notification_deliveries.last_error', 'like', $term)
-                    ->orWhere('users.name', 'like', $term)
-                    ->orWhere('users.email', 'like', $term);
+                    ->orWhereIn('notification_deliveries.notifiable_id', function ($users) use ($term): void {
+                        $users->selectRaw('CAST(id AS CHAR)')
+                            ->from('users')
+                            ->where('name', 'like', $term)
+                            ->orWhere('email', 'like', $term);
+                    });
             });
         }
 

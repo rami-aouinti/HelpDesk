@@ -105,7 +105,19 @@ class TicketSlaService
 
     private function notify(Ticket $ticket, string $type, string $state, Carbon $dueAt): void
     {
-        $recipients = collect([$ticket->assignedAgent])
+        $recipients = collect([$ticket->assignedAgent]);
+
+        if ($ticket->team) {
+            $recipients = $recipients->merge(
+                $ticket->team->members()->where('is_active', true)->role('agent')->get(),
+            );
+        } elseif (! $ticket->assignedAgent) {
+            $recipients = $recipients->merge(
+                User::query()->role('agent')->where('is_active', true)->get(),
+            );
+        }
+
+        $recipients = $recipients
             ->merge(User::query()->role('admin')->where('is_active', true)->get())
             ->filter(fn (?User $user): bool => $user instanceof User && $user->is_active)
             ->unique('id')

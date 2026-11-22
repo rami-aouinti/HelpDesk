@@ -113,7 +113,7 @@ class TicketSeeder extends Seeder
             $customer = $customers[$index % $customers->count()];
             $agent = $agents[($index * 3) % $agents->count()];
             $team = $teams[$teamNames[$index % $teamNames->count()]];
-            $subject = $subjects[$index % count($subjects)].' #'.str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT);
+            $subject = $subjects[$index % count($subjects)] . ' #' . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT);
             $createdAt = now()->subDays(($index * 3) % 45)->subHours($index % 9);
             $status = $statuses[$index % count($statuses)];
 

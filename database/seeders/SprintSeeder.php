@@ -11,7 +11,7 @@ class SprintSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('testing')) {
+        if (config('app.env') === 'testing' || app()->runningUnitTests()) {
             return;
         }
 

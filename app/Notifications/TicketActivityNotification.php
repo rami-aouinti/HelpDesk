@@ -28,6 +28,16 @@ class TicketActivityNotification extends Notification implements ShouldQueue
     /**
      * @return array<int, string>
      */
+    /**
+     * Tag notification jobs so Horizon can monitor the notifications queue.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return ['ticket-notifications'];
+    }
+
     public function via(object $notifiable): array
     {
         return ($notifiable->email_notifications_enabled ?? true)

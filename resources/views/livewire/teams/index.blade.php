@@ -39,7 +39,7 @@
                         <td><div class="hd-avatar-list">@forelse($team->members->take(4) as $member)<span class="hd-avatar hd-avatar-sm" title="{{ $member->name }}">{{ strtoupper(mb_substr($member->name,0,1)) }}</span>@empty <span class="hd-muted">No members</span>@endforelse</div><small>{{ $team->members_count }} members</small></td>
                         <td>{{ $team->tickets_count }}</td>
                         <td class="actions">
-                            <button type="button" class="btn btn-secondary" wire:click="show({{ $team->id }})">Show</button>
+                            <a class="btn btn-secondary" href="{{ route('teams.show', $team) }}">Show</a>
                             @can('update', $team)
                                 <button type="button" class="btn btn-secondary" wire:click="edit({{ $team->id }})">Edit</button>
                             @endcan

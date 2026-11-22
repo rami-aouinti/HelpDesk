@@ -487,4 +487,54 @@ class TicketApiTest extends TestCase
         ]);
     }
 
+
+    public function test_admin_can_unassign_an_agent_through_the_api(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        $ticket->update([
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/v1/tickets/{$ticket->id}", [
+            'assigned_to' => null,
+        ])->assertOk()
+            ->assertJsonPath('data.assigned_agent', null)
+            ->assertJsonPath('data.team.id', $team->id);
+
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'action' => 'assigned_to',
+            'old_value' => (string) $agent->id,
+            'new_value' => null,
+        ]);
+    }
+
+    public function test_agent_cannot_unassign_a_ticket_through_the_api(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        $ticket->update([
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        Sanctum::actingAs($agent);
+
+        $this->patchJson("/api/v1/tickets/{$ticket->id}", [
+            'assigned_to' => null,
+        ])->assertForbidden();
+
+        $this->assertSame($agent->id, $ticket->fresh()->assigned_to);
+    }
+
 }

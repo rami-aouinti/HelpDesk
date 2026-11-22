@@ -1,5 +1,8 @@
 @extends('layouts.guest')
 
+@section('title', 'Verify your email | HelpDesk')
+@section('meta-description', 'Verify your email address to activate your HelpDesk account and access your support workspace.')
+
 @section('content')
     <h1 class="mb-2 text-2xl font-semibold">Verify your email</h1>
     <p class="mb-6 text-sm text-slate-600">We sent you a verification link. Open it to activate your HelpDesk account.</p>

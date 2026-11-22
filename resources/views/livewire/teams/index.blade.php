@@ -3,8 +3,8 @@
     @if ($errors->any()) <div class="alert alert-error">{{ $errors->first() }}</div> @endif
 
     @if ($showForm)
-        <section class="content-card team-form-card">
-            <h2>{{ $teamId ? 'Edit team' : 'Create team' }}</h2>
+        <section class="content-card team-form-card hd-modal-panel" role="dialog" aria-modal="true" aria-labelledby="team-form-title">
+            <div class="hd-modal-heading"><div><span class="hd-eyebrow">TEAM WORKSPACE</span><h2 id="team-form-title">{{ $teamId ? 'Edit team' : 'Create team' }}</h2></div><button type="button" class="hd-modal-close" wire:click="cancel" aria-label="Close">×</button></div>
             <form wire:submit="save">
                 <div class="form-group"><label for="team-name">Team name</label><input id="team-name" type="text" wire:model="name" maxlength="255" required>@error('name') <small class="field-error">{{ $message }}</small> @enderror</div>
                 <div class="form-group"><label for="team-description">Description</label><textarea id="team-description" wire:model="description" rows="3" maxlength="2000"></textarea>@error('description') <small class="field-error">{{ $message }}</small> @enderror</div>
@@ -36,9 +36,10 @@
                 @forelse ($teams as $team)
                     <tr wire:key="team-{{ $team->id }}">
                         <td><strong>{{ $team->name }}</strong><small>{{ $team->description ?: 'No description' }}</small></td>
-                        <td>{{ $team->members_count }}<small>{{ $team->members->pluck('name')->join(', ') ?: 'No members assigned' }}</small></td>
+                        <td><div class="hd-avatar-list">@forelse($team->members->take(4) as $member)<span class="hd-avatar hd-avatar-sm" title="{{ $member->name }}">{{ strtoupper(mb_substr($member->name,0,1)) }}</span>@empty <span class="hd-muted">No members</span>@endforelse</div><small>{{ $team->members_count }} members</small></td>
                         <td>{{ $team->tickets_count }}</td>
                         <td class="actions">
+                            <button type="button" class="btn btn-secondary" wire:click="show({{ $team->id }})">Show</button>
                             @can('update', $team)
                                 <button type="button" class="btn btn-secondary" wire:click="edit({{ $team->id }})">Edit</button>
                             @endcan
@@ -53,4 +54,12 @@
         </div>
         <div class="table-pagination">{{ $teams->links('vendor.pagination.helpdesk') }}</div>
     </section>
+    @if ($selectedTeam)
+        <div class="hd-modal-backdrop" wire:click.self="closeDetails"><section class="content-card hd-modal-panel hd-detail-modal" role="dialog" aria-modal="true" aria-labelledby="team-detail-title">
+            <div class="hd-modal-heading"><div><span class="hd-eyebrow">TEAM PROFILE</span><h2 id="team-detail-title">{{ $selectedTeam->name }}</h2><p>{{ $selectedTeam->description ?: 'No team description' }}</p></div><button type="button" class="hd-modal-close" wire:click="closeDetails" aria-label="Close">×</button></div>
+            <div class="hd-detail-grid"><div><span class="hd-detail-label">Members</span><strong>{{ $selectedTeam->members->count() }}</strong></div><div><span class="hd-detail-label">Tickets</span><strong>{{ $selectedTeam->tickets_count }}</strong></div><div><span class="hd-detail-label">Created</span><strong>{{ $selectedTeam->created_at->format('d M Y') }}</strong></div></div>
+            <h3>Team members</h3><div class="hd-member-list">@forelse($selectedTeam->members as $member)<div class="hd-member-row"><span class="hd-avatar">{{ strtoupper(mb_substr($member->name,0,1)) }}</span><span><strong>{{ $member->name }}</strong><small>{{ $member->email }}</small></span></div>@empty <p class="hd-muted">No members assigned yet.</p>@endforelse</div>
+            <h3>Recent tickets</h3><div class="hd-record-list">@forelse($selectedTeam->tickets as $ticket)<a href="{{ route('tickets.show',$ticket) }}"><span>#{{ $ticket->id }} · {{ $ticket->subject }}</span><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></a>@empty <p class="hd-muted">No tickets assigned to this team.</p>@endforelse</div>
+        </section></div>
+    @endif
 </div>

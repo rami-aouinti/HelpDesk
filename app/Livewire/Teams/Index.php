@@ -27,6 +27,8 @@ class Index extends Component
 
     public bool $showForm = false;
 
+    public ?int $selectedTeamId = null;
+
     #[Url]
     public string $search = '';
 
@@ -89,6 +91,18 @@ class Index extends Component
         Gate::authorize('create', Team::class);
         $this->resetForm();
         $this->showForm = true;
+    }
+
+    public function show(int $teamId): void
+    {
+        $team = Team::query()->findOrFail($teamId);
+        Gate::authorize('viewAny', Team::class);
+        $this->selectedTeamId = $team->id;
+    }
+
+    public function closeDetails(): void
+    {
+        $this->selectedTeamId = null;
     }
 
     public function edit(int $teamId): void
@@ -161,7 +175,10 @@ class Index extends Component
             ->orderBy($sortColumn, $sortDirection)
             ->paginate($perPage);
 
+        $selectedTeam = $this->selectedTeamId ? Team::query()->with('members')->withCount('tickets')->find($this->selectedTeamId) : null;
+
         return view('livewire.teams.index', [
+            'selectedTeam' => $selectedTeam,
             'teams' => $teams,
             'agents' => User::query()->role('agent')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email']),
         ]);

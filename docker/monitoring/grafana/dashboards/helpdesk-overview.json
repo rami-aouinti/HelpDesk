@@ -268,7 +268,7 @@
     {
       "id": 8,
       "type": "timeseries",
-      "title": "Laravel queue backlog",
+      "title": "Redis queue health and failed jobs",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -281,14 +281,19 @@
       },
       "targets": [
         {
-          "expr": "helpdesk_queue_pending_pending_jobs",
-          "legendFormat": "pending",
+          "expr": "redis_up{job=\"redis-queue\"}",
+          "legendFormat": "Redis reachable (1 = yes)",
           "refId": "A"
         },
         {
-          "expr": "helpdesk_queue_failed_failed_jobs",
-          "legendFormat": "failed",
+          "expr": "redis_memory_used_bytes{job=\"redis-queue\"}",
+          "legendFormat": "Redis memory used",
           "refId": "B"
+        },
+        {
+          "expr": "helpdesk_queue_failed_failed_jobs",
+          "legendFormat": "failed jobs",
+          "refId": "C"
         }
       ],
       "fieldConfig": {

@@ -21,6 +21,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $priority
  * @property int|null $estimated_minutes
  * @property int|null $elapsed_minutes
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $first_response_due_at
+ * @property Carbon|null $first_response_at
+ * @property Carbon|null $first_response_warning_sent_at
+ * @property Carbon|null $first_response_breached_at
+ * @property Carbon|null $resolution_due_at
+ * @property Carbon|null $resolution_warning_sent_at
+ * @property Carbon|null $resolution_breached_at
  * @property-read User|null $customer
  * @property-read User|null $assignedAgent
  * @property-read Team|null $team

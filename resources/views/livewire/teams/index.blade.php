@@ -10,7 +10,7 @@
                 <div class="form-group"><label for="team-description">Description</label><textarea id="team-description" wire:model="description" rows="3" maxlength="2000"></textarea>@error('description') <small class="field-error">{{ $message }}</small> @enderror</div>
                 <div class="form-group"><label>Team members (active agents)</label>
                     @forelse ($agents as $agent)
-                        <label class="team-member-option"><input type="checkbox" wire:model="members" value="{{ $agent->id }}"><span>{{ $agent->name }} <small>{{ $agent->email }}</small></span></label>
+                        <label class="team-member-option hd-select-person"><input type="checkbox" wire:model="members" value="{{ $agent->id }}"><span class="hd-avatar">{{ strtoupper(mb_substr($agent->name,0,1)) }}</span><span><strong>{{ $agent->name }}</strong><small>{{ $agent->email }}</small></span></label>
                     @empty <p>No active agents available. Create an agent account first.</p> @endforelse
                     @error('members') <small class="field-error">{{ $message }}</small> @enderror @error('members.*') <small class="field-error">{{ $message }}</small> @enderror
                 </div>

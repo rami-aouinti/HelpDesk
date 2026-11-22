@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property Carbon|null $published_at
+ * @property Carbon|null $archived_at
+ */
 class KnowledgeBaseArticle extends Model
 {
     protected $fillable = [

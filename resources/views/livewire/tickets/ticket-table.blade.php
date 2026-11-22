@@ -23,7 +23,7 @@
                 @forelse ($tickets as $ticket)
                     <tr wire:key="ticket-{{ $ticket->id }}">
                         <td>#{{ $ticket->id }}</td><td><a class="table-primary-link" href="{{ route('tickets.show', $ticket) }}">{{ $ticket->subject }}</a></td>
-                        <td>{{ $ticket->customer?->name ?? 'Unassigned' }}</td><td>{{ $ticket->project?->name ?? '—' }}</td><td>{{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m / {{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</td><td>{{ $ticket->team?->name ?? '—' }}</td><td>{{ $ticket->assignedAgent?->name ?? '—' }}</td>
+                        <td><span class="hd-person"><span class="hd-avatar">{{ strtoupper(mb_substr($ticket->customer?->name ?? 'U', 0, 1)) }}</span><span>{{ $ticket->customer?->name ?? 'Unassigned' }}</span></span></td><td>{{ $ticket->project?->name ?? '—' }}</td><td>{{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m / {{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</td><td>{{ $ticket->team?->name ?? '—' }}</td><td>@if($ticket->assignedAgent)<span class="hd-person"><span class="hd-avatar">{{ strtoupper(mb_substr($ticket->assignedAgent->name, 0, 1)) }}</span><span>{{ $ticket->assignedAgent->name }}</span></span>@else <span class="hd-muted">Unassigned</span> @endif</td>
                         <td><span class="priority-badge priority-{{ $ticket->priority }}">{{ ucfirst($ticket->priority) }}</span></td>
                         <td><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></td>
                         <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>

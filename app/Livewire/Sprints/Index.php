@@ -29,6 +29,8 @@ class Index extends Component
 
     public bool $showForm = false;
 
+    public ?int $selectedSprintId = null;
+
     #[Url]
     public string $search = '';
 
@@ -64,6 +66,18 @@ class Index extends Component
         Gate::authorize('create', Sprint::class);
         $this->resetForm();
         $this->showForm = true;
+    }
+
+    public function show(int $sprintId): void
+    {
+        $sprint = Sprint::query()->findOrFail($sprintId);
+        Gate::authorize('viewAny', Sprint::class);
+        $this->selectedSprintId = $sprint->id;
+    }
+
+    public function closeDetails(): void
+    {
+        $this->selectedSprintId = null;
     }
 
     public function edit(int $sprintId): void
@@ -148,6 +162,11 @@ class Index extends Component
             ->orderByDesc('id')
             ->paginate($perPage);
 
-        return view('livewire.sprints.index', ['sprints' => $sprints]);
+        $selectedSprint = $this->selectedSprintId ? Sprint::query()->with('creator')->withCount('tickets')->withCount(['tickets as done_tickets_count' => fn ($query) => $query->where('status', 'closed')])->find($this->selectedSprintId) : null;
+        if ($selectedSprint) {
+            $selectedSprint->setRelation('tickets', $selectedSprint->tickets()->with(['customer', 'assignedAgent'])->latest()->get());
+        }
+
+        return view('livewire.sprints.index', ['sprints' => $sprints, 'selectedSprint' => $selectedSprint]);
     }
 }

@@ -3,9 +3,9 @@
     @if ($errors->has('sprint')) <div class="alert alert-error">{{ $errors->first('sprint') }}</div> @endif
 
     @if ($showForm)
-        <section class="content-card sprint-form-card">
+        <section class="content-card sprint-form-card hd-modal-panel" role="dialog" aria-modal="true" aria-labelledby="sprint-form-title">
             <div class="sprint-form-heading">
-                <div><span class="sprint-eyebrow">SPRINT PLANNING</span><h2>{{ $sprintId ? 'Edit sprint' : 'Create sprint' }}</h2></div>
+                <div><span class="sprint-eyebrow">SPRINT PLANNING</span><h2 id="sprint-form-title">{{ $sprintId ? 'Edit sprint' : 'Create sprint' }}</h2></div>
                 <button type="button" class="btn btn-secondary" wire:click="cancel">Close</button>
             </div>
             <form wire:submit="save" class="sprint-form">
@@ -59,6 +59,7 @@
                     <strong class="sprint-progress-value">{{ $progress }}%</strong>
                 </div>
                 <div class="sprint-row-actions">
+                    <button type="button" class="btn btn-secondary" wire:click="show({{ $sprint->id }})">Show</button>
                     <a class="btn btn-secondary" href="{{ route('kanban.index', ['sprint' => $sprint->id]) }}">Open board</a>
                     @can('update', $sprint)<button type="button" class="btn btn-secondary" wire:click="edit({{ $sprint->id }})">Edit</button>@endcan
                     @can('delete', $sprint)<button type="button" class="btn btn-danger" wire:click="delete({{ $sprint->id }})" wire:confirm="Delete {{ $sprint->name }}? This sprint must not contain tickets.">Delete</button>@endcan
@@ -69,6 +70,14 @@
         @endforelse
         <div class="table-pagination">{{ $sprints->links('vendor.pagination.helpdesk') }}</div>
     </section>
+
+    @if ($selectedSprint)
+        <div class="hd-modal-backdrop" wire:click.self="closeDetails"><section class="content-card hd-modal-panel hd-detail-modal" role="dialog" aria-modal="true" aria-labelledby="sprint-detail-title">
+            <div class="hd-modal-heading"><div><span class="hd-eyebrow">SPRINT DETAILS</span><h2 id="sprint-detail-title">{{ $selectedSprint->name }}</h2><p>{{ $selectedSprint->description ?: 'No sprint goal added.' }}</p></div><button type="button" class="hd-modal-close" wire:click="closeDetails" aria-label="Close">×</button></div>
+            <div class="hd-detail-grid"><div><span class="hd-detail-label">Period</span><strong>{{ $selectedSprint->start_date->format('d M Y') }} — {{ $selectedSprint->end_date->format('d M Y') }}</strong></div><div><span class="hd-detail-label">Tickets</span><strong>{{ $selectedSprint->tickets_count }}</strong></div><div><span class="hd-detail-label">Progress</span><strong>{{ $selectedSprint->progress }}%</strong></div><div><span class="hd-detail-label">Created by</span><strong>{{ $selectedSprint->creator?->name ?? 'Unknown' }}</strong></div></div>
+            <div class="hd-progress-track"><span style="width:{{ $selectedSprint->progress }}%"></span></div><h3>Tickets in this sprint</h3><div class="hd-record-list">@forelse($selectedSprint->tickets as $ticket)<a href="{{ route('tickets.show',$ticket) }}"><span><strong>#{{ $ticket->id }} · {{ $ticket->subject }}</strong><small>{{ $ticket->customer?->name ?? 'No customer' }} · {{ $ticket->assignedAgent?->name ?? 'Unassigned' }}</small></span><span class="status status-{{ $ticket->status }}">{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</span></a>@empty <p class="hd-muted">No tickets in this sprint yet.</p>@endforelse</div>
+        </section></div>
+    @endif
 
     <style>
         .sprint-form-card,.sprint-list-card{padding:26px;margin-bottom:20px}.sprint-form-heading,.sprint-list-toolbar,.sprint-search-row,.sprint-row,.sprint-row-main,.sprint-row-title,.sprint-row-actions,.sprint-meta{display:flex;align-items:center}.sprint-form-heading,.sprint-list-toolbar,.sprint-search-row{justify-content:space-between;gap:18px}.sprint-eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;color:var(--muted,#64748b)}.sprint-form-heading h2,.sprint-list-toolbar h2{margin:5px 0;font-size:21px}.sprint-list-toolbar p,.sprint-row-copy p{margin:3px 0;color:var(--muted,#64748b);font-size:13px}.sprint-form{max-width:760px;margin-top:20px}.sprint-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.sprint-row{justify-content:space-between;gap:20px;padding:20px 0;border-bottom:1px solid var(--border,#e5e7eb)}.sprint-row-main{min-width:0;flex:1;gap:14px}.sprint-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--surface-muted,#f1f5f9);font-size:22px}.sprint-row-copy{flex:1;min-width:0}.sprint-row-title{gap:10px;flex-wrap:wrap}.sprint-row-title h3{margin:0;font-size:15px}.sprint-status{padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700}.is-complete{background:#dcfce7;color:#166534}.is-planned{background:#e0e7ff;color:#3730a3}.is-active{background:#dbeafe;color:#1d4ed8}.is-overdue{background:#ffedd5;color:#9a3412}.sprint-meta{gap:16px;flex-wrap:wrap;margin-top:10px;color:var(--muted,#64748b);font-size:11px}.sprint-progress{height:5px;margin-top:12px;border-radius:99px;background:var(--surface-muted,#e5e7eb);overflow:hidden}.sprint-progress span{display:block;height:100%;background:var(--primary,#4f46e5);border-radius:99px}.sprint-progress-value{min-width:42px;text-align:right;font-size:13px}.sprint-row-actions{gap:7px}.sprint-search-row{margin:22px 0 8px}.sprint-page-size{font-size:12px;color:var(--muted,#64748b)}.sprint-page-size select{margin-left:6px;padding:7px;border:1px solid var(--border,#ddd);border-radius:8px;background:var(--surface,#fff)}.sprint-empty{text-align:center;padding:54px 16px;color:var(--muted,#64748b)}.sprint-empty>span{font-size:34px}.sprint-empty h3{margin:8px 0;color:var(--text,#111827)}.sprint-empty p{margin:0;font-size:13px}@media(max-width:800px){.sprint-row{align-items:flex-start;flex-direction:column}.sprint-row-actions{width:100%;flex-wrap:wrap}.sprint-row-actions>*{flex:1}.sprint-list-toolbar{align-items:flex-start;flex-direction:column}.sprint-date-grid{grid-template-columns:1fr}}

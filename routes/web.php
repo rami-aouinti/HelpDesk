@@ -12,6 +12,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceDetailController;
 use Illuminate\Support\Facades\Route;
 
+require __DIR__.'/knowledge-base.php';
+
 Route::redirect('/', '/dashboard');
 
 Route::view('/api/documentation', 'api.documentation')->name('api.documentation');

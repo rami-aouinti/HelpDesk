@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
@@ -453,4 +454,108 @@ class TicketWorkflowTest extends TestCase
 
         $this->assertSame('normal', $ticket->fresh()->priority);
     }
+
+    public function test_agent_can_link_a_ticket_to_a_project_they_belong_to(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $project = Project::create([
+            'name' => 'Agent project access',
+            'description' => 'A project assigned to this agent.',
+            'status' => 'active',
+            'created_by' => User::where('email', 'admin@helpdesk.test')->value('id'),
+        ]);
+        $project->members()->attach($agent->id);
+
+        $ticket = Ticket::create([
+            'subject' => 'Ticket to link',
+            'description' => 'Link this ticket to the agent project.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['project_id' => $project->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($project->id, $ticket->fresh()->project_id);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'project_id',
+            'old_value' => null,
+            'new_value' => (string) $project->id,
+        ]);
+    }
+
+    public function test_agent_cannot_link_a_ticket_to_a_project_they_do_not_belong_to(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $project = Project::create([
+            'name' => 'Restricted project',
+            'description' => 'No membership for the current agent.',
+            'status' => 'active',
+            'created_by' => User::where('email', 'admin@helpdesk.test')->value('id'),
+        ]);
+
+        $ticket = Ticket::create([
+            'subject' => 'Ticket stays unlinked',
+            'description' => 'The agent must not link this ticket.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), ['project_id' => $project->id])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('project_id');
+
+        $this->assertNull($ticket->fresh()->project_id);
+        $this->assertDatabaseMissing('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'project_id',
+            'new_value' => (string) $project->id,
+        ]);
+    }
+
+    public function test_agent_can_unlink_a_ticket_from_its_project(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $project = Project::create([
+            'name' => 'Unlinkable project',
+            'description' => 'The agent belongs to this project.',
+            'status' => 'active',
+            'created_by' => User::where('email', 'admin@helpdesk.test')->value('id'),
+        ]);
+        $project->members()->attach($agent->id);
+
+        $ticket = Ticket::create([
+            'subject' => 'Ticket to unlink',
+            'description' => 'Remove the project association.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'project_id' => $project->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['project_id' => null])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($ticket->fresh()->project_id);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'project_id',
+            'old_value' => (string) $project->id,
+            'new_value' => null,
+        ]);
+    }
+
 }

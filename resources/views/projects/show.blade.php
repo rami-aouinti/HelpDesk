@@ -18,7 +18,7 @@
     </div>
     <div class="project-detail-columns">
         <section class="content-card"><div class="section-heading"><h2>Project members</h2><span class="section-count">{{ $project->members->count() }}</span></div>
-            <div class="user-assignment-list">@forelse($project->members as $member)<a class="user-assignment-row" href="{{ route('users.show',$member) }}"><span class="hd-avatar">{{ strtoupper(mb_substr($member->name,0,1)) }}</span><div><strong>{{ $member->name }}</strong><small>{{ $member->email }}</small></div></a>@empty<p class="empty-state">No members assigned.</p>@endforelse</div>
+            <div class="user-assignment-list">@forelse($project->members as $member)@can('view', $member)<a class="user-assignment-row" href="{{ route('users.show',$member) }}">@else<div class="user-assignment-row">@endcan<span class="hd-avatar">{{ strtoupper(mb_substr($member->name,0,1)) }}</span><div><strong>{{ $member->name }}</strong><small>{{ $member->email }}</small></div>@can('view', $member)</a>@else</div>@endcan@empty<p class="empty-state">No members assigned.</p>@endforelse</div>
         </section>
         <section class="content-card"><div class="section-heading"><h2>Documents</h2><span class="section-count">{{ $project->documents->count() }}</span></div>
             <div class="hd-record-list">@forelse($project->documents as $document)<a href="{{ route('projects.documents.download',$document) }}"><span><strong>{{ $document->original_name }}</strong><small>{{ number_format($document->size/1024,1) }} KB · uploaded by {{ $document->uploader?->name ?? 'Former user' }}</small></span><span>Download ↗</span></a>@empty<p class="empty-state">No documents uploaded.</p>@endforelse</div>

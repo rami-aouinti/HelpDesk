@@ -1,5 +1,8 @@
 @extends('layouts.guest')
 
+@section('title', 'Create an account | HelpDesk')
+@section('meta-description', 'Create a HelpDesk account to submit support requests, track progress and collaborate with your support team.')
+
 @section('content')
     <h1 class="mb-2 text-2xl font-semibold">Create your account</h1>
     <p class="mb-6 text-sm text-slate-500">Get started with HelpDesk.</p>

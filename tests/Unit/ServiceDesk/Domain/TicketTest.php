@@ -102,6 +102,27 @@ final class TicketTest extends TestCase
     }
 
     #[Test]
+    public function it_can_unassign_an_agent_without_removing_the_team(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 108,
+            subject: 'Assigned ticket',
+            description: 'The agent is no longer responsible.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::IN_PROGRESS,
+            teamId: 7,
+            assignedAgentId: 52,
+        );
+
+        $ticket->unassignAgent();
+
+        self::assertNull($ticket->assignedAgentId());
+        self::assertSame(7, $ticket->teamId());
+    }
+
+    #[Test]
     public function an_agent_can_claim_an_unassigned_ticket_for_a_team(): void
     {
         $ticket = Ticket::open(

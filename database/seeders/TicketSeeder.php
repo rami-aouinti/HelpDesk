@@ -12,7 +12,7 @@ class TicketSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->runningUnitTests()) {
+        if (config('app.env') === 'testing' || app()->runningUnitTests()) {
             return;
         }
 

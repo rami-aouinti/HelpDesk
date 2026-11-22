@@ -31,4 +31,18 @@ final class EloquentNotificationInboxRepository implements NotificationInboxRepo
             'unread_count' => $user->unreadNotifications()->count(),
         ];
     }
+    public function markAsRead(int $userId, string $notificationId): void
+    {
+        $user = User::query()->findOrFail($userId);
+
+        $notification = $user->notifications()->whereKey($notificationId)->firstOrFail();
+        $notification->markAsRead();
+    }
+
+    public function markAllAsRead(int $userId): int
+    {
+        $user = User::query()->findOrFail($userId);
+
+        return $user->unreadNotifications()->update(['read_at' => now()]);
+    }
 }

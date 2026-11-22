@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Communications\Application\Commands\MarkNotificationAsRead;
 
 use App\Communications\Application\Contracts\NotificationInboxRepository;

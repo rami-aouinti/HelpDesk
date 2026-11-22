@@ -51,7 +51,7 @@ class TicketSlaTest extends TestCase
         $this->assertNull($ticket->first_response_breached_at);
 
         $service->process($ticket, $now->copy()->addMinute());
-        Notification::assertSentToTimes($agent, TicketSlaAlertNotification::class, 1);
+        $this->assertCount(1, Notification::sent($agent, TicketSlaAlertNotification::class));
     }
 
     public function test_overdue_first_response_is_marked_as_breached_and_alerted(): void

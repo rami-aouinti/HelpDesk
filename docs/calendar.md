@@ -17,7 +17,7 @@ Ticket creation dates are included automatically in the calendar feed for ticket
 
 ## Dashboard interactions
 
-The dashboard widget supports month, week, and day views, previous/next navigation, a Today shortcut, visibility filters, an upcoming agenda, and an event editor. Event data is loaded from the authenticated JSON feed.
+The dashboard uses FullCalendar 6 with month, week, and day views, previous/next navigation, a Today shortcut, visibility filters, an upcoming agenda, and an event editor. Users can select a date or time range to create an event, and authorized users can drag or resize events to change their schedule. Ticket activity remains read-only. Event data is loaded from the authenticated JSON feed.
 
 ## Routes
 
@@ -28,7 +28,14 @@ The dashboard widget supports month, week, and day views, previous/next navigati
 
 ## Deployment
 
-Run the migration after pulling the change:
+Install the FullCalendar packages and rebuild the Vite assets after pulling the change. `npm install` also refreshes the npm lockfile with the new dependencies:
+
+```bash
+npm install
+npm run build
+```
+
+Then run the migration (only needed if the calendar migration has not already been applied):
 
 ```bash
 docker compose exec app php artisan migrate --force

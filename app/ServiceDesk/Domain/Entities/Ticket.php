@@ -170,6 +170,16 @@ final class Ticket
         $this->status = $newStatus;
     }
 
+    public function assignToAgent(int $agentId, int $teamId): void
+    {
+        if ($agentId < 1 || $teamId < 1) {
+            throw new InvalidTicketData('A valid agent and team are required for ticket assignment.');
+        }
+
+        $this->teamId = $teamId;
+        $this->assignedAgentId = $agentId;
+    }
+
     public function claimBy(int $agentId, int $teamId): void
     {
         if ($agentId < 1 || $teamId < 1) {

@@ -7,6 +7,23 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = $request->user()->notifications()->latest();
+
+        if ($request->query('filter') === 'unread') {
+            $query->whereNull('read_at');
+        }
+
+        $notifications = $query->paginate(15)->withQueryString();
+
+        return view('notifications.index', [
+            'notifications' => $notifications,
+            'unreadCount' => $request->user()->unreadNotifications()->count(),
+            'filter' => $request->query('filter') === 'unread' ? 'unread' : 'all',
+        ]);
+    }
+
     public function recent(Request $request): JsonResponse
     {
         $user = $request->user();

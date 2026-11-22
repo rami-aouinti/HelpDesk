@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -63,7 +64,8 @@ class UserSearchService
         }
     }
 
-    public function search(string $term)
+    /** @return Collection<int, User> */
+    public function search(string $term): Collection
     {
         $ids = $this->searchIds($term);
 

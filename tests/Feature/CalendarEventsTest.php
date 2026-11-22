@@ -147,5 +147,4 @@ class CalendarEventsTest extends TestCase
 
         $this->deleteJson(route('calendar.events.destroy', $eventId))->assertOk();
     }
-
 }

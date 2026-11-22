@@ -13,7 +13,7 @@ interface TicketAttachmentStorage
 
     public function exists(string $disk, string $path): bool;
 
-    /** @return resource|false */
+    /** @return resource|null */
     public function readStream(string $disk, string $path);
 
     /**

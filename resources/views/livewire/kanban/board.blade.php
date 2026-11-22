@@ -1,35 +1,11 @@
 <div class="kanban-page">
     @if ($errors->has('board')) <div class="alert alert-error">{{ $errors->first('board') }}</div> @endif
 
-    <section class="kanban-toolbar content-card">
-        <div class="kanban-heading">
-            <div><span class="kanban-eyebrow">DELIVERY WORKSPACE</span><h2>{{ $sprint?->name ?? 'Sprint Kanban' }}</h2>
-                @if ($sprint)
-                    <p>{{ $sprint->start_date->format('M d, Y') }} — {{ $sprint->end_date->format('M d, Y') }} · {{ $totalTickets }} visible tickets · {{ $doneTickets }} done</p>
-                @else
-                    <p>Create a sprint to start managing work on the Kanban board.</p>
-                @endif
-            </div>
-            <div class="kanban-controls">
-                <label class="kanban-select-label">Sprint
-                    <select wire:change="selectSprint(Number($event.target.value))">
-                        @forelse ($sprints as $option)
-                            <option value="{{ $option->id }}" @selected($sprintId === $option->id)>{{ $option->name }}</option>
-                        @empty
-                            <option value="">No sprints</option>
-                        @endforelse
-                    </select>
-                </label>
-                <label class="kanban-mine-toggle"><input type="checkbox" wire:model.live="onlyMine"> <span>Only my assigned tickets</span></label>
-                <a href="{{ route('sprints.index') }}" class="btn btn-secondary">Manage sprints</a>
-            </div>
-        </div>
-        @if ($sprint && $totalTickets > 0)
-            <div class="kanban-summary"><div class="kanban-summary-progress"><span style="width: {{ (int) round(($doneTickets / $totalTickets) * 100) }}%"></span></div><strong>{{ (int) round(($doneTickets / $totalTickets) * 100) }}%</strong><small>completed</small></div>
-        @endif
-    </section>
+    @if ($sprint && $totalTickets > 0)
+        <div class="kanban-summary kanban-summary-compact"><div class="kanban-summary-progress"><span style="width: {{ (int) round(($doneTickets / $totalTickets) * 100) }}%"></span></div><strong>{{ (int) round(($doneTickets / $totalTickets) * 100) }}%</strong><small>completed</small></div>
+    @endif
 
-    @if (! $sprint)
+
         <section class="content-card kanban-empty"><div class="kanban-empty-icon">▦</div><h3>No sprint available</h3><p>Create your first sprint, then add tickets to it from the Kanban board.</p>@can('create', \App\Models\Sprint::class)<a href="{{ route('sprints.index') }}" class="btn btn-primary">Create a sprint</a>@endcan</section>
     @else
         <section class="kanban-backlog content-card">

@@ -79,6 +79,7 @@ class CalendarEventsTest extends TestCase
             'starts_at' => now()->addDay()->toDateTimeString(),
         ])->assertUnprocessable();
     }
+
     public function test_only_the_owner_or_an_admin_can_edit_and_delete_an_event(): void
     {
         $owner = User::factory()->create([
@@ -94,7 +95,7 @@ class CalendarEventsTest extends TestCase
             'starts_at' => now()->addDay()->toDateTimeString(),
         ])->assertCreated();
 
-        $eventId = \\App\\Models\\CalendarEvent::query()->firstOrFail()->id;
+        $eventId = \App\Models\CalendarEvent::query()->firstOrFail()->id;
         $otherUser = User::factory()->create([
             'is_active' => true,
             'email_verified_at' => now(),

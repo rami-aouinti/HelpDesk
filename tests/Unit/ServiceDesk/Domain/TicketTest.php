@@ -15,6 +15,43 @@ use PHPUnit\Framework\TestCase;
 final class TicketTest extends TestCase
 {
     #[Test]
+    public function it_can_update_estimated_and_elapsed_effort(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Effort tracking',
+            description: 'Track estimated and spent time.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $ticket->updateEffort(120, 45);
+
+        self::assertSame(120, $ticket->estimatedMinutes());
+        self::assertSame(45, $ticket->elapsedMinutes());
+
+        $ticket->updateEffort(180, 45);
+
+        self::assertSame(180, $ticket->estimatedMinutes());
+        self::assertSame(45, $ticket->elapsedMinutes());
+    }
+
+    #[Test]
+    public function it_rejects_effort_values_outside_the_supported_range(): void
+    {
+        $ticket = Ticket::open(
+            subject: 'Effort tracking',
+            description: 'Track estimated and spent time.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+        );
+
+        $this->expectException(InvalidTicketData::class);
+        $ticket->updateEffort(-1, 0);
+    }
+
+    #[Test]
     public function it_can_change_ticket_priority(): void
     {
         $ticket = Ticket::reconstitute(

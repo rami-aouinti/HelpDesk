@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Events\TicketMessageCreated;
+use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageCommand;
+use App\ServiceDesk\Application\Commands\AddTicketMessage\AddTicketMessageHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
 use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectCommand;
@@ -302,9 +304,25 @@ class TicketController extends Controller
     public function storeMessage(
         StoreTicketMessageRequest $request,
         Ticket $ticket,
+        AddTicketMessageHandler $handler,
     ): JsonResponse {
         $data = $request->validated();
         $isInternal = $request->boolean('is_internal');
+        if ($request->file('attachments', []) === []) {
+            $message = $handler->handle(new AddTicketMessageCommand(
+                ticketId: (int) $ticket->getKey(),
+                authorId: (int) $request->user()->getKey(),
+                body: trim((string) ($data['body'] ?? '')),
+                isInternal: $isInternal,
+            ));
+            CacheApiGetResponse::flush();
+            $message->load(['user', 'attachments']);
+
+            return (new TicketMessageResource($message))
+                ->response()
+                ->setStatusCode(201);
+        }
+
         $storedPaths = [];
 
         try {

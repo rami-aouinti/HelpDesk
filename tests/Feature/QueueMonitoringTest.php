@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Jobs\IndexUserInElasticsearch;
 use App\Listeners\IndexTicketInElasticsearch;
+use App\Notifications\TicketActivityNotification;
 use Illuminate\Queue\Events\QueueBusy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -35,13 +36,14 @@ class QueueMonitoringTest extends TestCase
     public function test_horizon_monitor_tags_command_registers_helpdesk_search_tags(): void
     {
         $tags = Mockery::mock(TagRepository::class);
+        $tags->shouldReceive('monitor')->once()->with('ticket-notifications');
         $tags->shouldReceive('monitor')->once()->with('ticket-search-indexing');
         $tags->shouldReceive('monitor')->once()->with('user-search-indexing');
 
         $this->app->instance(TagRepository::class, $tags);
 
         $this->artisan('horizon:monitor-tags')
-            ->expectsOutput('Horizon monitoring tags registered: ticket-search-indexing, user-search-indexing.')
+            ->expectsOutput('Horizon monitoring tags registered: ticket-notifications, ticket-search-indexing, user-search-indexing.')
             ->assertExitCode(0);
     }
 
@@ -51,6 +53,8 @@ class QueueMonitoringTest extends TestCase
             ['ticket-search-indexing'],
             (new IndexTicketInElasticsearch())->tags(),
         );
+
+        $this->assertSame(['ticket-notifications'], (new TicketActivityNotification(new \App\Models\Ticket(), 'Subject', 'Message'))->tags());
 
         $this->assertSame(
             ['user-search-indexing'],

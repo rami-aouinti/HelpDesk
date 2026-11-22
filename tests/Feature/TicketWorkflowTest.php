@@ -8,6 +8,8 @@ use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TicketWorkflowTest extends TestCase
@@ -742,6 +744,49 @@ class TicketWorkflowTest extends TestCase
             'body' => 'Here is the additional information you requested.',
             'is_internal' => false,
         ]);
+    }
+
+
+    public function test_customer_can_post_a_ticket_reply_with_an_attachment_through_the_web_use_case(): void
+    {
+        Storage::fake('local');
+
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = Ticket::create([
+            'subject' => 'Attachment upload test',
+            'description' => 'A customer needs to share a document.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($customer)
+            ->post(route('tickets.messages.store', $ticket), [
+                'body' => 'Please see the attached evidence.',
+                'attachments' => [
+                    UploadedFile::fake()->createWithContent('evidence.pdf', '%PDF-1.4 test'),
+                ],
+            ])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('ticket_messages', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $customer->id,
+            'body' => 'Please see the attached evidence.',
+        ]);
+
+        $this->assertDatabaseHas('ticket_attachments', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $customer->id,
+            'original_name' => 'evidence.pdf',
+            'disk' => 'local',
+        ]);
+
+        $attachment = \\App\\Models\\TicketAttachment::query()
+            ->where('ticket_id', $ticket->id)
+            ->firstOrFail();
+        Storage::disk('local')->assertExists($attachment->path);
     }
 
 }

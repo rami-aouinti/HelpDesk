@@ -8,6 +8,7 @@ use App\Http\Controllers\CsatReportController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Admin\NotificationDeliveryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProjectDocumentController;
@@ -42,6 +43,7 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/export/csv', [ReportController::class, 'csv'])->name('reports.csv');
     });
+    Route::get('/admin/communications/deliveries', [NotificationDeliveryController::class, 'index'])->middleware('can:communications.deliveries.view')->name('admin.communications.deliveries.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');

@@ -1437,7 +1437,7 @@ html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-op
     object-fit: cover;
 }
 .project-cover-placeholder {
-    background: linear-gradient(135deg, var(--hd-surface-raised), var(--hd-canvas));
+    background: linear-gradient(135deg, var(--hd-surface), var(--hd-canvas));
 }
 .profile-settings-grid {
     margin-top: 0;

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Help center | HelpDesk')
+@section('meta-description', 'Explore HelpDesk guidance, learn how support workflows work and find information about roles, permissions and key features.')
 @section('page-title', 'Help center')
 
 @section('content')

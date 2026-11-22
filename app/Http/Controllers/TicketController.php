@@ -191,7 +191,7 @@ class TicketController extends Controller
         );
     }
 
-    public function claim(Request $request, Ticket $ticket, TicketService $ticketService): RedirectResponse
+    public function claim(Request $request, Ticket $ticket, ClaimTicketHandler $handler): RedirectResponse
     {
         abort_unless($request->user()->hasRole('agent'), 403);
         abort_unless($request->user()->can('update', $ticket), 403);
@@ -200,7 +200,7 @@ class TicketController extends Controller
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
         ]);
 
-        $ticketService->claim($ticket, $request->user(), isset($data['team_id']) ? (int) $data['team_id'] : null);
+        try {\n            $handler->handle(new ClaimTicketCommand(\n                ticketId: (int) $ticket->getKey(),\n                agentId: (int) $request->user()->getKey(),\n                teamId: isset($data['team_id']) ? (int) $data['team_id'] : null,\n            ));\n        } catch (TicketClaimRejected $exception) {\n            throw ValidationException::withMessages([\n                $exception->field => $exception->getMessage(),\n            ]);\n        }
 
         return redirect()
             ->route('tickets.show', $ticket)

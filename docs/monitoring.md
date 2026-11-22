@@ -62,7 +62,7 @@ Laravel's example environment sets `LOG_STACK=stderr`, so Laravel logs are emitt
 
 ## Horizon dashboard monitoring
 
-The Horizon dashboard is available at `http://localhost:8080/horizon`. Its **Monitoring** tab tracks individual job tags. HelpDesk tags the asynchronous Elasticsearch indexing jobs with `ticket-search-indexing` and `user-search-indexing`, then registers those tags automatically:
+The Horizon dashboard is available at `http://localhost:8080/horizon`. Its **Monitoring** tab tracks individual job tags. HelpDesk tags queued ticket notifications and Elasticsearch indexing jobs with `ticket-notifications`, `ticket-search-indexing` and `user-search-indexing`, then registers those tags automatically:
 
 ```bash
 docker compose exec app php artisan horizon:monitor-tags

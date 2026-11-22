@@ -40,12 +40,12 @@ class DashboardTest extends TestCase
         ]);
 
         $this->actingAs($agent)
-            ->get(route('dashboard'))
+            ->get(route('portal.home'))
             ->assertOk()
-            ->assertDontSee($ticket->subject);
+            ->assertSee($ticket->subject);
     }
 
-    public function test_customer_dashboard_hides_own_tickets_from_projects_the_customer_does_not_belong_to(): void
+    public function test_customer_portal_shows_own_tickets_even_without_project_membership(): void
     {
         $customer = User::query()->where('email', 'customer@helpdesk.test')->firstOrFail();
         $admin = User::role('admin')->firstOrFail();

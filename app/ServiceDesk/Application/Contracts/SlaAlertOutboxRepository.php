@@ -13,5 +13,5 @@ interface SlaAlertOutboxRepository
 
     public function markDispatched(int $id): void;
 
-    public function releaseForRetry(int $id, string $error, int $attempts): void;
+    public function releaseForRetry(int $id, string $error): void;
 }

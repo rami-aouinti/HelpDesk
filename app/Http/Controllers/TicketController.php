@@ -11,6 +11,8 @@ use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgent
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentHandler;
 use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentCommand;
 use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentHandler;
+use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortCommand;
+use App\ServiceDesk\Application\Commands\UpdateTicketEffort\UpdateTicketEffortHandler;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
@@ -260,12 +262,25 @@ class TicketController extends Controller
         AssignTicketToTeamHandler $teamAssignmentHandler,
         AssignTicketToAgentHandler $assignmentHandler,
         LinkTicketToProjectHandler $projectLinkHandler,
-        UnassignTicketFromAgentHandler $unassignmentHandler
+        UnassignTicketFromAgentHandler $unassignmentHandler,
+        UpdateTicketEffortHandler $effortHandler
     ): RedirectResponse {
         $data = $request->validated();
 
-        // Project-only updates use the dedicated ServiceDesk command.
-        if (array_keys($data) === ['project_id']) {
+        // Effort tracking updates use their dedicated ServiceDesk command.
+        if (
+            $data !== []
+            && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []
+        ) {
+            $effortHandler->handle(new UpdateTicketEffortCommand(
+                ticketId: (int) $ticket->getKey(),
+                actorId: (int) $request->user()->getKey(),
+                estimatedMinutes: isset($data['estimated_minutes']) ? (int) $data['estimated_minutes'] : null,
+                elapsedMinutes: isset($data['elapsed_minutes']) ? (int) $data['elapsed_minutes'] : null,
+                updateEstimatedMinutes: array_key_exists('estimated_minutes', $data),
+                updateElapsedMinutes: array_key_exists('elapsed_minutes', $data),
+            ));
+        } elseif (array_keys($data) === ['project_id']) {
             try {
                 $projectLinkHandler->handle(new LinkTicketToProjectCommand(
                     ticketId: (int) $ticket->getKey(),

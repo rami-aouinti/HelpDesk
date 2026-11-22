@@ -10,6 +10,11 @@ services:
     user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
     env_file:
       - .env
+    environment:
+      QUEUE_CONNECTION: redis
+      REDIS_QUEUE_CONNECTION: queue
+      REDIS_QUEUE_HOST: redis-queue
+      REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - .:/var/www/html
       - helpdesk_vendor:/var/www/html/vendor
@@ -48,6 +53,11 @@ services:
     command: php artisan horizon
     env_file:
       - .env
+    environment:
+      QUEUE_CONNECTION: redis
+      REDIS_QUEUE_CONNECTION: queue
+      REDIS_QUEUE_HOST: redis-queue
+      REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - .:/var/www/html
       - helpdesk_vendor:/var/www/html/vendor

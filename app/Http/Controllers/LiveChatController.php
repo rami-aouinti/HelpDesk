@@ -30,11 +30,17 @@ class LiveChatController extends Controller
         if ($user->hasRole('customer')) {
             $items = ChatConversation::query()->where('customer_id', $user->id)->whereIn('status', ['open', 'closed'])->latest('last_message_at')->limit(10)->get();
         } else {
-            $items = ChatConversation::query()->with('customer:id,name,profile_photo_path')
-                ->where('status', 'open')
-                ->where(function ($query) use ($user): void {
-                    $query->whereNull('agent_id')->orWhere('agent_id', $user->id);
-                })->latest('last_message_at')->limit(50)->get();
+            $query = ChatConversation::query()
+                ->with('customer:id,name,profile_photo_path')
+                ->where('status', 'open');
+
+            if (! $user->hasRole('admin')) {
+                $query->where(function ($scope) use ($user): void {
+                    $scope->whereNull('agent_id')->orWhere('agent_id', $user->id);
+                });
+            }
+
+            $items = $query->latest('last_message_at')->limit(50)->get();
         }
 
         return response()->json(['conversations' => $items->map(fn (ChatConversation $item) => [
@@ -141,6 +147,13 @@ class LiveChatController extends Controller
 
         $ticket = DB::transaction(function () use ($conversation, $request, $createTicketHandler): Ticket {
             $lockedConversation = ChatConversation::query()->lockForUpdate()->findOrFail($conversation->id);
+            if (
+                $request->user()->hasRole('agent')
+                && $lockedConversation->agent_id !== null
+                && $lockedConversation->agent_id !== $request->user()->id
+            ) {
+                abort(403);
+            }
             abort_unless($lockedConversation->status === 'open', 409);
             abort_if($lockedConversation->converted_ticket_id !== null, 409);
 

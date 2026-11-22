@@ -22,17 +22,16 @@ class TicketPolicy
             return true;
         }
 
-        if (! $user->can('tickets.view')) {
+        if (! $user->can('tickets.view') || ! $user->hasRole('agent')) {
             return false;
         }
 
-        if ($ticket->project_id !== null && ! $ticket->project->members()->whereKey($user->id)->exists()) {
+        if ($ticket->team_id !== null && ! $user->teams()->whereKey($ticket->team_id)->exists()) {
             return false;
         }
 
-        return $user->hasRole('agent')
-            && ($ticket->team_id === null || $user->teams()->whereKey($ticket->team_id)->exists())
-            && ($ticket->project_id === null || $ticket->project->members()->whereKey($user->id)->exists());
+        return $ticket->project_id === null
+            || $user->projects()->whereKey($ticket->project_id)->exists();
     }
 
     public function create(User $user): bool

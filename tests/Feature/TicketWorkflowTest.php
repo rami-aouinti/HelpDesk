@@ -705,11 +705,13 @@ class TicketWorkflowTest extends TestCase
             'elapsed_minutes' => 40,
         ]);
 
-        foreach ([
-            ['status', 'open', 'in_progress'],
-            ['priority', 'normal', 'high'],
-            ['elapsed_minutes', '15', '40'],
-        ] as [$action, $oldValue, $newValue]) {
+        foreach (
+            [
+                ['status', 'open', 'in_progress'],
+                ['priority', 'normal', 'high'],
+                ['elapsed_minutes', '15', '40'],
+            ] as [$action, $oldValue, $newValue]
+        ) {
             $this->assertDatabaseHas('ticket_histories', [
                 'ticket_id' => $ticket->id,
                 'user_id' => $agent->id,
@@ -789,5 +791,4 @@ class TicketWorkflowTest extends TestCase
             ->firstOrFail();
         Storage::disk('local')->assertExists($attachment->path);
     }
-
 }

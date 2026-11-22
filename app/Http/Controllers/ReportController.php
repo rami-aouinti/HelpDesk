@@ -22,11 +22,11 @@ class ReportController extends Controller
         ]);
         $report = $filters['report'] ?? 'executive';
         $query = DB::table('tickets')
-            ->when($filters['from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
-            ->when($filters['to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
-            ->when($filters['team_id'] ?? null, fn ($q, $id) => $q->where('team_id', $id))
-            ->when($filters['agent_id'] ?? null, fn ($q, $id) => $q->where('assigned_to', $id))
-            ->when($filters['project_id'] ?? null, fn ($q, $id) => $q->where('project_id', $id));
+            ->when($filters['from'] ?? null, fn ($q, $date) => $q->whereDate('tickets.created_at', '>=', $date))
+            ->when($filters['to'] ?? null, fn ($q, $date) => $q->whereDate('tickets.created_at', '<=', $date))
+            ->when($filters['team_id'] ?? null, fn ($q, $id) => $q->where('tickets.team_id', $id))
+            ->when($filters['agent_id'] ?? null, fn ($q, $id) => $q->where('tickets.assigned_to', $id))
+            ->when($filters['project_id'] ?? null, fn ($q, $id) => $q->where('tickets.project_id', $id));
         $total = (clone $query)->count();
         $resolved = (clone $query)->whereIn('status', ['resolved', 'closed'])->count();
         $open = (clone $query)->whereNotIn('status', ['resolved', 'closed'])->count();

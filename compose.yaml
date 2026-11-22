@@ -300,7 +300,7 @@ services:
       - /var/lib/docker:/var/lib/docker:ro
       - /dev/disk:/dev/disk:ro
     command:
-      - --docker_only=true
+      - --raw_cgroup_prefix_whitelist=/docker
       - --housekeeping_interval=30s
     networks:
       - monitoring

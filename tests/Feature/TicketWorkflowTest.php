@@ -558,4 +558,61 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
+
+    public function test_admin_can_unassign_an_agent_without_removing_the_team(): void
+    {
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Ticket to unassign',
+            'description' => 'Keep the team but remove the agent.',
+            'status' => 'in_progress',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('tickets.update', $ticket), ['assigned_to' => null])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($ticket->fresh()->assigned_to);
+        $this->assertSame($team->id, $ticket->fresh()->team_id);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'action' => 'assigned_to',
+            'old_value' => (string) $agent->id,
+            'new_value' => null,
+        ]);
+    }
+
+    public function test_agent_cannot_unassign_a_ticket_through_the_web_workflow(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Protected assignment',
+            'description' => 'Only an administrator may unassign this ticket.',
+            'status' => 'in_progress',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'team_id' => $team->id,
+            'assigned_to' => $agent->id,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['assigned_to' => null])
+            ->assertForbidden();
+
+        $this->assertSame($agent->id, $ticket->fresh()->assigned_to);
+    }
+
 }

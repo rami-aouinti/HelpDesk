@@ -10,6 +10,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Tune the default PHP-FPM www pool for the local/staging load profile.
+# Keep max_requests unchanged until worker memory growth has been measured.
+RUN sed -ri \
+    -e 's/^pm.max_children = 5$/pm.max_children = 8/' \
+    -e 's/^pm.min_spare_servers = 1$/pm.min_spare_servers = 2/' \
+    -e 's/^pm.max_spare_servers = 3$/pm.max_spare_servers = 4/' \
+    /usr/local/etc/php-fpm.d/www.conf \
+    && grep -q '^pm.max_children = 8$' /usr/local/etc/php-fpm.d/www.conf \
+    && grep -q '^pm.min_spare_servers = 2$' /usr/local/etc/php-fpm.d/www.conf \
+    && grep -q '^pm.max_spare_servers = 4$' /usr/local/etc/php-fpm.d/www.conf \
+    && /usr/local/sbin/php-fpm -tt
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 

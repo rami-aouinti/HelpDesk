@@ -62,16 +62,18 @@ The built frontend assets in `public/build` must be available to the web server.
 
 ## 5. Queue worker and scheduler
 
-Run a separate long-lived queue worker with the same release image and environment as the web application. The development Compose command is:
+Run Laravel Horizon as a separate long-lived process with the same release image and environment as the web application. Horizon requires Redis; the production Compose service points the `queue` Redis connection at the private `redis` service. The worker command is:
 
 ```bash
-php artisan queue:work database --queue=notifications,default --sleep=3 --tries=3 --timeout=90
+php artisan horizon
 ```
 
-Use a process supervisor or the hosting platform to restart workers after failures and deployments. Gracefully restart workers during releases:
+The dashboard is available at `/horizon`. In non-local environments, access is restricted to users with the `administrator` role. Horizon supervises the `notifications` and `default` queues and scales workers according to `config/horizon.php`.
+
+Use the container restart policy or hosting platform to restart Horizon after failures. Gracefully restart Horizon during releases:
 
 ```bash
-php artisan queue:restart
+php artisan horizon:terminate
 ```
 
 Monitor queue depth and failed jobs. Review failed jobs and retry only after the underlying issue has been understood:

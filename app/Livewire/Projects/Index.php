@@ -190,6 +190,9 @@ class Index extends Component
             if ($u->hasRole('customer')) {
                 $ticketQuery->where('user_id', $u->id);
             } elseif ($u->hasRole('agent') && ! $u->can('tickets.view.all')) {
+                if (! $selectedProject->members()->whereKey($u->id)->exists()) {
+                    $ticketQuery->whereRaw('1 = 0');
+                }
                 $teamIds = $u->teams()->pluck('teams.id');
                 $ticketQuery->where(function ($q) use ($teamIds) {
                     $q->whereNull('team_id')->orWhereIn('team_id', $teamIds);

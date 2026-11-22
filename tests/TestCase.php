@@ -11,6 +11,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Ensure seeder guards behave consistently even when a cached config exists.
+        config(['app.env' => 'testing']);
+
         // Browser CSRF checks are covered by the framework. Feature tests
         // focus on the application behavior behind this middleware.
         $this->withoutMiddleware(PreventRequestForgery::class);

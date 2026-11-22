@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\\Seeders;
 
-use App\Models\Team;
-use App\Models\User;
-use Illuminate\Database\Seeder;
+use App\\Models\\Team;
+use App\\Models\\User;
+use Illuminate\\Database\\Seeder;
 
 class TeamSeeder extends Seeder
 {
@@ -14,37 +14,27 @@ class TeamSeeder extends Seeder
             [
                 'name' => 'General Support',
                 'description' => 'First-line support for general customer questions.',
-                'members' => [
-                    'agent@helpdesk.test',
-                    'sarah.agent@helpdesk.test',
-                    'daniel.agent@helpdesk.test',
-                ],
+                'members' => ['agent@helpdesk.test', 'sarah.agent@helpdesk.test', 'daniel.agent@helpdesk.test', 'maya.agent@helpdesk.test'],
             ],
             [
                 'name' => 'Technical Support',
                 'description' => 'Handles technical incidents, bugs and troubleshooting.',
-                'members' => [
-                    'amira.agent@helpdesk.test',
-                    'lucas.agent@helpdesk.test',
-                    'youssef.agent@helpdesk.test',
-                ],
+                'members' => ['amira.agent@helpdesk.test', 'lucas.agent@helpdesk.test', 'youssef.agent@helpdesk.test', 'jonas.agent@helpdesk.test', 'noah.agent@helpdesk.test'],
             ],
             [
                 'name' => 'Billing Support',
                 'description' => 'Handles invoices, payments and subscription questions.',
-                'members' => [
-                    'sarah.agent@helpdesk.test',
-                    'emma.agent@helpdesk.test',
-                ],
+                'members' => ['sarah.agent@helpdesk.test', 'emma.agent@helpdesk.test', 'lea.agent@helpdesk.test'],
             ],
             [
                 'name' => 'Account Management',
                 'description' => 'Helps customers with accounts and access.',
-                'members' => [
-                    'daniel.agent@helpdesk.test',
-                    'amira.agent@helpdesk.test',
-                    'youssef.agent@helpdesk.test',
-                ],
+                'members' => ['daniel.agent@helpdesk.test', 'amira.agent@helpdesk.test', 'youssef.agent@helpdesk.test', 'ines.agent@helpdesk.test'],
+            ],
+            [
+                'name' => 'Product & Integrations',
+                'description' => 'Owns product feedback, integrations and complex escalations.',
+                'members' => ['karim.agent@helpdesk.test', 'maya.agent@helpdesk.test', 'jonas.agent@helpdesk.test', 'lea.agent@helpdesk.test'],
             ],
         ];
 

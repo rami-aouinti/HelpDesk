@@ -193,6 +193,11 @@ final class Ticket
         $this->status = $newStatus;
     }
 
+    public function unassignAgent(): void
+    {
+        $this->assignedAgentId = null;
+    }
+
     public function assignToAgent(int $agentId, int $teamId): void
     {
         if ($agentId < 1 || $teamId < 1) {

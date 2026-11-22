@@ -53,7 +53,7 @@ Platform is not a dumping ground for business features. Business-specific rules 
 2. Migrate ServiceDesk ticket creation as the first vertical slice: pure domain aggregate, command, handler, repository contract, Eloquent adapter and framework binding.
 3. Preserve current notifications, Elasticsearch indexing and API cache invalidation through adapters/listeners; do not silently remove side effects.
 4. Add ticket queries separately from write use cases.
-5. Extract ticket claim invariants into the ServiceDesk domain aggregate; next, migrate the claim command, transactional persistence and event publication behind application/infrastructure contracts.
+5. Migrate ticket claiming through `ClaimTicketCommand`: the aggregate enforces claim invariants, the handler locks and persists the ticket transactionally, and adapters preserve history, notifications, Elasticsearch indexing and API cache invalidation.
 6. Migrate status changes through `ChangeTicketStatusCommand` and its domain transition graph. The HTTP controller delegates status-only updates to the command handler; mixed field updates remain on the legacy workflow until their assignment, project-membership and effort-tracking rules are migrated. Then migrate the remaining ticket update fields and conversations incrementally.
 7. Introduce Insights read models and Communications adapters where they provide clear value.
 8. Move remaining contexts gradually; avoid a big-bang rewrite.

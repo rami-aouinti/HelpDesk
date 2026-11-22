@@ -65,4 +65,3 @@ final class TrackNotificationDeliveryTest extends TestCase
         ));
     }
 }
-

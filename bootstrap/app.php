@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->append(LogHttpRequests::class);
         $middleware->alias([
-            'active' => EnsureUserIsActive::class,
+            'active' => EnsureUserIsActive::class,\n            'cache.api.get' => CacheApiGetResponse::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

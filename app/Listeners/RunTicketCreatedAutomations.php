@@ -12,6 +12,6 @@ class RunTicketCreatedAutomations implements ShouldQueue
 
     public function handle(TicketCreated $event, AutomationRuleEngine $engine): void
     {
-        $engine->dispatch('ticket.created', $event->ticket->fresh(), ['source' => 'ticket.created']);
+        $engine->dispatch('ticket.created', $event->ticket->fresh() ?? $event->ticket, ['source' => 'ticket.created']);
     }
 }

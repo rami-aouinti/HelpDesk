@@ -46,6 +46,7 @@ class ElasticsearchTicketIndexingTest extends TestCase
     {
         config(['app.env' => 'local', 'services.elasticsearch.enabled' => true, 'services.elasticsearch.url' => 'http://elasticsearch:9200']);
         Http::fake();
+        Queue::fake();
 
         $customer = User::factory()->create();
 

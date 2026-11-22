@@ -112,5 +112,4 @@ class ProfileSettingsTest extends TestCase
 
         $this->assertSame(['mail'], $notification->via($agent));
     }
-
 }

@@ -19,6 +19,15 @@ class UserController extends Controller
         return view('users.index');
     }
 
+    public function show(User $user): View
+    {
+        abort_unless(auth()->user()->can('view', $user), 403);
+
+        return view('users.show', [
+            'managedUser' => $user->load(['roles', 'teams', 'projects']),
+        ]);
+    }
+
     public function create(): View
     {
         abort_unless(auth()->user()->can('create', User::class), 403);

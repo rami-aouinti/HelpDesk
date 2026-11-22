@@ -1,5 +1,5 @@
 /* Consistent CRUD dialogs and people presentation across the workspace. */
-body:has(.hd-modal-panel)::before{content:"";position:fixed;inset:0;z-index:999;background:rgba(10,18,35,.62);backdrop-filter:blur(5px)}
+body:has(.hd-modal-panel:not(.hd-detail-modal))::before{content:"";position:fixed;inset:0;z-index:999;background:rgba(10,18,35,.62);backdrop-filter:blur(5px)}
 .hd-modal-panel{position:fixed!important;z-index:1000!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:min(680px,calc(100vw - 32px));max-height:min(88vh,900px);overflow:auto;padding:28px!important;border:1px solid var(--border,#e5e7eb);border-radius:22px!important;box-shadow:0 28px 90px rgba(0,0,0,.28)!important;background:var(--surface,#fff)}
 .hd-modal-backdrop{position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:18px;background:rgba(10,18,35,.62);backdrop-filter:blur(5px)}
 .hd-modal-backdrop .hd-modal-panel{position:relative!important;left:auto!important;top:auto!important;transform:none!important}
@@ -18,3 +18,5 @@ body:has(.hd-modal-panel)::before{content:"";position:fixed;inset:0;z-index:999;
 .hd-muted{color:var(--muted,#64748b);font-size:12px}.hd-progress-track{height:8px;overflow:hidden;border-radius:99px;background:var(--surface-muted,#e5e7eb)}.hd-progress-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
 .admin-data-table td{vertical-align:middle}.admin-data-table .actions{white-space:nowrap}.admin-data-table .actions .btn{margin:2px}
 @media(max-width:640px){.hd-modal-panel{padding:20px!important}.hd-detail-grid,.hd-member-list{grid-template-columns:1fr}.hd-record-list>a{align-items:flex-start;flex-direction:column}}
+
+.hd-select-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;padding:8px;border:1px solid var(--border,#e5e7eb);border-radius:13px}.hd-select-person{display:flex!important;align-items:center;gap:9px;padding:9px;border:1px solid var(--border,#e5e7eb);border-radius:11px;cursor:pointer;min-width:0}.hd-select-person:has(input:checked){border-color:#818cf8;background:rgba(99,102,241,.08)}.hd-select-person>span:last-child{display:grid;min-width:0}.hd-select-person small{font-size:10px;color:var(--muted,#64748b);overflow-wrap:anywhere}.hd-select-person input{width:auto!important;min-height:0!important;flex:none}.project-form-card{width:min(760px,calc(100vw - 32px))}@media(max-width:640px){.hd-select-people{grid-template-columns:1fr}}

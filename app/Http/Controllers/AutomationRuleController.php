@@ -42,7 +42,7 @@ class AutomationRuleController extends Controller
         $ticket = $execution->ticket;
         abort_unless($rule && $ticket && $rule->is_active, 404);
 
-        $engine->dispatch($execution->trigger, $ticket->fresh() ?? $ticket, [
+        $engine->retry($rule, $ticket->fresh() ?? $ticket, [
             'retry_of_execution' => $execution->id,
         ]);
 

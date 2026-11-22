@@ -8,9 +8,6 @@ use App\ServiceDesk\Application\Contracts\TicketClaimedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
 use App\ServiceDesk\Application\Contracts\TicketTeamMembership;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
-use App\ServiceDesk\Domain\Entities\Ticket;
-use App\ServiceDesk\Domain\Enums\TicketPriority;
-use App\ServiceDesk\Domain\Enums\TicketStatus;
 use App\ServiceDesk\Domain\Events\TicketWasClaimed;
 use App\ServiceDesk\Domain\Exceptions\InvalidTicketData;
 use App\ServiceDesk\Domain\Exceptions\TicketClaimRejected;
@@ -31,6 +28,11 @@ final class ClaimTicketHandler
     {
         $event = $this->transactions->run(function () use ($command): TicketWasClaimed {
             $ticket = $this->tickets->findForUpdate($command->ticketId);
+
+            if ($ticket->assignedAgentId() !== null) {
+                throw new TicketClaimRejected('ticket', 'This ticket has already been assigned to another agent.');
+            }
+
             $teamId = $ticket->teamId() ?? $command->teamId;
 
             if ($teamId === null) {

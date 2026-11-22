@@ -11,4 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('queue:monitor redis:default,notifications --max=100')
     ->everyMinute()
     ->withoutOverlapping();
-\nSchedule::command('horizon:snapshot')->everyFiveMinutes();\n
+
+Schedule::command('horizon:snapshot')->everyFiveMinutes();

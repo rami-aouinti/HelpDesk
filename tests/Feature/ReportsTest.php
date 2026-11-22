@@ -22,7 +22,13 @@ class ReportsTest extends TestCase
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
         $customerId = User::where('email', 'customer@helpdesk.test')->value('id');
-        Ticket::create(['subject'=>'Analytics sample','description'=>'Sample','status'=>'resolved','priority'=>'urgent','user_id'=>$customerId]);
+        Ticket::create([
+            'subject' => 'Analytics sample',
+            'description' => 'Sample',
+            'status' => 'resolved',
+            'priority' => 'urgent',
+            'user_id' => $customerId,
+        ]);
 
         $this->actingAs($admin)->get(route('reports.index'))->assertOk()->assertSee('Reports & Analytics');
 
@@ -41,9 +47,9 @@ class ReportsTest extends TestCase
     {
         $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
         $customerId = User::where('email', 'customer@helpdesk.test')->value('id');
-        $team = Team::create(['name'=>'Reporting team']);
-        Ticket::create(['subject'=>'Included report ticket','description'=>'x','status'=>'open','priority'=>'normal','user_id'=>$customerId,'team_id'=>$team->id]);
-        Ticket::create(['subject'=>'Excluded report ticket','description'=>'x','status'=>'open','priority'=>'normal','user_id'=>$customerId]);
+        $team = Team::create(['name' => 'Reporting team']);
+        Ticket::create(['subject' => 'Included report ticket', 'description' => 'x', 'status' => 'open', 'priority' => 'normal', 'user_id' => $customerId, 'team_id' => $team->id]);
+        Ticket::create(['subject' => 'Excluded report ticket', 'description' => 'x', 'status' => 'open', 'priority' => 'normal', 'user_id' => $customerId]);
 
         $this->actingAs($admin)->get(route('reports.index',['report'=>'tickets','team_id'=>$team->id]))
             ->assertOk()->assertSee('Included report ticket')->assertDontSee('Excluded report ticket');

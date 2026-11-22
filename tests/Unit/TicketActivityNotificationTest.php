@@ -23,6 +23,7 @@ class TicketActivityNotificationTest extends TestCase
         $this->assertTrue($notification->afterCommit);
         $this->assertSame(['database', 'mail'], $notification->via(new \stdClass()));
     }
+
     public function test_notification_channel_policy_respects_independent_preferences(): void
     {
         $policy = new NotificationChannelPolicy(inAppEnabled: false, emailEnabled: true);
@@ -35,5 +36,4 @@ class TicketActivityNotificationTest extends TestCase
         $this->assertFalse($disabled->shouldDeliverInApp());
         $this->assertFalse($disabled->shouldDeliverEmail());
     }
-
 }

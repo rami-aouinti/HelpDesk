@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ServiceDesk\Infrastructure\Sla;
 
+use App\Events\TicketSlaAlertPublished;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\TicketSlaAlertNotification;
@@ -22,7 +23,9 @@ final class LaravelSlaAlertPublisher implements SlaAlertPublisher
             return;
         }
 
-        event(new TicketSlaAlertPublished($ticket, $alert->slaType, $alert->state));\n\n        $recipients = collect([$ticket->assignedAgent]);
+        event(new TicketSlaAlertPublished($ticket, $alert->slaType, $alert->state));
+
+        $recipients = collect([$ticket->assignedAgent]);
 
         if ($ticket->team) {
             $recipients = $recipients->merge(

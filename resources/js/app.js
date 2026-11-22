@@ -163,7 +163,7 @@ function initializeHelpDeskCalendar() {
             item.addEventListener('click', () => {
                 if (props.origin === 'system' && event.url) {
                     window.location.assign(event.url);
-                } else if (props.editable) {
+                } else if (props.canEdit) {
                     openForm(event);
                 }
             });
@@ -238,6 +238,7 @@ function initializeHelpDeskCalendar() {
                 ...calendarEvent,
                 origin: source,
                 classNames: ['visibility-' + kind],
+                canEdit: Boolean(event.editable),
                 editable: Boolean(event.editable),
                 startEditable: Boolean(event.editable),
                 durationEditable: Boolean(event.editable),
@@ -249,7 +250,7 @@ function initializeHelpDeskCalendar() {
                 window.location.assign(info.event.url);
                 return;
             }
-            if (info.event.extendedProps.editable) {
+            if (info.event.extendedProps.canEdit) {
                 info.jsEvent.preventDefault();
                 openForm(info.event);
             }

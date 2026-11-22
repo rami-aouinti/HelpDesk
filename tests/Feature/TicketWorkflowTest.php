@@ -123,6 +123,36 @@ class TicketWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_admin_cannot_assign_a_ticket_to_an_inactive_agent(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $admin = User::where('email', 'admin@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $team = Team::where('name', 'General Support')->firstOrFail();
+
+        $agent->update(['is_active' => false]);
+
+        $ticket = Ticket::create([
+            'subject' => 'Inactive agent assignment',
+            'description' => 'An inactive agent must not receive new work.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), [
+                'team_id' => $team->id,
+                'assigned_to' => $agent->id,
+            ])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('assigned_to');
+
+        $this->assertNull($ticket->fresh()->assigned_to);
+        $this->assertNull($ticket->fresh()->team_id);
+    }
+
     public function test_admin_can_assign_ticket_to_a_team_and_its_member(): void
     {
         $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();

@@ -27,6 +27,7 @@ final class LaravelTicketAttachmentStorage implements TicketAttachmentStorage
         return Storage::disk($disk)->exists($path);
     }
 
+    /** @return resource|null */
     public function readStream(string $disk, string $path)
     {
         return Storage::disk($disk)->readStream($path);

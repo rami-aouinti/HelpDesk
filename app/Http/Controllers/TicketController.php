@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TicketCreated;
 use App\Events\TicketMessageCreated;
+use App\Data\Tickets\CreateTicketData;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
@@ -40,20 +40,11 @@ class TicketController extends Controller
         return view('tickets.create', ['projects' => $projects]);
     }
 
-    public function store(StoreTicketRequest $request): RedirectResponse
+    public function store(StoreTicketRequest $request, TicketService $ticketService): RedirectResponse
     {
-        $data = $request->validated();
-
-        $ticket = Ticket::create([
-            'subject' => (string) $data['subject'],
-            'description' => (string) $data['description'],
-            'priority' => (string) $data['priority'],
-            'project_id' => isset($data['project_id']) ? (int) $data['project_id'] : null,
-            'status' => 'open',
-            'user_id' => $request->user()->id,
-        ]);
-
-        event(new TicketCreated($ticket));
+        $ticket = $ticketService->create(
+            CreateTicketData::fromValidated($request->validated(), $request->user()),
+        );
 
         return redirect()
             ->route('tickets.index')

@@ -27,8 +27,10 @@ class CalendarController extends Controller
                         $personal->where('visibility', 'personal')->where('user_id', $user->id);
                     })
                     ->orWhere(function ($team) use ($user): void {
-                        $team->where('visibility', 'team')
-                            ->whereIn('team_id', $user->teams()->select('teams.id'));
+                        $team->where('visibility', 'team');
+                        if (! $user->hasRole('admin')) {
+                            $team->whereIn('team_id', $user->teams()->select('teams.id'));
+                        }
                     });
             })
             ->orderBy('starts_at')

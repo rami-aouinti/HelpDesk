@@ -13,4 +13,8 @@ interface NotificationInboxRepository
      * @return array{notifications: mixed, unread_count: int}
      */
     public function recent(int $userId, int $limit): array;
+
+    public function markAsRead(int $userId, string $notificationId): void;
+
+    public function markAllAsRead(int $userId): int;
 }

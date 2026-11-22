@@ -164,7 +164,18 @@ class Index extends Component
 
         $selectedSprint = $this->selectedSprintId ? Sprint::query()->with('creator')->withCount('tickets')->withCount(['tickets as done_tickets_count' => fn ($query) => $query->where('status', 'closed')])->find($this->selectedSprintId) : null;
         if ($selectedSprint) {
-            $selectedSprint->setRelation('tickets', $selectedSprint->tickets()->with(['customer', 'assignedAgent'])->latest()->get());
+            $user = auth()->user();
+            $ticketQuery = $selectedSprint->tickets()->with(['customer', 'assignedAgent']);
+            if ($user->hasRole('customer')) {
+                $ticketQuery->where('user_id', $user->id);
+            } elseif ($user->hasRole('agent') && ! $user->can('tickets.view.all')) {
+                $teamIds = $user->teams()->pluck('teams.id');
+                $projectIds = $user->projects()->pluck('projects.id');
+                $ticketQuery->where(fn ($query) => $query
+                    ->where(fn ($teamQuery) => $teamQuery->whereNull('team_id')->orWhereIn('team_id', $teamIds))
+                    ->where(fn ($projectQuery) => $projectQuery->whereNull('project_id')->orWhereIn('project_id', $projectIds)));
+            }
+            $selectedSprint->setRelation('tickets', $ticketQuery->latest()->get());
         }
 
         return view('livewire.sprints.index', ['sprints' => $sprints, 'selectedSprint' => $selectedSprint]);

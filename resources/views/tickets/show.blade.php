@@ -430,4 +430,35 @@
             <div class="ticket-history-empty">No activity has been recorded for this ticket yet.</div>
         @endforelse
     </div>
+
+    @if (auth()->user()->hasRole('customer') && in_array($ticket->status, ['resolved', 'closed'], true))
+        <section class="content-card ticket-detail-section">
+            <span class="eyebrow">HOW DID WE DO?</span>
+            <h2>Rate your support experience</h2>
+            @if ($ticket->satisfactionSurvey)
+                <p class="text-amber-500" style="font-size:1.5rem">{{ str_repeat('★', $ticket->satisfactionSurvey->rating) }}{{ str_repeat('☆', 5 - $ticket->satisfactionSurvey->rating) }}</p>
+                <p>Thank you for your feedback. Your rating has been recorded.</p>
+                @if ($ticket->satisfactionSurvey->comment)<blockquote>{{ $ticket->satisfactionSurvey->comment }}</blockquote>@endif
+            @else
+                <p>Your feedback helps us improve our support.</p>
+                <form method="POST" action="{{ route('portal.satisfaction.store', $ticket) }}" class="mt-4">
+                    @csrf
+                    <div class="form-group">
+                        <label for="csat-rating">Your rating</label>
+                        <select id="csat-rating" name="rating" required>
+                            <option value="">Choose a rating</option>
+                            <option value="5">★★★★★ — Excellent</option>
+                            <option value="4">★★★★☆ — Good</option>
+                            <option value="3">★★★☆☆ — Okay</option>
+                            <option value="2">★★☆☆☆ — Poor</option>
+                            <option value="1">★☆☆☆☆ — Very poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label for="csat-comment">Comment (optional)</label><textarea id="csat-comment" name="comment" rows="3" maxlength="2000" placeholder="Tell us a little more about your experience...">{{ old('comment') }}</textarea></div>
+                    <button class="btn btn-primary" type="submit">Submit feedback</button>
+                </form>
+            @endif
+        </section>
+    @endif
+
 @endsection

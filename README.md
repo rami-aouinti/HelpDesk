@@ -82,7 +82,7 @@ docker compose exec app php artisan migrate
 docker compose exec app php artisan db:seed
 
 # Inspect application and queue worker logs
-docker compose logs -f app queue
+docker compose logs -f app queue scheduler
 
 # Run the PHP quality checks (development dependencies required)
 docker compose exec app composer quality

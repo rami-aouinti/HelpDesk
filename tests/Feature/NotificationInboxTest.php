@@ -117,4 +117,32 @@ class NotificationInboxTest extends TestCase
 
         $this->assertSame(0, $agent->unreadNotifications()->count());
     }
+    public function test_user_cannot_mark_another_users_notification_as_read(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Notification ownership test',
+            'description' => 'A ticket used to verify notification ownership.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        Notification::sendNow($customer, new TicketActivityNotification(
+            $ticket,
+            'Customer-only notification',
+            'This notification must not be accessible to the agent.',
+        ));
+
+        $notification = $customer->notifications()->firstOrFail();
+
+        $this->actingAs($agent)
+            ->patchJson(route('notifications.read', $notification->id))
+            ->assertNotFound();
+
+        $this->assertNull($customer->notifications()->findOrFail($notification->id)->read_at);
+    }
+
 }

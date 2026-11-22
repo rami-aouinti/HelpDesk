@@ -30,7 +30,7 @@ class TicketNotificationTest extends TestCase
             'subject' => 'Email notifications are missing',
             'description' => 'Please enable email notifications for new support tickets.',
             'priority' => 'normal',
-        ])->assertRedirect(route('tickets.index'));
+        ])->assertRedirect(route('portal.home'));
 
         Notification::assertSentTo($agent, TicketActivityNotification::class);
     }

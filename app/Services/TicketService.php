@@ -139,6 +139,95 @@ class TicketService
      *
      * @throws Throwable
      */
+    public function claim(Ticket $ticket, User $agent, ?int $teamId = null): Ticket
+    {
+        if (! $agent->hasRole('agent') || ! $agent->can('tickets.update')) {
+            throw ValidationException::withMessages([
+                'ticket' => 'Only support agents can claim tickets.',
+            ]);
+        }
+
+        $changes = [];
+
+        $claimedTicket = DB::transaction(function () use ($ticket, $agent, $teamId, &$changes): Ticket {
+            $lockedTicket = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
+
+            if ($lockedTicket->assigned_to !== null) {
+                throw ValidationException::withMessages([
+                    'ticket' => 'This ticket has already been assigned to another agent.',
+                ]);
+            }
+
+            $targetTeamId = $lockedTicket->team_id ?? $teamId;
+
+            if ($targetTeamId === null) {
+                throw ValidationException::withMessages([
+                    'team_id' => 'Choose one of your teams before claiming this ticket.',
+                ]);
+            }
+
+            if ($lockedTicket->team_id !== null && $teamId !== null && (int) $lockedTicket->team_id !== $teamId) {
+                throw ValidationException::withMessages([
+                    'team_id' => 'A ticket already assigned to a team cannot be claimed by another team.',
+                ]);
+            }
+
+            $team = Team::query()->find($targetTeamId);
+
+            if (! $team || ! $agent->teams()->whereKey($targetTeamId)->exists()) {
+                throw ValidationException::withMessages([
+                    'team_id' => 'You can only claim tickets for one of your teams.',
+                ]);
+            }
+
+            if ($lockedTicket->team_id === null) {
+                $lockedTicket->team_id = $targetTeamId;
+                $changes['team_id'] = ['old' => null, 'new' => $targetTeamId];
+
+                TicketHistory::create([
+                    'ticket_id' => $lockedTicket->id,
+                    'user_id' => $agent->id,
+                    'action' => 'team_id',
+                    'old_value' => null,
+                    'new_value' => (string) $targetTeamId,
+                ]);
+            }
+
+            $lockedTicket->assigned_to = $agent->id;
+            $changes['assigned_to'] = ['old' => null, 'new' => $agent->id];
+
+            TicketHistory::create([
+                'ticket_id' => $lockedTicket->id,
+                'user_id' => $agent->id,
+                'action' => 'assigned_to',
+                'old_value' => null,
+                'new_value' => (string) $agent->id,
+            ]);
+
+            if ($lockedTicket->status === 'open') {
+                $lockedTicket->status = 'in_progress';
+                $changes['status'] = ['old' => 'open', 'new' => 'in_progress'];
+
+                TicketHistory::create([
+                    'ticket_id' => $lockedTicket->id,
+                    'user_id' => $agent->id,
+                    'action' => 'status',
+                    'old_value' => 'open',
+                    'new_value' => 'in_progress',
+                ]);
+            }
+
+            $lockedTicket->save();
+
+            return $lockedTicket->refresh()->load(['customer', 'assignedAgent', 'team']);
+        });
+
+        event(new TicketUpdated($claimedTicket, $agent, $changes));
+        CacheApiGetResponse::flush();
+
+        return $claimedTicket;
+    }
+
     /**
      * Enforce the ticket workflow for non-administrators.
      */

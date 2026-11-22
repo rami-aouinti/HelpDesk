@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
-use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketCommand;
-use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
-use App\ServiceDesk\Domain\Exceptions\TicketClaimRejected;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
@@ -23,7 +20,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -195,7 +191,7 @@ class TicketController extends Controller
         );
     }
 
-    public function claim(Request $request, Ticket $ticket, ClaimTicketHandler $handler): RedirectResponse
+    public function claim(Request $request, Ticket $ticket, TicketService $ticketService): RedirectResponse
     {
         abort_unless($request->user()->hasRole('agent'), 403);
         abort_unless($request->user()->can('update', $ticket), 403);
@@ -204,17 +200,7 @@ class TicketController extends Controller
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
         ]);
 
-        try {
-            $handler->handle(new ClaimTicketCommand(
-                ticketId: (int) $ticket->getKey(),
-                agentId: (int) $request->user()->getKey(),
-                teamId: isset($data['team_id']) ? (int) $data['team_id'] : null,
-            ));
-        } catch (TicketClaimRejected $exception) {
-            throw ValidationException::withMessages([
-                $exception->field => $exception->getMessage(),
-            ]);
-        }
+        $ticketService->claim($ticket, $request->user(), isset($data['team_id']) ? (int) $data['team_id'] : null);
 
         return redirect()
             ->route('tickets.show', $ticket)

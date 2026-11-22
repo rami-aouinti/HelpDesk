@@ -69,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);
         $this->app->bind(TicketProjectAccess::class, EloquentTicketProjectAccess::class);
         $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);
-                $this->app->bind(SlaAlertPublisher::class, LaravelSlaAlertPublisher::class);
+        $this->app->bind(SlaAlertPublisher::class, LaravelSlaAlertPublisher::class);
         $this->app->bind(SlaPolicyProvider::class, ConfigSlaPolicyProvider::class);
         $this->app->bind(TicketSlaRepository::class, EloquentTicketSlaRepository::class);
         $this->app->bind(TicketUpdatedPublisher::class, LaravelTicketUpdatedPublisher::class);

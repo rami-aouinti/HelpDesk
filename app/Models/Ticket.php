@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -93,7 +94,7 @@ class Ticket extends Model
         return $this->hasMany(TicketMessage::class);
     }
 
-    public function satisfactionSurvey(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function satisfactionSurvey(): HasOne
     {
         return $this->hasOne(TicketSatisfactionSurvey::class);
     }
@@ -102,5 +103,11 @@ class Ticket extends Model
     public function histories(): HasMany
     {
         return $this->hasMany(TicketHistory::class)->latest();
+    }
+
+    /** @return HasMany<TicketTag, $this> */
+    public function tags(): HasMany
+    {
+        return $this->hasMany(TicketTag::class);
     }
 }

@@ -44,7 +44,7 @@ final class EloquentSlaAlertOutboxRepository implements SlaAlertOutboxRepository
             ]);
     }
 
-    public function releaseForRetry(int $id, string $error, int $attempts): void
+    public function releaseForRetry(int $id, string $error): void
     {
         $row = DB::table('sla_alert_outbox')->where('id', $id)->first(['attempts']);
 

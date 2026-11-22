@@ -8,7 +8,7 @@ services:
       APP_DEBUG: "false"
       QUEUE_CONNECTION: redis
       REDIS_QUEUE_CONNECTION: queue
-      REDIS_QUEUE_HOST: redis
+      REDIS_QUEUE_HOST: redis-queue
       REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
@@ -16,6 +16,8 @@ services:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      redis-queue:
         condition: service_healthy
     networks: [helpdesk]
 
@@ -31,7 +33,7 @@ services:
       APP_DEBUG: "false"
       QUEUE_CONNECTION: redis
       REDIS_QUEUE_CONNECTION: queue
-      REDIS_QUEUE_HOST: redis
+      REDIS_QUEUE_HOST: redis-queue
       REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
@@ -39,6 +41,8 @@ services:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      redis-queue:
         condition: service_healthy
       app:
         condition: service_started
@@ -86,9 +90,23 @@ services:
       retries: 20
     networks: [helpdesk]
 
+  redis-queue:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - helpdesk_redis_queue:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [helpdesk]
+
 volumes:
   helpdesk_postgres:
   helpdesk_redis:
+  helpdesk_redis_queue:
 
 networks:
   helpdesk:

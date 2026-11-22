@@ -95,3 +95,8 @@ The dashboard overview now follows the same pattern. `GetDashboardOverviewQuery`
 ## Communications read side
 
 The notification inbox and recent-notification feed are Communications query slices. `GetNotificationInboxQuery` and `GetRecentNotificationsQuery` carry the authenticated user identifier and read preferences; their handlers delegate to the `NotificationInboxRepository` port. `EloquentNotificationInboxRepository` owns database-notification queries and pagination. Marking one notification or all unread notifications as read uses `MarkNotificationAsReadCommand` and `MarkAllNotificationsAsReadCommand`; handlers delegate to the same repository. The Eloquent adapter scopes every mutation through the authenticated user's notification relationship, preventing cross-user updates. The HTTP controller translates requests and preserves the existing Blade and JSON response contracts.
+
+
+### Communications delivery preferences
+
+Ticket activity delivery uses the framework-independent `NotificationChannelPolicy` to evaluate the user's independent in-app and email preferences. The Laravel notification maps those decisions to the database and mail transports. SLA alerts follow the in-app preference and remain database-only. Preferences are stored on the user profile; legacy accounts default to both channels enabled. Channel policy tests are isolated from Laravel and Eloquent.

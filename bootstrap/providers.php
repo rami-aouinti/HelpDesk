@@ -6,7 +6,7 @@ use NunoMaduro\PhpInsights\Application\Adapters\Laravel\InsightsServiceProvider;
 
 $providers = [
     AppServiceProvider::class,
-    FortifyServiceProvider::class,
+    FortifyServiceProvider::class,\n    HorizonServiceProvider::class,
 ];
 
 if (class_exists(InsightsServiceProvider::class)) {

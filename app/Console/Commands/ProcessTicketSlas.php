@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Ticket;
-use App\Services\TicketSlaService;
+use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaCommand;
+use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaHandler;
 use Illuminate\Console\Command;
 
 class ProcessTicketSlas extends Command
@@ -12,16 +13,16 @@ class ProcessTicketSlas extends Command
 
     protected $description = 'Initialize ticket SLA deadlines and dispatch warning or breach alerts';
 
-    public function handle(TicketSlaService $sla): int
+    public function handle(ProcessTicketSlaHandler $handler): int
     {
         $statuses = config('helpdesk.sla.active_statuses', []);
 
         Ticket::query()
             ->whereIn('status', $statuses)
-            ->with(['assignedAgent'])
-            ->chunkById(100, function ($tickets) use ($sla): void {
+            ->select('id')
+            ->chunkById(100, function ($tickets) use ($handler): void {
                 foreach ($tickets as $ticket) {
-                    $sla->process($ticket);
+                    $handler->handle(new ProcessTicketSlaCommand((int) $ticket->getKey()));
                 }
             });
 

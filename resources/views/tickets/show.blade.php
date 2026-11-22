@@ -123,15 +123,13 @@
 
             @if (auth()->user()->hasRole('admin'))
             <div class="form-group">
-                <label for="team_id">Team</label>
-                <select name="team_id" id="team_id">
-                    <option value="">No team</option>
+                <label>Team</label>
+                <div class="hd-choice-grid">
+                    <label class="hd-choice-card"><input type="radio" name="team_id" value="" @checked(old('team_id', $ticket->team_id) === null)><span class="hd-avatar">—</span><span><strong>No team</strong><small>Keep this ticket unassigned to a team</small></span></label>
                     @foreach ($teams as $team)
-                        <option value="{{ $team->id }}" @selected((string) old('team_id', $ticket->team_id) === (string) $team->id)>
-                            {{ $team->name }}
-                        </option>
+                        <label class="hd-choice-card"><input type="radio" name="team_id" value="{{ $team->id }}" @checked((string) old('team_id', $ticket->team_id) === (string) $team->id)><span class="hd-avatar">{{ strtoupper(mb_substr($team->name,0,1)) }}</span><span><strong>{{ $team->name }}</strong><small>{{ $team->members_count ?? $team->members()->count() }} members</small></span></label>
                     @endforeach
-                </select>
+                </div>
             </div>
             @endif
 
@@ -147,15 +145,13 @@
             <div class="form-group"><label for="project_id">Project</label><select name="project_id" id="project_id"><option value="">No project</option>@foreach ($projects as $project)<option value="{{ $project->id }}" @selected((string) old('project_id', $ticket->project_id) === (string) $project->id)>{{ $project->name }}</option>@endforeach</select></div>
             @if (auth()->user()->hasRole('admin'))
             <div class="form-group">
-                <label for="assigned_to">Assigned agent</label>
-                <select name="assigned_to" id="assigned_to">
-                    <option value="">Unassigned</option>
+                <label>Assigned agent</label>
+                <div class="hd-choice-grid">
+                    <label class="hd-choice-card"><input type="radio" name="assigned_to" value="" @checked(old('assigned_to', $ticket->assigned_to) === null)><span class="hd-avatar">—</span><span><strong>Unassigned</strong><small>No agent selected</small></span></label>
                     @foreach ($agents as $agent)
-                        <option value="{{ $agent->id }}" @selected((string) old('assigned_to', $ticket->assigned_to) === (string) $agent->id)>
-                            {{ $agent->name }} ({{ $agent->email }})
-                        </option>
+                        <label class="hd-choice-card"><input type="radio" name="assigned_to" value="{{ $agent->id }}" @checked((string) old('assigned_to', $ticket->assigned_to) === (string) $agent->id)><span class="hd-avatar">{{ strtoupper(mb_substr($agent->name,0,1)) }}</span><span><strong>{{ $agent->name }}</strong><small>{{ $agent->email }}</small></span></label>
                     @endforeach
-                </select>
+                </div>
                 <small>The agent must belong to the selected team.</small>
             </div>
             @endif

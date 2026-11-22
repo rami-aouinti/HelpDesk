@@ -118,7 +118,7 @@ class CalendarController extends Controller
         }
 
         if ($visibility === 'team') {
-            if (! $data['team_id'] || ! $user->teams()->whereKey($data['team_id'])->exists()) {
+            if (! $data['team_id'] || (! $user->hasRole('admin') && ! $user->teams()->whereKey($data['team_id'])->exists())) {
                 throw ValidationException::withMessages(['team_id' => 'Choose one of your teams.']);
             }
         } else {

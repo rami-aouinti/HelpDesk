@@ -20,7 +20,13 @@ class CalendarController extends Controller
 
         $events = CalendarEvent::query()
             ->with(['creator:id,name', 'ticket:id,subject'])
-            ->whereBetween('starts_at', [$from, $to])
+            ->where('starts_at', '<=', $to)
+            ->where(function ($query) use ($from): void {
+                $query->where('ends_at', '>=', $from)
+                    ->orWhere(function ($singleDay) use ($from): void {
+                        $singleDay->whereNull('ends_at')->where('starts_at', '>=', $from);
+                    });
+            })
             ->where(function ($query) use ($user): void {
                 $query->where('visibility', 'company')
                     ->orWhere(function ($personal) use ($user): void {

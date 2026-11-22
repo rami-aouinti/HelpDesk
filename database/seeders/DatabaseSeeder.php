@@ -1,17 +1,14 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
+use App\\Models\\User;
+use Illuminate\\Database\\Seeder;
+use Spatie\\Permission\\Models\\Role;
+use Spatie\\Permission\\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -21,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $admin = Role::findByName('admin', 'web');
         $agent = Role::findByName('agent', 'web');
         $customer = Role::findByName('customer', 'web');
-
         $password = env('HELPDESK_DEMO_PASSWORD', 'password');
 
         $users = [
@@ -37,6 +33,7 @@ class DatabaseSeeder extends Seeder
                     'name' => $definition['name'],
                     'password' => $password,
                     'email_verified_at' => now(),
+                    'is_active' => true,
                 ],
             );
 
@@ -46,8 +43,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             TeamSeeder::class,
-            TicketSeeder::class,
             ProjectSeeder::class,
+            TicketSeeder::class,
+            SprintSeeder::class,
         ]);
     }
 }

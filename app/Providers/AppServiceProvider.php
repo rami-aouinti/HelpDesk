@@ -18,6 +18,7 @@ use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportReadRepositor
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportCsvExportRepository;
 
 use App\Events\TicketCreated;
+use App\Events\TicketSlaAlertPublished;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketMessageRepository;
 use App\ServiceDesk\Application\Contracts\TicketAttachmentStorage;
@@ -56,6 +57,9 @@ use App\Events\TicketMessageCreated;
 use App\Events\TicketUpdated;
 use App\Events\TicketSlaAlertPublished;
 use App\Listeners\SendTicketCreatedNotifications;
+use App\Listeners\RunTicketCreatedAutomations;
+use App\Listeners\RunTicketUpdatedAutomations;
+use App\Listeners\RunTicketSlaAutomations;
 use App\Listeners\SendTicketMessageNotifications;
 use App\Listeners\SendTicketUpdatedNotifications;
 use App\Listeners\RunTicketCreatedAutomations;

@@ -14,9 +14,9 @@ Route::middleware(['auth:sanctum', 'active', 'verified'])->group(function (): vo
         Route::post('/tokens', [TokenController::class, 'store'])->name('tokens.store');
         Route::delete('/tokens/current', [TokenController::class, 'destroy'])->name('tokens.destroy');
         Route::get('/user', fn (Request $request) => $request->user())->name('user');
-        Route::get('/tickets', [V1TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/tickets', [V1TicketController::class, 'index'])->middleware('cache.api.get')->name('tickets.index');
         Route::post('/tickets', [V1TicketController::class, 'store'])->name('tickets.store');
-        Route::get('/tickets/{ticket}', [V1TicketController::class, 'show'])->name('tickets.show');
+        Route::get('/tickets/{ticket}', [V1TicketController::class, 'show'])->middleware('cache.api.get')->name('tickets.show');
         Route::patch('/tickets/{ticket}', [V1TicketController::class, 'update'])->name('tickets.update');
         Route::post('/tickets/{ticket}/messages', [V1TicketController::class, 'storeMessage'])->name('tickets.messages.store');
         Route::get('/tickets/{ticket}/attachments/{attachment}', [V1TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');

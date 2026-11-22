@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Team;
 use App\Models\Ticket;
@@ -430,4 +431,60 @@ class TicketApiTest extends TestCase
             'user_id' => $customer->id,
         ]);
     }
+
+    public function test_agent_can_link_a_ticket_to_a_project_they_belong_to_through_the_api(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $project = Project::create([
+            'name' => 'API agent project',
+            'description' => 'Project membership for API test.',
+            'status' => 'active',
+            'created_by' => User::where('email', 'admin@helpdesk.test')->value('id'),
+        ]);
+        $project->members()->attach($agent->id);
+        $ticket = $this->makeTicket($customer);
+
+        Sanctum::actingAs($agent);
+
+        $this->patchJson("/api/v1/tickets/{$ticket->id}", [
+            'project_id' => $project->id,
+        ])->assertOk()
+            ->assertJsonPath('data.project.id', $project->id);
+
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'project_id',
+            'new_value' => (string) $project->id,
+        ]);
+    }
+
+    public function test_agent_cannot_link_a_ticket_to_a_project_they_do_not_belong_to_through_the_api(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $project = Project::create([
+            'name' => 'API restricted project',
+            'description' => 'No membership for the agent.',
+            'status' => 'active',
+            'created_by' => User::where('email', 'admin@helpdesk.test')->value('id'),
+        ]);
+        $ticket = $this->makeTicket($customer);
+
+        Sanctum::actingAs($agent);
+
+        $this->patchJson("/api/v1/tickets/{$ticket->id}", [
+            'project_id' => $project->id,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('project_id');
+
+        $this->assertNull($ticket->fresh()->project_id);
+        $this->assertDatabaseMissing('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'action' => 'project_id',
+            'new_value' => (string) $project->id,
+        ]);
+    }
+
 }

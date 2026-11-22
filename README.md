@@ -101,9 +101,10 @@ The demo accounts are configured through `HELPDESK_ADMIN_EMAIL`, `HELPDESK_AGENT
 # Run all automated tests
 docker compose exec app php artisan test
 
-# Check Horizon status and queue backlog
+# Check Horizon status, register monitored job tags and inspect queue backlog
 docker compose exec app php artisan horizon:status
-docker compose exec app php artisan queue:monitor redis:notifications,default --max=100
+docker compose exec app php artisan horizon:monitor-tags
+docker compose exec app php artisan queue:monitor redis:default,redis:notifications --max=100
 
 # Run database migrations
 docker compose exec app php artisan migrate

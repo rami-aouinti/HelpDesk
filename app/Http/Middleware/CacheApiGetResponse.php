@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\\Http\\Middleware;
+namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Cache;
-use Symfony\\Component\\HttpFoundation\\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response;
 
 class CacheApiGetResponse
 {
@@ -19,7 +19,6 @@ class CacheApiGetResponse
             ! $request->isMethod('GET')
             || ! $request->user()
             || app()->environment('testing')
-            || ! config('cache.default')
         ) {
             return $next($request);
         }
@@ -34,10 +33,14 @@ class CacheApiGetResponse
             'accept' => $request->header('Accept'),
         ], JSON_THROW_ON_ERROR));
 
+        $cacheMiss = false;
+        $uncachedResponse = null;
+
         $cached = Cache::tags([self::CACHE_TAG])->remember(
             $key,
             now()->addSeconds(max(1, (int) config('cache.default_ttl', 300))),
-            function () use ($next, $request): ?array {
+            function () use ($next, $request, &$cacheMiss, &$uncachedResponse): ?array {
+                $cacheMiss = true;
                 $response = $next($request);
 
                 if (
@@ -45,6 +48,8 @@ class CacheApiGetResponse
                     || ! str_contains((string) $response->headers->get('Content-Type'), 'application/json')
                     || $response->headers->has('Set-Cookie')
                 ) {
+                    $uncachedResponse = $response;
+
                     return null;
                 }
 
@@ -55,13 +60,17 @@ class CacheApiGetResponse
             },
         );
 
+        if ($uncachedResponse instanceof Response) {
+            return $uncachedResponse;
+        }
+
         if (! is_array($cached)) {
             return $next($request);
         }
 
         return response($cached['content'], $cached['status'], [
             'Content-Type' => 'application/json',
-            'X-HelpDesk-Cache' => 'HIT',
+            'X-HelpDesk-Cache' => $cacheMiss ? 'MISS' : 'HIT',
         ]);
     }
 

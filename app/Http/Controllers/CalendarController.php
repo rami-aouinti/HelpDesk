@@ -22,7 +22,7 @@ class CalendarController extends Controller
             ->with(['creator:id,name', 'ticket:id,subject'])
             ->where('starts_at', '<=', $to)
             ->where(function ($query) use ($from): void {
-                $query->where('ends_at', '>=', $from)
+                $query->where('ends_at', '>', $from)
                     ->orWhere(function ($singleDay) use ($from): void {
                         $singleDay->whereNull('ends_at')->where('starts_at', '>=', $from);
                     });

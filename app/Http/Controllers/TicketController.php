@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketCommand;
+use App\ServiceDesk\Application\Commands\ClaimTicket\ClaimTicketHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
+use App\ServiceDesk\Domain\Exceptions\TicketClaimRejected;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
@@ -20,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 

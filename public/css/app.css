@@ -1261,3 +1261,71 @@ html[data-theme="dark"] .ticket-detail-item { border-color:var(--hd-border); }
 html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-option { background:var(--hd-canvas); }
 @media(max-width:900px) { .profile-settings-grid { grid-template-columns:1fr; } }
 @media(max-width:560px) { .profile-identity { align-items:flex-start; flex-direction:column; } .profile-settings-grid { gap:13px; } .profile-settings-card,.account-info-card { padding:18px; } }
+
+
+/* Dashboard shell alignment and administration navigation */
+.sidebar {
+    position: sticky;
+    top: 0;
+    flex: 0 0 245px;
+    width: 245px;
+    height: 100vh;
+    min-height: 100vh;
+    overflow-y: auto;
+}
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 24px;
+}
+.sidebar-admin-nav {
+    display: grid;
+    gap: 3px;
+}
+.sidebar-admin-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sidebar-admin-nav .nav-icon {
+    display: inline-grid;
+    width: 18px;
+    place-items: center;
+}
+.topbar {
+    justify-content: flex-start;
+    gap: 18px;
+}
+.topbar-heading {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+.topbar-page-tools {
+    margin-left: auto;
+}
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+.account-menu {
+    flex: 0 0 auto;
+}
+@media (max-width: 900px) {
+    .sidebar { flex-basis: 190px; width: 190px; }
+    .topbar { padding: 0 22px; }
+}
+@media (max-width: 640px) {
+    .topbar { gap: 10px; padding: 0 14px; }
+    .topbar-right { gap: 9px; }
+    .topbar-page-tools { margin-left: auto; }
+    .topbar-heading .breadcrumb { display: none; }
+}

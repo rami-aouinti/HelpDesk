@@ -10,6 +10,7 @@ use App\Listeners\SendTicketMessageNotifications;
 use App\Listeners\SendTicketUpdatedNotifications;
 use App\Listeners\IndexTicketInElasticsearch;
 use App\Models\User;
+use App\Observers\UserObserver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        User::observe(UserObserver::class);
+
         RateLimiter::for('api', function (Request $request): Limit {
             return Limit::perMinute(120)->by(
                 (string) ($request->user()?->getAuthIdentifier() ?? $request->ip()),

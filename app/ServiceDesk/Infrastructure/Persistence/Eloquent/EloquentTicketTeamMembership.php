@@ -13,6 +13,8 @@ final class EloquentTicketTeamMembership implements TicketTeamMembership
     {
         return User::query()
             ->whereKey($agentId)
+            ->where('is_active', true)
+            ->role('agent')
             ->whereHas('teams', fn ($query) => $query->whereKey($teamId))
             ->exists();
     }

@@ -29,6 +29,10 @@ scrape_configs:
     static_configs:
       - targets: ["postgres-exporter:9187"]
 
+  - job_name: redis-queue
+    static_configs:
+      - targets: ["redis-queue-exporter:9121"]
+
   - job_name: blackbox
     metrics_path: /probe
     params:

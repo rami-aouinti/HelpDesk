@@ -37,7 +37,9 @@
         @endforeach
     </div>
 
-    @include('calendar.widget')\n\n    <div class="dashboard-insights-grid">
+    @include('calendar.widget')
+
+    <div class="dashboard-insights-grid">
         <section class="panel dashboard-section dashboard-priority-panel">
             <div class="panel-heading">
                 <div>

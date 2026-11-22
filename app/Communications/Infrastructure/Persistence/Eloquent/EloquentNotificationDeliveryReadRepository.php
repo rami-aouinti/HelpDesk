@@ -86,16 +86,24 @@ final class EloquentNotificationDeliveryReadRepository implements NotificationDe
 
         if (isset($filters['search'])) {
             $term = '%' . addcslashes($filters['search'], '%_\\\\') . '%';
-            $query->where(function (Builder $nested) use ($term): void {
+            $matchingUserIds = User::query()
+                ->where('name', 'like', $term)
+                ->orWhere('email', 'like', $term)
+                ->pluck('id')
+                ->map(static fn ($id): string => (string) $id)
+                ->all();
+
+            $query->where(function (Builder $nested) use ($term, $matchingUserIds): void {
                 $nested->where('notification_deliveries.notification_id', 'like', $term)
                     ->orWhere('notification_deliveries.notification_type', 'like', $term)
-                    ->orWhere('notification_deliveries.last_error', 'like', $term)
-                    ->orWhereIn('notification_deliveries.notifiable_id', function ($users) use ($term): void {
-                        $users->selectRaw('CAST(id AS CHAR)')
-                            ->from('users')
-                            ->where('name', 'like', $term)
-                            ->orWhere('email', 'like', $term);
+                    ->orWhere('notification_deliveries.last_error', 'like', $term);
+
+                if ($matchingUserIds !== []) {
+                    $nested->orWhere(function (Builder $recipient) use ($matchingUserIds): void {
+                        $recipient->whereIn('notification_deliveries.notifiable_type', [User::class, 'users'])
+                            ->whereIn('notification_deliveries.notifiable_id', $matchingUserIds);
                     });
+                }
             });
         }
 

@@ -66,7 +66,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);\n        $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);
+        $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
+        $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
         $this->app->bind(TicketMessageRepository::class, EloquentTicketMessageRepository::class);
         $this->app->bind(TicketAttachmentStorage::class, LaravelTicketAttachmentStorage::class);

@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\V1\TicketController as V1TicketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['throttle:api', 'auth:sanctum', 'active', 'verified'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'active', 'verified', 'throttle:api'])->group(function (): void {
     Route::post('/tokens', [TokenController::class, 'store'])->name('api.tokens.store');
     Route::delete('/tokens/current', [TokenController::class, 'destroy'])->name('api.tokens.destroy');
     Route::get('/user', fn (Request $request) => $request->user())->name('api.user');

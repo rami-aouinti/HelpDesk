@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use App\Models\Ticket;
 use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaCommand;
 use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaHandler;
+use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use Illuminate\Console\Command;
 
-class ProcessTicketSlas extends Command
+final class ProcessTicketSlas extends Command
 {
     protected $signature = 'helpdesk:process-slas';
 
     protected $description = 'Initialize ticket SLA deadlines and dispatch warning or breach alerts';
 
-    public function handle(ProcessTicketSlaHandler $handler): int
-    {
-        $statuses = config('helpdesk.sla.active_statuses', []);
+    public function handle(
+        TicketSlaRepository $tickets,
+        ProcessTicketSlaHandler $handler,
+    ): int {
+        $processed = 0;
 
-        Ticket::query()
-            ->whereIn('status', $statuses)
-            ->select('id')
-            ->chunkById(100, function ($tickets) use ($handler): void {
-                foreach ($tickets as $ticket) {
-                    $handler->handle(new ProcessTicketSlaCommand((int) $ticket->getKey()));
-                }
-            });
+        $tickets->eachActiveTicketId(function (array $ticketIds) use ($handler, &$processed): void {
+            foreach ($ticketIds as $ticketId) {
+                $handler->handle(new ProcessTicketSlaCommand($ticketId));
+                $processed++;
+            }
+        });
 
-        $this->info('Ticket SLA processing completed.');
+        $this->info(sprintf('Ticket SLA processing completed (%d tickets).', $processed));
 
         return self::SUCCESS;
     }

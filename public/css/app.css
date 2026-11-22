@@ -1329,3 +1329,27 @@ html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-op
     .topbar-page-tools { margin-left: auto; }
     .topbar-heading .breadcrumb { display: none; }
 }
+
+
+/* Consistent HelpDesk brand assets */
+.brand-logo {
+    display: block;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    object-fit: contain;
+    border-radius: 11px;
+}
+.brand {
+    gap: 12px;
+    text-decoration: none;
+}
+.guest-brand {
+    text-decoration: none;
+}
+.guest-brand img {
+    display: block;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}

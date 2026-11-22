@@ -6,6 +6,7 @@
     <div><span class="eyebrow">CUSTOMER SPACE</span><h1>Welcome, {{ auth()->user()->name }}</h1><p>Track your requests, talk to our support team and find answers.</p></div>
     <a class="btn btn-primary" href="{{ route('tickets.create') }}">＋ Create a ticket</a>
 </div>
+@if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <div class="content-card"><span class="ticket-field-label">ALL REQUESTS</span><h2>{{ $stats['total'] }}</h2></div>
     <div class="content-card"><span class="ticket-field-label">IN PROGRESS</span><h2>{{ $stats['open'] }}</h2></div>

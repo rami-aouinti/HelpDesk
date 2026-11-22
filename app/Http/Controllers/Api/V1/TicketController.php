@@ -248,12 +248,13 @@ class TicketController extends Controller
     {
         $query = Ticket::query();
 
-        if ($user->can('tickets.view.all')) {
-            return $query;
-        }
-
+        // Customers must never inherit global ticket visibility, even if a permission is misassigned.
         if ($user->hasRole('customer')) {
             return $query->where('user_id', $user->id);
+        }
+
+        if ($user->can('tickets.view.all')) {
+            return $query;
         }
 
         if ($user->hasRole('agent')) {

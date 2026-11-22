@@ -43,7 +43,7 @@
             <div class="ticket-detail-item"><span>Project</span><strong>{{ $ticket->project?->name ?? 'No project' }}</strong></div>
             <div class="ticket-detail-item"><span>Sprint</span><strong>{{ $ticket->sprint?->name ?? 'No sprint' }}</strong></div>
             <div class="ticket-detail-item"><span>Team</span><strong>{{ $ticket->team?->name ?? 'Not assigned' }}</strong></div>
-            <div class="ticket-detail-item"><span>Assigned agent</span><strong class="hd-person">@if($ticket->assignedAgent)<span class="hd-avatar">{{ strtoupper(mb_substr($ticket->assignedAgent->name,0,1)) }}</span>{{ $ticket->assignedAgent->name }}@else Not assigned @endif</strong></div>
+            <div class="ticket-detail-item"><span>Assigned agent</span><strong class="hd-person">@if($ticket->assignedAgent)@if($ticket->assignedAgent->profile_photo_path)<img class="hd-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::disk(\'public\')->url($ticket->assignedAgent->profile_photo_path) }}" alt="{{ $ticket->assignedAgent->name }}">@else<span class="hd-avatar">{{ strtoupper(mb_substr($ticket->assignedAgent->name,0,1)) }}</span>@endif{{ $ticket->assignedAgent->name }}@else Not assigned @endif</strong></div>
             <div class="ticket-detail-item"><span>Estimated time</span><strong>{{ intdiv($ticket->estimated_minutes, 60) }}h {{ $ticket->estimated_minutes % 60 }}m</strong></div>
             <div class="ticket-detail-item"><span>Elapsed time</span><strong>{{ intdiv($ticket->elapsed_minutes, 60) }}h {{ $ticket->elapsed_minutes % 60 }}m</strong></div>
             <div class="ticket-detail-item"><span>Remaining time</span><strong>{{ intdiv($ticket->remaining_minutes, 60) }}h {{ $ticket->remaining_minutes % 60 }}m</strong></div>

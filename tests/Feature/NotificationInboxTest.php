@@ -63,6 +63,37 @@ class NotificationInboxTest extends TestCase
         $this->assertNull($otherUser->notifications()->firstOrFail()->read_at);
     }
 
+    public function test_user_can_open_their_notification_inbox_and_filter_unread_items(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = Ticket::create([
+            'subject' => 'Notification inbox page test',
+            'description' => 'A ticket used to test the inbox page.',
+            'status' => 'open',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+        ]);
+
+        Notification::sendNow($agent, new TicketActivityNotification($ticket, 'Unread update', 'This update is unread.'));
+        Notification::sendNow($agent, new TicketActivityNotification($ticket, 'Read update', 'This update is already read.'));
+        $agent->notifications()->where('data->title', 'Read update')->firstOrFail()->markAsRead();
+        Notification::sendNow($customer, new TicketActivityNotification($ticket, 'Private update', 'This belongs to the customer.'));
+
+        $this->actingAs($agent)
+            ->get(route('notifications.index'))
+            ->assertOk()
+            ->assertSee('Unread update')
+            ->assertSee('Read update')
+            ->assertDontSee('Private update');
+
+        $this->actingAs($agent)
+            ->get(route('notifications.index', ['filter' => 'unread']))
+            ->assertOk()
+            ->assertSee('Unread update')
+            ->assertDontSee('Read update');
+    }
+
     public function test_user_can_mark_all_their_notifications_as_read(): void
     {
         $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();

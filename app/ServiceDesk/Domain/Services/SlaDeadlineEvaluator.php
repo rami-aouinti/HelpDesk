@@ -22,7 +22,7 @@ final class SlaDeadlineEvaluator
             throw new InvalidArgumentException('The SLA warning threshold cannot be negative.');
         }
 
-        if ($breachedAt !== null) {
+        if ($breachedAt instanceof \DateTimeInterface) {
             return SlaDeadlineAction::NONE;
         }
 
@@ -32,7 +32,7 @@ final class SlaDeadlineEvaluator
 
         $warningAt = DateTimeImmutable::createFromInterface($dueAt)->modify(sprintf('-%d minutes', $warningMinutes));
 
-        if ($warningSentAt === null && $now >= $warningAt) {
+        if (! $warningSentAt instanceof \DateTimeInterface && $now >= $warningAt) {
             return SlaDeadlineAction::WARNING;
         }
 

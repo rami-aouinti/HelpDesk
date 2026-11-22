@@ -218,7 +218,8 @@ class TicketController extends Controller
     public function update(
         UpdateTicketRequest $request,
         Ticket $ticket,
-        TicketService $ticketService
+        TicketService $ticketService,
+        ChangeTicketStatusHandler $statusHandler
     ): RedirectResponse {
         $data = $request->validated();
 
@@ -226,7 +227,7 @@ class TicketController extends Controller
         // Other update fields remain on the legacy workflow during migration.
         if (array_keys($data) === ['status']) {
             try {
-                app(ChangeTicketStatusHandler::class)->handle(new ChangeTicketStatusCommand(
+                $statusHandler->handle(new ChangeTicketStatusCommand(
                     ticketId: (int) $ticket->getKey(),
                     actorId: (int) $request->user()->getKey(),
                     status: TicketStatus::from($data['status']),

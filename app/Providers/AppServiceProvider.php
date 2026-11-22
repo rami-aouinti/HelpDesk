@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+
 use App\Communications\Application\Contracts\NotificationDeliveryRepository;
 use App\Communications\Application\Contracts\NotificationDeliveryReadRepository;
 use App\Communications\Application\Contracts\NotificationInboxRepository;

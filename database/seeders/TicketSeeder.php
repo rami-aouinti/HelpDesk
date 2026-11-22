@@ -1,12 +1,12 @@
 <?php
 
-namespace Database\\Seeders;
+namespace Database\Seeders;
 
-use App\\Models\\Team;
-use App\\Models\\Ticket;
-use App\\Models\\TicketHistory;
-use App\\Models\\User;
-use Illuminate\\Database\\Seeder;
+use App\Models\Team;
+use App\Models\Ticket;
+use App\Models\TicketHistory;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class TicketSeeder extends Seeder
 {

@@ -1,5 +1,8 @@
 @extends('layouts.guest')
 
+@section('title', 'Sign in | HelpDesk')
+@section('meta-description', 'Sign in to your HelpDesk workspace to manage support tickets, collaborate with your team and follow customer requests.')
+
 @section('content')
     <h1 class="mb-2 text-2xl font-semibold">Welcome back</h1>
     <p class="mb-6 text-sm text-slate-500">Sign in to your HelpDesk account.</p>

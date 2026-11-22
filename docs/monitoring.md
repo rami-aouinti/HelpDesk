@@ -12,7 +12,8 @@ The optional Docker monitoring profile provides infrastructure metrics, HTTP ava
 | Grafana Alloy | Discovers Docker containers and ships their logs to Loki |
 | cAdvisor | Container CPU, memory, filesystem and network metrics |
 | Node Exporter | Host/kernel metrics visible from the Docker engine |
-| PostgreSQL Exporter | PostgreSQL health, activity and Laravel queue metrics |
+| PostgreSQL Exporter | PostgreSQL health, activity and failed Laravel queue job count |
+| Redis Exporter | Dedicated Redis queue availability, memory and keyspace metrics |
 | Blackbox Exporter | Probes the application health endpoint and API documentation over HTTP |
 | Alertmanager | Groups Prometheus alerts and emails them to the local Mailpit inbox |
 
@@ -51,8 +52,9 @@ The Grafana dashboard **HelpDesk - Infrastructure & Availability** is provisione
 - Application availability: `/up` and `/api/documentation`, response success and response duration.
 - Container resources: CPU, memory, filesystem and network through cAdvisor.
 - Docker host/kernel metrics through Node Exporter.
-- PostgreSQL exporter availability, connections and database statistics.
-- Laravel database queue: pending and failed jobs, using PostgreSQL custom queries.
+- PostgreSQL exporter availability, connections, database statistics and failed job count.
+- Dedicated Redis queue availability, memory and keyspace metrics through Redis Exporter.
+- Queue backlog threshold checks every minute via Laravel's `queue:monitor`; threshold breaches are emitted as structured `queue.backlog.threshold_exceeded` logs for Grafana/Loki. Pending job counts are not read from PostgreSQL because jobs are stored in Redis.
 - Container stdout/stderr logs through Docker discovery, Alloy and Loki.
 
 Laravel's example environment sets `LOG_STACK=stderr`, so Laravel logs are emitted to the container output and collected by Alloy. Keep this setting if you want application logs in Grafana Explore.
@@ -66,7 +68,7 @@ Prometheus evaluates rules in `docker/monitoring/prometheus/alerts.yml`. Current
 - PostgreSQL exporter unavailable.
 - Container CPU above 85% for 10 minutes.
 - Container memory above 90% of its configured limit for 10 minutes.
-- More than 100 pending Laravel jobs for 5 minutes.
+- Redis queue exporter or Redis queue unavailable.
 - One or more failed Laravel queue jobs.
 
 Alertmanager sends alert emails to `admin@helpdesk.test` through Mailpit. This is deliberately local-only: open Mailpit at http://localhost:8025 to inspect alert notifications. No external email is sent. For a real deployment, replace the Mailpit SMTP target with an authenticated SMTP relay and protect its credentials as deployment secrets.
@@ -78,7 +80,7 @@ Alertmanager sends alert emails to `admin@helpdesk.test` through Mailpit. This i
 docker compose --profile monitoring ps
 
 # Follow monitoring service logs
-docker compose logs -f prometheus grafana loki alloy alertmanager postgres-exporter blackbox-exporter
+docker compose logs -f prometheus grafana loki alloy alertmanager postgres-exporter redis-queue-exporter blackbox-exporter
 
 # Check readiness endpoints
 curl -fsS http://localhost:9090/-/ready

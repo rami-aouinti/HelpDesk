@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Ticket #' . $ticket->id . ' | HelpDesk')
+@section('meta-description', 'View the ticket conversation, review its status and priority, exchange updates and coordinate the resolution with your support team.')
 @section('page-title', 'Ticket #' . $ticket->id)
 
 @section('content')

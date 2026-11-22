@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\TicketSlaAlertNotification;
+use App\ServiceDesk\Application\Commands\DispatchSlaAlerts\DispatchSlaAlertsHandler;
 use App\ServiceDesk\Application\Commands\ProcessTicketSla\ProcessTicketSlaHandler;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -18,7 +19,6 @@ class TicketSlaTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->seed();
     }
 
@@ -43,6 +43,7 @@ class TicketSlaTest extends TestCase
 
         $handler = app(ProcessTicketSlaHandler::class);
         $handler->process((int) $ticket->getKey(), $now);
+        app(DispatchSlaAlertsHandler::class)->handle();
         $ticket->refresh();
 
         $this->assertTrue($ticket->first_response_due_at->equalTo($now->copy()->addMinutes(5)));
@@ -51,6 +52,8 @@ class TicketSlaTest extends TestCase
         $this->assertNull($ticket->first_response_breached_at);
 
         $handler->process((int) $ticket->getKey(), $now->copy()->addMinute());
+        app(DispatchSlaAlertsHandler::class)->handle();
+
         $this->assertCount(1, Notification::sent($agent, TicketSlaAlertNotification::class));
     }
 
@@ -74,6 +77,7 @@ class TicketSlaTest extends TestCase
         ]);
 
         app(ProcessTicketSlaHandler::class)->process((int) $ticket->getKey(), $createdAt->copy()->addMinutes(20));
+        app(DispatchSlaAlertsHandler::class)->handle();
         $ticket->refresh();
 
         $this->assertNotNull($ticket->first_response_breached_at);

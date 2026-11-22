@@ -9,7 +9,7 @@ use App\Models\TicketMessage;
 use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use App\ServiceDesk\Application\DTO\TicketSlaSnapshot;
 use DateTimeImmutable;
-use DateTimeInterface;
+use DateTimeInterface;\nuse Illuminate\\Support\\Facades\\DB;
 
 final class EloquentTicketSlaRepository implements TicketSlaRepository
 {
@@ -86,13 +86,9 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
             ->update(['first_response_at' => $respondedAt]);
     }
 
-    public function markAlertSent(
-        int $ticketId,
-        string $slaType,
-        string $state,
-        DateTimeImmutable $sentAt,
-    ): bool {
-        $column = match ([$slaType, $state]) {
+    public function enqueueAlertIfNotRecorded(SlaAlert $alert, DateTimeImmutable $recordedAt): bool
+    {
+        $column = match ([$alert->slaType, $alert->state]) {
             ['first_response', 'warning'] => 'first_response_warning_sent_at',
             ['first_response', 'breached'] => 'first_response_breached_at',
             ['resolution', 'warning'] => 'resolution_warning_sent_at',
@@ -100,10 +96,29 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
             default => throw new InvalidArgumentException('Unsupported SLA alert marker.'),
         };
 
-        return Ticket::query()
-            ->whereKey($ticketId)
-            ->whereNull($column)
-            ->update([$column => $sentAt]) === 1;
+        return DB::transaction(function () use ($alert, $recordedAt, $column): bool {
+            $updated = Ticket::query()
+                ->whereKey($alert->ticketId)
+                ->whereNull($column)
+                ->update([$column => $recordedAt]);
+
+            if ($updated !== 1) {
+                return false;
+            }
+
+            DB::table('sla_alert_outbox')->insert([
+                'ticket_id' => $alert->ticketId,
+                'sla_type' => $alert->slaType,
+                'state' => $alert->state,
+                'due_at' => $alert->dueAt,
+                'attempts' => 0,
+                'available_at' => $recordedAt,
+                'created_at' => $recordedAt,
+                'updated_at' => $recordedAt,
+            ]);
+
+            return true;
+        });
     }
 
     private function immutable(DateTimeInterface $date): DateTimeImmutable

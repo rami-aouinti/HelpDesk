@@ -97,6 +97,10 @@ class Index extends Component
     {
         $team = Team::query()->findOrFail($teamId);
         Gate::authorize('viewAny', Team::class);
+        $user = auth()->user();
+        if ($user->hasRole('agent') && ! $user->can('tickets.view.all')) {
+            abort_unless($user->teams()->whereKey($team->id)->exists(), 403);
+        }
         $this->selectedTeamId = $team->id;
     }
 
@@ -176,6 +180,17 @@ class Index extends Component
             ->paginate($perPage);
 
         $selectedTeam = $this->selectedTeamId ? Team::query()->with('members')->withCount('tickets')->find($this->selectedTeamId) : null;
+        if ($selectedTeam) {
+            $user = auth()->user();
+            $ticketQuery = $selectedTeam->tickets()->with(['customer', 'assignedAgent']);
+            if ($user->hasRole('customer')) {
+                $ticketQuery->where('user_id', $user->id);
+            } elseif ($user->hasRole('agent') && ! $user->can('tickets.view.all')) {
+                $projectIds = $user->projects()->pluck('projects.id');
+                $ticketQuery->where(fn ($query) => $query->whereNull('project_id')->orWhereIn('project_id', $projectIds));
+            }
+            $selectedTeam->setRelation('tickets', $ticketQuery->latest()->get());
+        }
 
         return view('livewire.teams.index', [
             'selectedTeam' => $selectedTeam,

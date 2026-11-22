@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToTeam\AssignTicketToTeamHandler;
+use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectCommand;
+use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentHandler;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
+use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
 use App\ServiceDesk\Application\Commands\ChangeTicketPriority\ChangeTicketPriorityCommand;
@@ -153,10 +156,25 @@ class TicketController extends Controller
         ChangeTicketPriorityHandler $priorityHandler,
         AssignTicketToTeamHandler $teamAssignmentHandler,
         AssignTicketToAgentHandler $assignmentHandler,
+        LinkTicketToProjectHandler $projectLinkHandler,
     ): TicketResource {
         $data = $request->validated();
 
-        if (
+        if (array_keys($data) === ['project_id']) {
+            try {
+                $projectLinkHandler->handle(new LinkTicketToProjectCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    projectId: $data['project_id'] === null ? null : (int) $data['project_id'],
+                ));
+            } catch (TicketProjectLinkRejected $exception) {
+                throw ValidationException::withMessages([
+                    $exception->field => $exception->getMessage(),
+                ]);
+            }
+
+            $updatedTicket = $ticket->fresh();
+        } elseif (
             array_key_exists('assigned_to', $data)
             && $data['assigned_to'] !== null
             && array_diff(array_keys($data), ['team_id', 'assigned_to']) === []

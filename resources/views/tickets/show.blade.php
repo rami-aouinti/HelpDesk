@@ -7,7 +7,7 @@
 @section('content')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            if (window.location.hash === '#edit-ticket') document.getElementById('ticket-edit-dialog')?.showModal();
+            if (window.location.hash === '#edit-ticket' || new URLSearchParams(window.location.search).get('edit') === '1') document.getElementById('ticket-edit-dialog')?.showModal();
         });
     </script>
     <div class="page-header ticket-page-header">
@@ -98,7 +98,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('tickets.update', $ticket) }}">
+        <form method="POST" action="{{ route('tickets.update', $ticket) }}?edit=1">
             @csrf
             @method('PATCH')
 

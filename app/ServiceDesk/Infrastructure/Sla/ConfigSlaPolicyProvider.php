@@ -19,8 +19,10 @@ final class ConfigSlaPolicyProvider implements SlaPolicyProvider
     {
         $targets = $this->config->get('helpdesk.sla.priorities.' . $priority);
 
-        if (! is_array($targets)
-            || ! isset($targets['first_response'], $targets['resolution'])) {
+        if (
+            ! is_array($targets)
+            || ! isset($targets['first_response'], $targets['resolution'])
+        ) {
             return null;
         }
 

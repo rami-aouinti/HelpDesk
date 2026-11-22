@@ -1,4 +1,5 @@
 name: Resolve Horizon Composer lockfile
+# One-shot helper; removes itself after Composer has updated the committed lockfile.
 
 on:
   push:

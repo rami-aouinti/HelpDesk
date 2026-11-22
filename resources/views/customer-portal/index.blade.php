@@ -4,7 +4,7 @@
 @section('content')
 <div class="page-header">
     <div><span class="eyebrow">CUSTOMER SPACE</span><h1>Welcome, {{ auth()->user()->name }}</h1><p>Track your requests, talk to our support team and find answers.</p></div>
-    <a class="btn btn-primary" href="{{ route('tickets.create') }}">＋ Create a ticket</a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-secondary" href="{{ route('live-chat.index') }}">Chat with support</a><a class="btn btn-primary" href="{{ route('tickets.create') }}">＋ Create a ticket</a></div>
 </div>
 @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

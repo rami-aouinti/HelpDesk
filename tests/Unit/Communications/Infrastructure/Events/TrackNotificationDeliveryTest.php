@@ -66,20 +66,3 @@ final class TrackNotificationDeliveryTest extends TestCase
     }
 }
 
-final class FakeNotifiable
-{
-    public function getMorphClass(): string
-    {
-        return 'users';
-    }
-
-    public function getAuthIdentifier(): int
-    {
-        return 42;
-    }
-}
-
-final class FakeNotification
-{
-    public string $id = 'notification-123';
-}

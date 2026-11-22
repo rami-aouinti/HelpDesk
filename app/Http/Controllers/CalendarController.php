@@ -103,6 +103,20 @@ class CalendarController extends Controller
         return response()->json(['message' => 'Event deleted.']);
     }
 
+    /**
+     * @return array{
+     *     title: string,
+     *     description?: string|null,
+     *     type: string,
+     *     visibility: string,
+     *     team_id?: int|string|null,
+     *     ticket_id?: int|string|null,
+     *     location?: string|null,
+     *     starts_at: string,
+     *     ends_at?: string|null,
+     *     all_day: bool
+     * }
+     */
     private function validatedData(Request $request): array
     {
         $data = $request->validate([

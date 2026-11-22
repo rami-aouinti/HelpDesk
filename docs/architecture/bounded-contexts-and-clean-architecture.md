@@ -81,3 +81,4 @@ SLA policy targets are represented by the ServiceDesk domain value object `SlaPo
 
 The existing `TicketSlaService` currently acts as an orchestration adapter: it reads configured priority targets, initializes persisted deadlines, discovers the first public staff reply, asks the domain evaluator for the deadline decision, stores warning/breach timestamps and sends notifications. This keeps the existing behavior while moving the decision rules into a framework-independent domain service. The next migration can extract persistence and notification ports without changing the SLA rules.
 
+The SLA notification side effect is also behind the application contract `SlaAlertPublisher`. The application passes a framework-independent `SlaAlert` DTO; the infrastructure adapter resolves recipients and dispatches the existing Laravel database notification. This keeps notification delivery and recipient queries out of the SLA decision flow.

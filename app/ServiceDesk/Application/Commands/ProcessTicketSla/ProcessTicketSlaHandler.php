@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\ServiceDesk\Application\Commands\ProcessTicketSla;
 
-use App\ServiceDesk\Application\Contracts\SlaAlertPublisher;
 use App\ServiceDesk\Application\Contracts\SlaPolicyProvider;
 use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use App\ServiceDesk\Application\DTO\SlaAlert;
@@ -20,7 +19,6 @@ final class ProcessTicketSlaHandler
         private readonly TicketSlaRepository $tickets,
         private readonly SlaPolicyProvider $policies,
         private readonly SlaDeadlineEvaluator $deadlineEvaluator,
-        private readonly SlaAlertPublisher $alertPublisher,
     ) {
     }
 
@@ -43,9 +41,7 @@ final class ProcessTicketSlaHandler
             return;
         }
 
-        $now = $now === null
-            ? new DateTimeImmutable()
-            : DateTimeImmutable::createFromInterface($now);
+        $now = $now === null ? new DateTimeImmutable() : DateTimeImmutable::createFromInterface($now);
 
         if ($ticket->firstResponseDueAt === null || $ticket->resolutionDueAt === null) {
             $this->tickets->initializeDeadlines(
@@ -53,7 +49,6 @@ final class ProcessTicketSlaHandler
                 $ticket->createdAt->modify(sprintf('+%d minutes', $policy->firstResponseMinutes)),
                 $ticket->createdAt->modify(sprintf('+%d minutes', $policy->resolutionMinutes)),
             );
-
             $ticket = $this->tickets->findForProcessing($ticketId);
 
             if ($ticket === null) {
@@ -71,27 +66,11 @@ final class ProcessTicketSlaHandler
         }
 
         if ($ticket->firstResponseAt === null && $ticket->firstResponseDueAt !== null) {
-            $this->evaluateDeadline(
-                $ticket,
-                'first_response',
-                $ticket->firstResponseDueAt,
-                $ticket->firstResponseWarningSentAt,
-                $ticket->firstResponseBreachedAt,
-                $policy->warningMinutes,
-                $now,
-            );
+            $this->evaluateDeadline($ticket, 'first_response', $ticket->firstResponseDueAt, $ticket->firstResponseWarningSentAt, $ticket->firstResponseBreachedAt, $policy->warningMinutes, $now);
         }
 
         if ($policy->tracksResolutionFor($ticket->status) && $ticket->resolutionDueAt !== null) {
-            $this->evaluateDeadline(
-                $ticket,
-                'resolution',
-                $ticket->resolutionDueAt,
-                $ticket->resolutionWarningSentAt,
-                $ticket->resolutionBreachedAt,
-                $policy->warningMinutes,
-                $now,
-            );
+            $this->evaluateDeadline($ticket, 'resolution', $ticket->resolutionDueAt, $ticket->resolutionWarningSentAt, $ticket->resolutionBreachedAt, $policy->warningMinutes, $now);
         }
     }
 
@@ -104,29 +83,20 @@ final class ProcessTicketSlaHandler
         int $warningMinutes,
         DateTimeImmutable $now,
     ): void {
-        $action = $this->deadlineEvaluator->evaluate(
-            dueAt: $dueAt,
-            now: $now,
-            warningSentAt: $warningSentAt,
-            breachedAt: $breachedAt,
-            warningMinutes: $warningMinutes,
-        );
+        $action = $this->deadlineEvaluator->evaluate($dueAt, $now, $warningSentAt, $breachedAt, $warningMinutes);
 
         if ($action === SlaDeadlineAction::NONE) {
             return;
         }
 
-        $state = $action === SlaDeadlineAction::BREACHED ? 'breached' : 'warning';
-
-        if (! $this->tickets->markAlertSent($ticket->ticketId, $type, $state, $now)) {
-            return;
-        }
-
-        $this->alertPublisher->publish(new SlaAlert(
-            ticketId: $ticket->ticketId,
-            slaType: $type,
-            state: $state,
-            dueAt: $dueAt,
-        ));
+        $this->tickets->enqueueAlertIfNotRecorded(
+            new SlaAlert(
+                ticketId: $ticket->ticketId,
+                slaType: $type,
+                state: $action === SlaDeadlineAction::BREACHED ? 'breached' : 'warning',
+                dueAt: $dueAt,
+            ),
+            $now,
+        );
     }
 }

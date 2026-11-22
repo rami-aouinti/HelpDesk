@@ -615,4 +615,59 @@ class TicketWorkflowTest extends TestCase
         $this->assertSame($agent->id, $ticket->fresh()->assigned_to);
     }
 
+
+    public function test_agent_can_update_ticket_effort_and_history_is_recorded(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $ticket = Ticket::create([
+            'subject' => 'Effort tracking ticket',
+            'description' => 'Estimate and track work.',
+            'status' => 'in_progress',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'estimated_minutes' => 90,
+            'elapsed_minutes' => 15,
+        ]);
+
+        $this->actingAs($agent)
+            ->patch(route('tickets.update', $ticket), ['elapsed_minutes' => 35])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(90, $ticket->fresh()->estimated_minutes);
+        $this->assertSame(35, $ticket->fresh()->elapsed_minutes);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'elapsed_minutes',
+            'old_value' => '15',
+            'new_value' => '35',
+        ]);
+    }
+
+    public function test_effort_values_above_the_limit_are_rejected(): void
+    {
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $ticket = Ticket::create([
+            'subject' => 'Effort limit ticket',
+            'description' => 'Reject invalid effort.',
+            'status' => 'in_progress',
+            'priority' => 'normal',
+            'user_id' => $customer->id,
+            'estimated_minutes' => 90,
+            'elapsed_minutes' => 15,
+        ]);
+
+        $this->actingAs($agent)
+            ->from(route('tickets.show', $ticket))
+            ->patch(route('tickets.update', $ticket), ['estimated_minutes' => 525601])
+            ->assertRedirect(route('tickets.show', $ticket))
+            ->assertSessionHasErrors('estimated_minutes');
+
+        $this->assertSame(90, $ticket->fresh()->estimated_minutes);
+    }
+
 }

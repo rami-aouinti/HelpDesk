@@ -18,6 +18,8 @@ final class Ticket
         private ?int $projectId,
         private int $customerId,
         private TicketStatus $status,
+        private ?int $teamId = null,
+        private ?int $assignedAgentId = null,
     ) {
         if (trim($this->subject) === '') {
             throw new InvalidTicketData('A ticket subject is required.');
@@ -51,6 +53,8 @@ final class Ticket
             projectId: $projectId,
             customerId: $customerId,
             status: TicketStatus::OPEN,
+            teamId: null,
+            assignedAgentId: null,
         );
     }
 
@@ -62,8 +66,20 @@ final class Ticket
         ?int $projectId,
         int $customerId,
         TicketStatus $status,
+        ?int $teamId = null,
+        ?int $assignedAgentId = null,
     ): self {
-        return new self($id, $subject, $description, $priority, $projectId, $customerId, $status);
+        return new self(
+            $id,
+            $subject,
+            $description,
+            $priority,
+            $projectId,
+            $customerId,
+            $status,
+            $teamId,
+            $assignedAgentId,
+        );
     }
 
     public function assignId(int $id): void
@@ -108,5 +124,43 @@ final class Ticket
     public function status(): TicketStatus
     {
         return $this->status;
+    }
+
+    public function teamId(): ?int
+    {
+        return $this->teamId;
+    }
+
+    public function assignedAgentId(): ?int
+    {
+        return $this->assignedAgentId;
+    }
+
+    /**
+     * Claim this ticket for an agent belonging to the selected team.
+     *
+     * The caller must verify team membership; the aggregate protects the
+     * invariants that are intrinsic to the ticket lifecycle.
+     */
+    public function claimBy(int $agentId, int $teamId): void
+    {
+        if ($agentId < 1 || $teamId < 1) {
+            throw new InvalidTicketData('A valid agent and team are required to claim a ticket.');
+        }
+
+        if ($this->assignedAgentId !== null) {
+            throw new InvalidTicketData('This ticket has already been assigned to another agent.');
+        }
+
+        if ($this->teamId !== null && $this->teamId !== $teamId) {
+            throw new InvalidTicketData('A ticket already assigned to a team cannot be claimed by another team.');
+        }
+
+        $this->teamId ??= $teamId;
+        $this->assignedAgentId = $agentId;
+
+        if ($this->status === TicketStatus::OPEN) {
+            $this->status = TicketStatus::IN_PROGRESS;
+        }
     }
 }

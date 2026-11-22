@@ -39,6 +39,14 @@ final class Ticket
             throw new InvalidTicketData('A project identifier must be positive.');
         }
 
+        if ($this->teamId !== null && $this->teamId < 1) {
+            throw new InvalidTicketData('A team identifier must be positive.');
+        }
+
+        if ($this->assignedAgentId !== null && ($this->assignedAgentId < 1 || $this->teamId === null)) {
+            throw new InvalidTicketData('An assigned agent requires a valid team.');
+        }
+
         $this->assertValidEffort($this->estimatedMinutes);
         $this->assertValidEffort($this->elapsedMinutes);
     }
@@ -49,6 +57,8 @@ final class Ticket
         TicketPriority $priority,
         ?int $projectId,
         int $customerId,
+        ?int $teamId = null,
+        ?int $assignedAgentId = null,
     ): self {
         return new self(
             id: null,
@@ -58,8 +68,8 @@ final class Ticket
             projectId: $projectId,
             customerId: $customerId,
             status: TicketStatus::OPEN,
-            teamId: null,
-            assignedAgentId: null,
+            teamId: $teamId,
+            assignedAgentId: $assignedAgentId,
             estimatedMinutes: 0,
             elapsedMinutes: 0,
         );
@@ -102,34 +112,21 @@ final class Ticket
         $this->id = $id;
     }
 
-    public function id(): ?int
-    {
-        return $this->id;
-    }
-
-    public function subject(): string
-    {
-        return $this->subject;
-    }
-
-    public function description(): string
-    {
-        return $this->description;
-    }
-
-    public function priority(): TicketPriority
-    {
-        return $this->priority;
-    }
+    public function id(): ?int { return $this->id; }
+    public function subject(): string { return $this->subject; }
+    public function description(): string { return $this->description; }
+    public function priority(): TicketPriority { return $this->priority; }
+    public function projectId(): ?int { return $this->projectId; }
+    public function customerId(): int { return $this->customerId; }
+    public function status(): TicketStatus { return $this->status; }
+    public function teamId(): ?int { return $this->teamId; }
+    public function assignedAgentId(): ?int { return $this->assignedAgentId; }
+    public function estimatedMinutes(): ?int { return $this->estimatedMinutes; }
+    public function elapsedMinutes(): ?int { return $this->elapsedMinutes; }
 
     public function changePriority(TicketPriority $newPriority): void
     {
         $this->priority = $newPriority;
-    }
-
-    public function projectId(): ?int
-    {
-        return $this->projectId;
     }
 
     public function linkToProject(?int $projectId): void
@@ -141,21 +138,6 @@ final class Ticket
         $this->projectId = $projectId;
     }
 
-    public function customerId(): int
-    {
-        return $this->customerId;
-    }
-
-    public function status(): TicketStatus
-    {
-        return $this->status;
-    }
-
-    public function teamId(): ?int
-    {
-        return $this->teamId;
-    }
-
     public function changeTeam(?int $teamId): void
     {
         if ($teamId !== null && $teamId < 1) {
@@ -163,21 +145,6 @@ final class Ticket
         }
 
         $this->teamId = $teamId;
-    }
-
-    public function assignedAgentId(): ?int
-    {
-        return $this->assignedAgentId;
-    }
-
-    public function estimatedMinutes(): ?int
-    {
-        return $this->estimatedMinutes;
-    }
-
-    public function elapsedMinutes(): ?int
-    {
-        return $this->elapsedMinutes;
     }
 
     public function updateEffort(?int $estimatedMinutes, ?int $elapsedMinutes): void
@@ -197,14 +164,7 @@ final class Ticket
     }
 
     /**
-     * Claim this ticket for an agent belonging to the selected team.
-     *
-     * The caller must verify team membership; the aggregate protects the
-     * invariants that are intrinsic to the ticket lifecycle.
-     */
-    /**
      * Change the ticket status according to the support workflow.
-     *
      * Administrators may override the normal transition graph.
      */
     public function changeStatus(TicketStatus $newStatus, bool $mayOverrideWorkflow = false): void

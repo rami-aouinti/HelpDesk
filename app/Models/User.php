@@ -20,10 +20,11 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property bool $is_active
  * @property bool $email_notifications_enabled
+ * @property bool $in_app_notifications_enabled
  * @property-read Collection<int, Project> $projects
  * @property-read Collection<int, Team> $teams
  */
-#[Fillable(['name', 'email', 'password', 'is_active', 'profile_photo_path', 'email_notifications_enabled'])]
+#[Fillable(['name', 'email', 'password', 'is_active', 'profile_photo_path', 'email_notifications_enabled', 'in_app_notifications_enabled'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -54,6 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_active' => 'boolean',
             'email_notifications_enabled' => 'boolean',
+            'in_app_notifications_enabled' => 'boolean',
         ];
     }
 }

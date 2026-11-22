@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261122-5">
     <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-10">
     <link rel="stylesheet" href="{{ asset('css/admin-experience.css') }}?v=20261122-5">
+    <link rel="stylesheet" href="{{ asset('css/knowledge-base.css') }}?v=20261122-1">
     @livewireStyles
 </head>
 <body>
@@ -48,6 +49,10 @@
                 <a href="{{ route('teams.index') }}" class="nav-link {{ request()->routeIs('teams.*') ? 'active' : '' }}">
                     <span class="nav-icon">♧</span><span>Teams</span>
                 </a>
+            @endcan
+            <a href="{{ route('knowledge-base.index') }}" class="nav-link {{ request()->routeIs('knowledge-base.*') ? 'active' : '' }}"><span class="nav-icon">▧</span><span>Help Centre</span></a>
+            @can('knowledge-base.manage')
+                <a href="{{ route('knowledge-base.admin.index') }}" class="nav-link {{ request()->routeIs('knowledge-base.admin.*') ? 'active' : '' }}"><span class="nav-icon">✎</span><span>Manage Articles</span></a>
             @endcan
             <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                 <span class="nav-icon">▤</span><span>Tickets</span>

@@ -1492,3 +1492,45 @@ html[data-theme="dark"] .profile-identity,html[data-theme="dark"] .preference-op
         padding: 20px 14px 34px !important;
     }
 }
+
+
+/* Ticket detail uses the same stable content frame as the other workspace pages. */
+.page-content.page-content-ticket-detail {
+    display: flow-root;
+    align-self: stretch;
+    width: 100%;
+    max-width: 1600px;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0 auto !important;
+    padding: 30px 38px 54px !important;
+}
+.page-content-ticket-detail > * {
+    min-width: 0;
+    max-width: 100%;
+}
+.page-content-ticket-detail > .ticket-detail-section {
+    margin-top: 0;
+}
+.page-content-ticket-detail > .ticket-detail-section + .ticket-detail-section {
+    margin-top: 24px;
+}
+.page-content-ticket-detail .ticket-overview,
+.page-content-ticket-detail .ticket-message,
+.page-content-ticket-detail .ticket-reply-form {
+    min-width: 0;
+}
+@media (max-width: 900px) {
+    .page-content.page-content-ticket-detail {
+        padding: 24px 22px 40px !important;
+    }
+}
+@media (max-width: 600px) {
+    .page-content.page-content-ticket-detail {
+        padding: 20px 14px 34px !important;
+    }
+    .page-content-ticket-detail .ticket-page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

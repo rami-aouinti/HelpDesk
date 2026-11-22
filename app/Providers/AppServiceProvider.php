@@ -14,6 +14,8 @@ use App\ServiceDesk\Application\Contracts\TicketProjectAccess;
 use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
 use App\ServiceDesk\Application\Contracts\TicketSlaProcessor;
 use App\ServiceDesk\Application\Contracts\SlaAlertPublisher;
+use App\ServiceDesk\Application\Contracts\SlaPolicyProvider;
+use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use App\ServiceDesk\Application\Contracts\TicketUpdatedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketWorkflowPermission;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
@@ -33,6 +35,8 @@ use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketWorkflowPe
 use App\ServiceDesk\Infrastructure\Persistence\LaravelDatabaseTransactionManager;
 use App\ServiceDesk\Infrastructure\Sla\LegacyTicketSlaProcessor;
 use App\ServiceDesk\Infrastructure\Sla\LaravelSlaAlertPublisher;
+use App\ServiceDesk\Infrastructure\Sla\ConfigSlaPolicyProvider;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketSlaRepository;
 use App\Events\TicketMessageCreated;
 use App\Events\TicketUpdated;
 use App\Listeners\SendTicketCreatedNotifications;
@@ -69,6 +73,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);
         $this->app->bind(TicketSlaProcessor::class, LegacyTicketSlaProcessor::class);
         $this->app->bind(SlaAlertPublisher::class, LaravelSlaAlertPublisher::class);
+        $this->app->bind(SlaPolicyProvider::class, ConfigSlaPolicyProvider::class);
+        $this->app->bind(TicketSlaRepository::class, EloquentTicketSlaRepository::class);
         $this->app->bind(TicketUpdatedPublisher::class, LaravelTicketUpdatedPublisher::class);
         $this->app->bind(TicketWorkflowPermission::class, EloquentTicketWorkflowPermission::class);
         $this->app->bind(TransactionManager::class, LaravelDatabaseTransactionManager::class);

@@ -111,8 +111,8 @@ class Index extends Component
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->editingUserId)],
             'userRole' => ['required', Rule::in(['admin', 'agent', 'customer'])],
-            'password' => [$this->editingUserId ? 'nullable' : 'required', 'string', 'min:12', 'same:passwordConfirmation'],
-            'passwordConfirmation' => [$this->password !== '' ? 'required' : 'nullable', 'string'],
+            'password' => $this->editingUserId && $this->password === '' ? ['nullable'] : ['required', 'string', 'min:12', 'same:passwordConfirmation'],
+            'passwordConfirmation' => $this->password !== '' ? ['required', 'string'] : ['nullable', 'string'],
         ]);
 
         $data = ['name' => $this->name, 'email' => $this->email, 'role' => $this->userRole, 'password' => $this->password];

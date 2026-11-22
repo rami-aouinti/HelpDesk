@@ -7,9 +7,12 @@ namespace App\ServiceDesk\Infrastructure\Persistence\Eloquent;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
+use App\ServiceDesk\Application\DTO\SlaAlert;
 use App\ServiceDesk\Application\DTO\TicketSlaSnapshot;
 use DateTimeImmutable;
-use DateTimeInterface;\nuse Illuminate\\Support\\Facades\\DB;
+use DateTimeInterface;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 final class EloquentTicketSlaRepository implements TicketSlaRepository
 {
@@ -50,9 +53,7 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
             status: (string) $ticket->status,
             createdAt: $this->immutable($ticket->created_at),
             firstResponseAt: $this->nullableImmutable($ticket->first_response_at),
-            firstPublicStaffReplyAt: $firstPublicStaffReply
-                ? $this->nullableImmutable($firstPublicStaffReply->created_at)
-                : null,
+            firstPublicStaffReplyAt: $firstPublicStaffReply ? $this->nullableImmutable($firstPublicStaffReply->created_at) : null,
             firstResponseDueAt: $this->nullableImmutable($ticket->first_response_due_at),
             firstResponseWarningSentAt: $this->nullableImmutable($ticket->first_response_warning_sent_at),
             firstResponseBreachedAt: $this->nullableImmutable($ticket->first_response_breached_at),
@@ -62,28 +63,15 @@ final class EloquentTicketSlaRepository implements TicketSlaRepository
         );
     }
 
-    public function initializeDeadlines(
-        int $ticketId,
-        DateTimeImmutable $firstResponseDueAt,
-        DateTimeImmutable $resolutionDueAt,
-    ): void {
-        Ticket::query()
-            ->whereKey($ticketId)
-            ->whereNull('first_response_due_at')
-            ->update(['first_response_due_at' => $firstResponseDueAt]);
-
-        Ticket::query()
-            ->whereKey($ticketId)
-            ->whereNull('resolution_due_at')
-            ->update(['resolution_due_at' => $resolutionDueAt]);
+    public function initializeDeadlines(int $ticketId, DateTimeImmutable $firstResponseDueAt, DateTimeImmutable $resolutionDueAt): void
+    {
+        Ticket::query()->whereKey($ticketId)->whereNull('first_response_due_at')->update(['first_response_due_at' => $firstResponseDueAt]);
+        Ticket::query()->whereKey($ticketId)->whereNull('resolution_due_at')->update(['resolution_due_at' => $resolutionDueAt]);
     }
 
     public function recordFirstResponse(int $ticketId, DateTimeImmutable $respondedAt): void
     {
-        Ticket::query()
-            ->whereKey($ticketId)
-            ->whereNull('first_response_at')
-            ->update(['first_response_at' => $respondedAt]);
+        Ticket::query()->whereKey($ticketId)->whereNull('first_response_at')->update(['first_response_at' => $respondedAt]);
     }
 
     public function enqueueAlertIfNotRecorded(SlaAlert $alert, DateTimeImmutable $recordedAt): bool

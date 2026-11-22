@@ -45,10 +45,17 @@ class Board extends Component
         }
     }
 
+    #[On('kanban-select-sprint')]
     public function selectSprint(int $sprintId): void
     {
         Sprint::query()->findOrFail($sprintId);
         $this->sprintId = $sprintId;
+    }
+
+    #[On('kanban-toggle-mine')]
+    public function toggleOnlyMine(bool $onlyMine): void
+    {
+        $this->onlyMine = $onlyMine;
     }
 
     public function moveTicketStatus(int $ticketId, string $status, TicketService $tickets): void

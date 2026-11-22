@@ -33,7 +33,7 @@ class TicketActivityNotification extends Notification implements ShouldQueue
      *
      * @return array<int, string>
      */
-    public function tags(): array
+    public function tags(mixed $event = null): array
     {
         return ['ticket-notifications'];
     }

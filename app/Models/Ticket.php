@@ -39,7 +39,17 @@ class Ticket extends Model
 
     protected function casts(): array
     {
-        return ['estimated_minutes' => 'integer', 'elapsed_minutes' => 'integer'];
+        return [
+            'estimated_minutes' => 'integer',
+            'elapsed_minutes' => 'integer',
+            'first_response_due_at' => 'datetime',
+            'first_response_at' => 'datetime',
+            'first_response_warning_sent_at' => 'datetime',
+            'first_response_breached_at' => 'datetime',
+            'resolution_due_at' => 'datetime',
+            'resolution_warning_sent_at' => 'datetime',
+            'resolution_breached_at' => 'datetime',
+        ];
     }
 
     public function getRemainingMinutesAttribute(): int

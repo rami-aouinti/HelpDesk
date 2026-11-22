@@ -129,31 +129,46 @@ class LiveChatController extends Controller
         return response()->json(['agents' => $agents]);
     }
 
-    public function convert(Request $request, ChatConversation $conversation): RedirectResponse
+    public function convert(Request $request, ChatConversation $conversation, CreateTicketHandler $createTicketHandler): RedirectResponse
     {
         abort_unless($request->user()->hasAnyRole(['agent', 'admin']), 403);
         $this->authorizeConversation($request, $conversation);
         abort_unless($conversation->status === 'open', 409);
         abort_if($conversation->converted_ticket_id !== null, 409);
 
-        $ticket = DB::transaction(function () use ($conversation, $request): Ticket {
-            $transcript = $conversation->messages()->with('user')->get()
+        $ticket = DB::transaction(function () use ($conversation, $request, $createTicketHandler): Ticket {
+            $lockedConversation = ChatConversation::query()->lockForUpdate()->findOrFail($conversation->id);
+            abort_unless($lockedConversation->status === 'open', 409);
+            abort_if($lockedConversation->converted_ticket_id !== null, 409);
+
+            $transcript = $lockedConversation->messages()->with('user')->get()
                 ->map(fn (ChatMessage $message) => '[' . $message->created_at->format('Y-m-d H:i') . '] ' . $message->user->name . ': ' . $message->body)
                 ->implode("\n");
-            $assignedAgentId = $conversation->agent_id;
+
+            $ticketId = $createTicketHandler->handle(new CreateTicketCommand(
+                subject: $lockedConversation->subject ?: 'Live chat conversation #' . $lockedConversation->id,
+                description: "Conversation converted from Live Chat.\n\n" . $transcript,
+                priority: TicketPriority::NORMAL,
+                projectId: null,
+                customerId: (int) $lockedConversation->customer_id,
+            ));
+
+            $ticket = Ticket::query()->findOrFail($ticketId);
+            $assignedAgentId = $lockedConversation->agent_id;
             if ($assignedAgentId === null && $request->user()->hasRole('agent')) {
                 $assignedAgentId = $request->user()->id;
             }
 
-            $ticket = Ticket::query()->create([
-                'subject' => $conversation->subject ?: 'Live chat conversation #' . $conversation->id,
-                'description' => "Conversation converted from Live Chat.\n\n" . $transcript,
-                'status' => 'open',
-                'priority' => 'normal',
-                'user_id' => $conversation->customer_id,
-                'assigned_to' => $assignedAgentId,
-            ]);
-            $conversation->forceFill(['status' => 'converted', 'converted_ticket_id' => $ticket->id])->save();
+            if ($assignedAgentId !== null) {
+                $ticket->forceFill(['assigned_to' => $assignedAgentId])->save();
+            }
+
+            $lockedConversation->forceFill([
+                'status' => 'converted',
+                'converted_ticket_id' => $ticket->id,
+                'agent_id' => $assignedAgentId,
+            ])->save();
+
             return $ticket;
         });
 

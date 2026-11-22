@@ -5,7 +5,7 @@
 The repository includes two k6 scripts:
 
 - `k6/helpdesk-smoke.js`: lightweight availability/API smoke check.
-- `k6/helpdesk-load.js`: staged load scenario that exercises the authenticated ticket list and ticket details, with optional ticket creation.
+- `k6/helpdesk-load.js`: staged load scenario that exercises the authenticated ticket list, ticket search and ticket details, with optional ticket creation.
 
 ### Prepare the local environment
 
@@ -43,9 +43,9 @@ Default thresholds are deliberately explicit, not universal capacity guarantees:
 - HTTP request failure rate below 1%.
 - At least 99% of checks pass.
 - Overall p95 below 1.2 seconds and p99 below 2.5 seconds.
-- Ticket list and detail p95 below 1 second.
+- Ticket list, search and detail p95 below 1 second.
 
-If the application runs on another host/port, override `BASE_URL`. To change the pacing, set `THINK_TIME_SECONDS` (minimum 1 second).
+If the application runs on another host/port, override `BASE_URL`. To change the pacing, set `THINK_TIME_SECONDS` (minimum 1 second; default 7 seconds to stay within the API rate limit when using the seeded demo accounts).
 
 ### Include write traffic (optional)
 

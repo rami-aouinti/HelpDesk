@@ -111,6 +111,11 @@ final class Ticket
         return $this->priority;
     }
 
+    public function changePriority(TicketPriority $newPriority): void
+    {
+        $this->priority = $newPriority;
+    }
+
     public function projectId(): ?int
     {
         return $this->projectId;

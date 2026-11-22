@@ -268,6 +268,12 @@ class TicketController extends Controller
                     $exception->field => $exception->getMessage(),
                 ]);
             }
+        } elseif (array_keys($data) === ['priority']) {
+            $priorityHandler->handle(new ChangeTicketPriorityCommand(
+                ticketId: (int) $ticket->getKey(),
+                actorId: (int) $request->user()->getKey(),
+                priority: TicketPriority::from($data['priority']),
+            ));
         } elseif (array_keys($data) === ['status']) {
             try {
                 $statusHandler->handle(new ChangeTicketStatusCommand(

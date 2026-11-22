@@ -23,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -257,19 +258,28 @@ class TicketController extends Controller
             return $query;
         }
 
-        if ($user->hasRole('agent')) {
-            $teamIds = $user->teams()->pluck('teams.id');
-            $projectIds = $user->projects()->pluck('projects.id');
-
-            return $query
-                ->where(function (Builder $builder) use ($teamIds): void {
-                    $builder->whereNull('team_id')->orWhereIn('team_id', $teamIds);
-                })
-                ->where(function (Builder $builder) use ($projectIds): void {
-                    $builder->whereNull('project_id')->orWhereIn('project_id', $projectIds);
-                });
+        if (! $user->hasRole('agent')) {
+            return $query->whereRaw('1 = 0');
         }
 
-        return $query->whereRaw('1 = 0');
+        // Keep membership checks in SQL instead of issuing two separate pluck queries
+        // and transferring potentially large ID lists from PostgreSQL to PHP.
+        return $query
+            ->where(function (Builder $builder) use ($user): void {
+                $builder->whereNull('team_id')->orWhereExists(
+                    DB::table('team_user')
+                        ->selectRaw('1')
+                        ->whereColumn('team_user.team_id', 'tickets.team_id')
+                        ->where('team_user.user_id', $user->getKey()),
+                );
+            })
+            ->where(function (Builder $builder) use ($user): void {
+                $builder->whereNull('project_id')->orWhereExists(
+                    DB::table('project_user')
+                        ->selectRaw('1')
+                        ->whereColumn('project_user.project_id', 'tickets.project_id')
+                        ->where('project_user.user_id', $user->getKey()),
+                );
+            });
     }
 }

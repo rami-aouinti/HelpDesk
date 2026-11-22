@@ -537,4 +537,41 @@ class TicketApiTest extends TestCase
         $this->assertSame($agent->id, $ticket->fresh()->assigned_to);
     }
 
+
+    public function test_agent_can_update_ticket_effort_through_the_api(): void
+    {
+        $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
+        $customer = User::where('email', 'customer@helpdesk.test')->firstOrFail();
+        $ticket = $this->makeTicket($customer);
+        $ticket->update([
+            'estimated_minutes' => 120,
+            'elapsed_minutes' => 20,
+        ]);
+
+        Sanctum::actingAs($agent);
+
+        $this->patchJson("/api/v1/tickets/{$ticket->id}", [
+            'estimated_minutes' => 150,
+            'elapsed_minutes' => 40,
+        ])->assertOk()
+            ->assertJsonPath('data.estimated_minutes', 150)
+            ->assertJsonPath('data.elapsed_minutes', 40)
+            ->assertJsonPath('data.remaining_minutes', 110);
+
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'estimated_minutes',
+            'old_value' => '120',
+            'new_value' => '150',
+        ]);
+        $this->assertDatabaseHas('ticket_histories', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $agent->id,
+            'action' => 'elapsed_minutes',
+            'old_value' => '20',
+            'new_value' => '40',
+        ]);
+    }
+
 }

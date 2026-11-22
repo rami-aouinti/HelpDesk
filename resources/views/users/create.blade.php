@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Create user | HelpDesk')
+@section('meta-description', 'Add a HelpDesk user and configure their account details and access role.')
 @section('page-title', 'Create user')
 
 @section('content')

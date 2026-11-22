@@ -22,6 +22,16 @@ final class LaravelTicketAttachmentStorage implements TicketAttachmentStorage
         return ['disk' => 'local', 'path' => $path];
     }
 
+    public function exists(string $disk, string $path): bool
+    {
+        return Storage::disk($disk)->exists($path);
+    }
+
+    public function readStream(string $disk, string $path)
+    {
+        return Storage::disk($disk)->readStream($path);
+    }
+
     public function delete(array $locations): void
     {
         foreach ($locations as $location) {

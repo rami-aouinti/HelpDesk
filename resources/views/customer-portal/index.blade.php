@@ -35,4 +35,5 @@
         @endforelse
     </div>
 </div>
+@include('live-chat.widget')
 @endsection

@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Insights\Application\Contracts\DashboardReadRepository;
 use App\Insights\Application\Contracts\ReportReadRepository;
 use App\Insights\Application\Contracts\ReportCsvExportRepository;
+use App\Insights\Infrastructure\Persistence\Eloquent\EloquentDashboardReadRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportReadRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportCsvExportRepository;
 
@@ -66,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(DashboardReadRepository::class, EloquentDashboardReadRepository::class);
         $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
         $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);

@@ -20,7 +20,9 @@ class WorkspaceDetailController extends Controller
         if ($user->hasRole('customer')) {
             $ticketQuery->where('user_id', $user->id);
         } elseif ($user->hasRole('agent') && ! $user->can('tickets.view.all')) {
-            abort_unless($project->members()->whereKey($user->id)->exists(), 403);
+            if (! $project->members()->whereKey($user->id)->exists()) {
+                $ticketQuery->whereRaw('1 = 0');
+            }
             $teamIds = $user->teams()->pluck('teams.id');
             $ticketQuery->where(fn ($query) => $query->whereNull('team_id')->orWhereIn('team_id', $teamIds));
         }

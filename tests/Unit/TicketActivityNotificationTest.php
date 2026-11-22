@@ -22,13 +22,13 @@ class TicketActivityNotificationTest extends TestCase
         $this->assertTrue($notification->afterCommit);
         $this->assertSame(['database', 'mail'], $notification->via(new \stdClass()));
 
-        $emailOnlyRecipient = new \\stdClass();
+        $emailOnlyRecipient = new \stdClass();
         $emailOnlyRecipient->in_app_notifications_enabled = false;
         $emailOnlyRecipient->email_notifications_enabled = true;
 
         $this->assertSame(['mail'], $notification->via($emailOnlyRecipient));
 
-        $disabledRecipient = new \\stdClass();
+        $disabledRecipient = new \stdClass();
         $disabledRecipient->in_app_notifications_enabled = false;
         $disabledRecipient->email_notifications_enabled = false;
 

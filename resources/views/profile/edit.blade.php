@@ -5,14 +5,6 @@
 @section('page-title', 'My profile')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <span class="eyebrow">ACCOUNT SETTINGS</span>
-            <h1>My profile</h1>
-            <p>Manage your personal information, account security and notifications.</p>
-        </div>
-    </div>
-
     @if (session('success'))
         <div class="alert alert-success" role="status">{{ session('success') }}</div>
     @endif

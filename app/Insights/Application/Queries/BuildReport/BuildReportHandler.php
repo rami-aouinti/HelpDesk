@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Insights\Application\Queries\BuildReport;
 
 use App\Insights\Application\Contracts\ReportReadRepository;

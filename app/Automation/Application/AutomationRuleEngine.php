@@ -149,7 +149,7 @@ final class AutomationRuleEngine
 
     private function notifyAssignee(Ticket $ticket, string $message): void
     {
-        $recipient = $ticket->assignedAgent;
+        $recipient = $ticket->assigned_to === null ? null : User::query()->find($ticket->assigned_to);
         if ($recipient) {
             Notification::send($recipient, new AutomationRuleNotification($ticket, $message));
         }

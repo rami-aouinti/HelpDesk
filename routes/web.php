@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CustomerPortalController;
+use App\Http\Controllers\CsatReportController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +28,9 @@ Route::get('/api/openapi.yaml', function () {
 
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/portal', [CustomerPortalController::class, 'index'])->name('portal.home');
+    Route::post('/portal/tickets/{ticket}/satisfaction', [CustomerPortalController::class, 'satisfaction'])->name('portal.satisfaction.store');
+    Route::get('/reports/csat', [CsatReportController::class, 'index'])->middleware('can:reports.view')->name('reports.csat');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity.index');
     Route::get('/calendar/events', [CalendarController::class, 'feed'])->name('calendar.feed');
     Route::post('/calendar/events', [CalendarController::class, 'store'])->name('calendar.events.store');

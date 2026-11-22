@@ -7,7 +7,7 @@ return [
     'domain' => env('HORIZON_DOMAIN'),
     'path' => env('HORIZON_PATH', 'horizon'),
     'use' => 'queue',
-    'prefix' => env('HORIZON_PREFIX', Str::slug(env('APP_NAME', 'helpdesk'), '_').'_horizon:'),
+    'prefix' => env('HORIZON_PREFIX', Str::slug(env('APP_NAME', 'helpdesk'), '_') . '_horizon:'),
     'middleware' => ['web'],
     'waits' => [
         'redis:notifications' => 60,

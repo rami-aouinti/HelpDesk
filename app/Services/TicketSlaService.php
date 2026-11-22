@@ -3,19 +3,19 @@
 namespace App\Services;
 
 use App\Models\Ticket;
+use App\ServiceDesk\Application\Contracts\SlaAlertPublisher;
+use App\ServiceDesk\Application\DTO\SlaAlert;
 use App\ServiceDesk\Domain\Enums\SlaDeadlineAction;
 use App\ServiceDesk\Domain\Services\SlaDeadlineEvaluator;
 use App\ServiceDesk\Domain\ValueObjects\SlaPolicy;
 use App\Models\TicketMessage;
-use App\Models\User;
-use App\Notifications\TicketSlaAlertNotification;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Notification;
 
 class TicketSlaService
 {
     public function __construct(
         private readonly SlaDeadlineEvaluator $deadlineEvaluator,
+        private readonly SlaAlertPublisher $alertPublisher,
     ) {
     }
 
@@ -109,44 +109,24 @@ class TicketSlaService
 
         if ($action === SlaDeadlineAction::BREACHED) {
             $ticket->forceFill([$breachColumn => $now])->save();
-            $this->notify($ticket, $type, 'breached', $dueAt);
+            $this->publishAlert($ticket, $type, 'breached', $dueAt);
 
             return;
         }
 
         if ($action === SlaDeadlineAction::WARNING) {
             $ticket->forceFill([$warningColumn => $now])->save();
-            $this->notify($ticket, $type, 'warning', $dueAt);
+            $this->publishAlert($ticket, $type, 'warning', $dueAt);
         }
     }
 
-    private function notify(Ticket $ticket, string $type, string $state, Carbon $dueAt): void
+    private function publishAlert(Ticket $ticket, string $type, string $state, Carbon $dueAt): void
     {
-        $recipients = collect([$ticket->assignedAgent]);
-
-        if ($ticket->team) {
-            $recipients = $recipients->merge(
-                $ticket->team->members()->where('is_active', true)->role('agent')->get(),
-            );
-        } elseif (! $ticket->assignedAgent) {
-            $recipients = $recipients->merge(
-                User::query()->role('agent')->where('is_active', true)->get(),
-            );
-        }
-
-        $recipients = $recipients
-            ->merge(User::query()->role('admin')->where('is_active', true)->get())
-            ->filter(fn (?User $user): bool => $user instanceof User && $user->is_active)
-            ->unique('id')
-            ->values();
-
-        if ($recipients->isEmpty()) {
-            return;
-        }
-
-        Notification::send(
-            $recipients,
-            new TicketSlaAlertNotification($ticket, $type, $state, $dueAt),
-        );
+        $this->alertPublisher->publish(new SlaAlert(
+            ticketId: (int) $ticket->getKey(),
+            slaType: $type,
+            state: $state,
+            dueAt: $dueAt->toDateTimeImmutable(),
+        ));
     }
 }

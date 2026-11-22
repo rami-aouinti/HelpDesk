@@ -56,7 +56,7 @@
                     <strong class="sprint-progress-value">{{ $progress }}%</strong>
                 </div>
                 <div class="sprint-row-actions">
-                    <button type="button" class="btn btn-secondary" wire:click="show({{ $sprint->id }})">Show</button>
+                    <a class="btn btn-secondary" href="{{ route('sprints.show', $sprint) }}">Show</a>
                     <a class="btn btn-secondary" href="{{ route('kanban.index', ['sprint' => $sprint->id]) }}">Open board</a>
                     @can('update', $sprint)<button type="button" class="btn btn-secondary" wire:click="edit({{ $sprint->id }})">Edit</button>@endcan
                     @can('delete', $sprint)<button type="button" class="btn btn-danger" wire:click="delete({{ $sprint->id }})" wire:confirm="Delete {{ $sprint->name }}? This sprint must not contain tickets.">Delete</button>@endcan

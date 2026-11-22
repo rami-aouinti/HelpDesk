@@ -69,6 +69,7 @@ class ProfileSettingsTest extends TestCase
         $agent->refresh();
 
         $this->assertFalse($agent->email_notifications_enabled);
+        $this->assertTrue($agent->in_app_notifications_enabled);
 
         $ticket = Ticket::query()->create([
             'subject' => 'Profile notification preference test',
@@ -86,4 +87,30 @@ class ProfileSettingsTest extends TestCase
 
         $this->assertSame(['database'], $notification->via($agent));
     }
+    public function test_user_can_disable_in_app_notifications_independently_from_email(): void
+    {
+        $agent = User::query()->where('email', 'agent@helpdesk.test')->firstOrFail();
+
+        $this->actingAs($agent)
+            ->patch(route('profile.preferences.update'), [
+                'email_notifications_enabled' => '1',
+                'in_app_notifications_enabled' => '0',
+            ])
+            ->assertRedirect(route('profile.edit'))
+            ->assertSessionHas('success');
+
+        $agent->refresh();
+
+        $this->assertTrue($agent->email_notifications_enabled);
+        $this->assertFalse($agent->in_app_notifications_enabled);
+
+        $notification = new TicketActivityNotification(
+            new Ticket(['subject' => 'In-app preference test']),
+            'Ticket updated',
+            'The ticket has been updated.',
+        );
+
+        $this->assertSame(['mail'], $notification->via($agent));
+    }
+
 }

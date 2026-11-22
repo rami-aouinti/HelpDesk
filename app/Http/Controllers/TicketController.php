@@ -44,7 +44,10 @@ class TicketController extends Controller
     {
         abort_unless(auth()->user()->can('viewAny', Ticket::class), 403);
 
-        return view('tickets.index');
+        $user = auth()->user();
+        $projects = $user->can('projects.view.all') ? Project::query()->orderBy('name')->get() : $user->projects()->orderBy('name')->get();
+
+        return view('tickets.index', ['projects' => $projects]);
     }
 
     public function create(): View

@@ -13,6 +13,7 @@ use App\ServiceDesk\Application\Contracts\TicketTeamMembership;
 use App\ServiceDesk\Application\Contracts\TicketProjectAccess;
 use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
 use App\ServiceDesk\Application\Contracts\SlaAlertPublisher;
+use App\ServiceDesk\Application\Contracts\SlaAlertOutboxRepository;
 use App\ServiceDesk\Application\Contracts\SlaPolicyProvider;
 use App\ServiceDesk\Application\Contracts\TicketSlaRepository;
 use App\ServiceDesk\Application\Contracts\TicketUpdatedPublisher;
@@ -33,6 +34,7 @@ use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketHistoryRec
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketWorkflowPermission;
 use App\ServiceDesk\Infrastructure\Persistence\LaravelDatabaseTransactionManager;
 use App\ServiceDesk\Infrastructure\Sla\LaravelSlaAlertPublisher;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentSlaAlertOutboxRepository;
 use App\ServiceDesk\Infrastructure\Sla\ConfigSlaPolicyProvider;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketSlaRepository;
 use App\Events\TicketMessageCreated;
@@ -69,7 +71,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TicketTeamMembership::class, EloquentTicketTeamMembership::class);
         $this->app->bind(TicketProjectAccess::class, EloquentTicketProjectAccess::class);
         $this->app->bind(TicketHistoryRecorder::class, EloquentTicketHistoryRecorder::class);
-        $this->app->bind(SlaAlertPublisher::class, LaravelSlaAlertPublisher::class);\n        $this->app->bind(SlaAlertOutboxRepository::class, EloquentSlaAlertOutboxRepository::class);
+        $this->app->bind(SlaAlertPublisher::class, LaravelSlaAlertPublisher::class);
+        $this->app->bind(SlaAlertOutboxRepository::class, EloquentSlaAlertOutboxRepository::class);
         $this->app->bind(SlaPolicyProvider::class, ConfigSlaPolicyProvider::class);
         $this->app->bind(TicketSlaRepository::class, EloquentTicketSlaRepository::class);
         $this->app->bind(TicketUpdatedPublisher::class, LaravelTicketUpdatedPublisher::class);

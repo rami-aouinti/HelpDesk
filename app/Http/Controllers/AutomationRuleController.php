@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Automation\Application\AutomationRuleEngine;
 use App\Models\AutomationExecution;
 use App\Models\AutomationRule;
+use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class AutomationRuleController extends Controller
         abort_unless($execution->status === 'failed', 409);
         $rule = $execution->rule;
         $ticket = $execution->ticket;
-        if (! $rule instanceof AutomationRule || ! $ticket instanceof \\App\\Models\\Ticket || ! $rule->is_active) {
+        if (! $rule instanceof AutomationRule || ! $ticket instanceof Ticket || ! $rule->is_active) {
             abort(404);
         }
 

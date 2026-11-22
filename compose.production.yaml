@@ -9,6 +9,7 @@ services:
       QUEUE_CONNECTION: redis
       REDIS_QUEUE_CONNECTION: queue
       REDIS_QUEUE_HOST: redis
+      REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:
@@ -31,6 +32,7 @@ services:
       QUEUE_CONNECTION: redis
       REDIS_QUEUE_CONNECTION: queue
       REDIS_QUEUE_HOST: redis
+      REDIS_QUEUE_RETRY_AFTER: 120
     volumes:
       - ${HELPDESK_STORAGE_PATH:-./storage/app}:/var/www/html/storage/app
     depends_on:

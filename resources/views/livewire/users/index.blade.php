@@ -2,6 +2,8 @@
     @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
     @if ($errors->any()) <div class="alert alert-error">{{ $errors->first() }}</div> @endif
 
+    <div class="page-header"><div><span class="eyebrow">PEOPLE & ACCESS</span><h1>Users</h1><p>Manage accounts, roles and workspace access.</p></div>@can("create", \\App\\Models\\User::class)<button type="button" class="btn btn-primary" wire:click="create">＋ Add user</button>@endcan</div>
+
     <section class="content-card data-table-card">
         <div class="table-toolbar">
             <div class="table-filter">
@@ -46,7 +48,7 @@
                         <td class="actions">
                             <a class="btn btn-secondary" href="{{ route('users.show', $user) }}">Show</a>
                             @can('update', $user)
-                                <a class="btn btn-secondary" href="{{ route('users.edit', $user) }}">Edit</a>
+                                <button type="button" class="btn btn-secondary" wire:click="edit({{ $user->id }})">Edit</button>
                             @endcan
                             @can('toggleActive', $user)
                                 <button type="button" class="btn {{ $user->is_active ? 'btn-danger' : 'btn-primary' }}" wire:click="toggleActive({{ $user->id }})" wire:confirm="Are you sure you want to {{ $user->is_active ? 'deactivate' : 'activate' }} this user?" wire:loading.attr="disabled">{{ $user->is_active ? 'Deactivate' : 'Activate' }}</button>
@@ -59,6 +61,22 @@
         </div>
         <div class="table-pagination">{{ $users->links('vendor.pagination.helpdesk') }}</div>
     </section>
+
+    @if ($showForm)
+        <div class="hd-modal-backdrop" wire:click.self="cancelUserForm">
+            <section class="content-card hd-modal-panel" role="dialog" aria-modal="true" aria-labelledby="user-form-title">
+                <div class="hd-modal-heading"><div><span class="hd-eyebrow">ACCOUNT MANAGEMENT</span><h2 id="user-form-title">{{ $editingUserId ? 'Edit user' : 'Create user' }}</h2><p>{{ $editingUserId ? 'Update profile details and access role.' : 'Create an account and send an email verification link.' }}</p></div><button type="button" class="hd-modal-close" wire:click="cancelUserForm" aria-label="Close">×</button></div>
+                <form wire:submit="saveUser" class="hd-user-form">
+                    <div class="form-group"><label for="managed-user-name">Full name</label><input id="managed-user-name" type="text" wire:model="name" maxlength="255" required>@error('name')<small class="field-error">{{ $message }}</small>@enderror</div>
+                    <div class="form-group"><label for="managed-user-email">Email address</label><input id="managed-user-email" type="email" wire:model="email" maxlength="255" required>@error('email')<small class="field-error">{{ $message }}</small>@enderror</div>
+                    <div class="form-group"><label for="managed-user-role">Role</label><select id="managed-user-role" wire:model="userRole" required>@foreach($roles as $availableRole)<option value="{{ $availableRole }}">{{ ucfirst($availableRole) }}</option>@endforeach</select>@error('userRole')<small class="field-error">{{ $message }}</small>@enderror</div>
+                    <div class="form-group"><label for="managed-user-password">{{ $editingUserId ? 'New password (optional)' : 'Password' }}</label><input id="managed-user-password" type="password" wire:model="password" minlength="12" autocomplete="new-password" @required(!$editingUserId)>@error('password')<small class="field-error">{{ $message }}</small>@enderror</div>
+                    <div class="form-group"><label for="managed-user-password-confirmation">Confirm password</label><input id="managed-user-password-confirmation" type="password" wire:model="passwordConfirmation" minlength="12" autocomplete="new-password" @required(!$editingUserId || $password !== '')></div>
+                    <div class="filter-actions"><button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="saveUser">{{ $editingUserId ? 'Save changes' : 'Create user' }}</button><button type="button" class="btn btn-secondary" wire:click="cancelUserForm">Cancel</button></div>
+                </form>
+            </section>
+        </div>
+    @endif
     @if ($selectedUser)
         <div class="hd-modal-backdrop" wire:click.self="closeUser"><section class="content-card hd-modal-panel hd-detail-modal" role="dialog" aria-modal="true" aria-labelledby="user-detail-title">
             <div class="hd-modal-heading"><div><span class="hd-eyebrow">USER PROFILE</span><h2 id="user-detail-title">{{ $selectedUser->name }}</h2><p>{{ $selectedUser->email }}</p></div><button type="button" class="hd-modal-close" wire:click="closeUser" aria-label="Close">×</button></div>

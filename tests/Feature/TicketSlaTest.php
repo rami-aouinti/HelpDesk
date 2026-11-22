@@ -42,7 +42,7 @@ class TicketSlaTest extends TestCase
         ]);
 
         $service = app(TicketSlaService::class);
-        $service->process($ticket, $now);
+        $service->process((int) $ticket->getKey(), $now);
         $ticket->refresh();
 
         $this->assertTrue($ticket->first_response_due_at->equalTo($now->copy()->addMinutes(5)));
@@ -50,7 +50,7 @@ class TicketSlaTest extends TestCase
         $this->assertNotNull($ticket->first_response_warning_sent_at);
         $this->assertNull($ticket->first_response_breached_at);
 
-        $service->process($ticket, $now->copy()->addMinute());
+        $service->process((int) $ticket->getKey(), $now->copy()->addMinute());
         $this->assertCount(1, Notification::sent($agent, TicketSlaAlertNotification::class));
     }
 
@@ -73,7 +73,7 @@ class TicketSlaTest extends TestCase
             'updated_at' => $createdAt,
         ]);
 
-        app(TicketSlaService::class)->process($ticket, $createdAt->copy()->addMinutes(20));
+        app(TicketSlaService::class)->process((int) $ticket->getKey(), $createdAt->copy()->addMinutes(20));
         $ticket->refresh();
 
         $this->assertNotNull($ticket->first_response_breached_at);

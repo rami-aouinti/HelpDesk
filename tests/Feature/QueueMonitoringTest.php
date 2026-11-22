@@ -70,7 +70,7 @@ class QueueMonitoringTest extends TestCase
     {
         $this->assertSame(
             ['ticket-search-indexing'],
-            (new IndexTicketInElasticsearch())->tags(),
+            Tags::for(new IndexTicketInElasticsearch()),
         );
 
         $this->assertSame(['ticket-notifications'], (new TicketActivityNotification(new \App\Models\Ticket(), 'Subject', 'Message'))->tags());

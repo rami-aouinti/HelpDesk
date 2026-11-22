@@ -63,6 +63,8 @@ class LiveChatTest extends TestCase
         $customer->assignRole('customer');
         $agent = User::factory()->create(['email_verified_at' => now()]);
         $agent->assignRole('agent');
+        $team = Team::query()->create(['name' => 'Live Chat Support']);
+        $team->members()->attach($agent->id);
 
         $conversation = ChatConversation::query()->create([
             'customer_id' => $customer->id,
@@ -78,6 +80,8 @@ class LiveChatTest extends TestCase
         $this->assertDatabaseHas('tickets', [
             'user_id' => $customer->id,
             'subject' => 'Payment issue',
+            'assigned_to' => $agent->id,
+            'team_id' => $team->id,
         ]);
         $this->assertDatabaseHas('chat_conversations', [
             'id' => $conversation->id,

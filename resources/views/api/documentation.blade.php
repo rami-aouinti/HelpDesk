@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HelpDesk API Documentation</title>
+    <title>API Documentation | HelpDesk</title>
+    <meta name="description" content="Explore the HelpDesk REST API, review available endpoints and understand authentication and integration options.">
+    <meta name="application-name" content="HelpDesk">
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" type="image/png" href="{{ asset('helpdesk.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('helpdesk.png') }}">
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
     <style>
         body { margin: 0; background: #f8fafc; }

@@ -25,7 +25,10 @@ class ReportsTest extends TestCase
         Ticket::create(['subject'=>'Analytics sample','description'=>'Sample','status'=>'resolved','priority'=>'urgent','user_id'=>$customerId]);
 
         $this->actingAs($admin)->get(route('reports.index'))->assertOk()->assertSee('Reports & Analytics');
-        $this->actingAs($admin)->get(route('reports.csv'))->assertOk()->assertHeader('content-type','text/csv; charset=UTF-8');
+
+        $csvResponse = $this->actingAs($admin)->get(route('reports.csv'));
+        $csvResponse->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('Analytics sample', $csvResponse->streamedContent());
     }
 
     public function test_agent_without_report_permission_is_forbidden(): void

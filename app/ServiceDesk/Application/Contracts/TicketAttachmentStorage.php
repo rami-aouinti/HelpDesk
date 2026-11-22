@@ -11,6 +11,11 @@ interface TicketAttachmentStorage
      */
     public function store(int $ticketId, string $temporaryPath): array;
 
+    public function exists(string $disk, string $path): bool;
+
+    /** @return resource|false */
+    public function readStream(string $disk, string $path);
+
     /**
      * @param array<array{disk: string, path: string}> $locations
      */

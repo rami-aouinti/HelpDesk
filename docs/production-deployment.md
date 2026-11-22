@@ -9,7 +9,7 @@ HelpDesk requires:
 - PHP 8.4 with the extensions listed in the `Dockerfile`.
 - A database supported by the configured Laravel connection (PostgreSQL is used by the supplied Docker stack).
 - A web server or ingress that forwards PHP requests to PHP-FPM.
-- A persistent queue worker for the `database` queue connection.
+- Laravel Horizon running against a private Redis queue connection.
 - Persistent storage for user uploads, plus a backup/restore process.
 - Node.js 22 only for building frontend assets; Node is not needed by the PHP runtime.
 
@@ -30,7 +30,7 @@ Required production settings include:
 | `LOG_LEVEL` | Usually `warning` or `error`, adjusted to operational needs |
 | `DB_CONNECTION` | `pgsql` when using PostgreSQL |
 | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Private database endpoint and secret credentials |
-| `QUEUE_CONNECTION` | `database` unless a different queue backend is deliberately configured |
+| `QUEUE_CONNECTION` | `redis` (required by Laravel Horizon) |
 | `SESSION_DRIVER`, `CACHE_STORE` | Choose stores appropriate to the deployment topology |
 | `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, credentials | Real transactional mail provider; never Mailpit |
 

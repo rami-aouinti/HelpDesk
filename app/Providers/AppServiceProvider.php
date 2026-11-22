@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Communications\Application\Contracts\NotificationDeliveryRepository;
 use App\Communications\Application\Contracts\NotificationInboxRepository;
+use App\Communications\Infrastructure\Events\TrackNotificationDelivery;
+use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationDeliveryRepository;
 use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationInboxRepository;
 
 use App\Insights\Application\Contracts\DashboardReadRepository;
@@ -56,6 +59,9 @@ use App\Listeners\IndexTicketInElasticsearch;
 use App\Models\User;
 use App\Observers\UserObserver;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Events\NotificationFailed;
+use Illuminate\Notifications\Events\NotificationSending;
+use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Queue\Events\QueueBusy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -71,7 +77,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(NotificationInboxRepository::class, EloquentNotificationInboxRepository::class);\n        $this->app->bind(NotificationDeliveryRepository::class, EloquentNotificationDeliveryRepository::class);
+        $this->app->bind(NotificationInboxRepository::class, EloquentNotificationInboxRepository::class);
+        $this->app->bind(NotificationDeliveryRepository::class, EloquentNotificationDeliveryRepository::class);
+        $this->app->bind(NotificationDeliveryRepository::class, EloquentNotificationDeliveryRepository::class);
         $this->app->bind(DashboardReadRepository::class, EloquentDashboardReadRepository::class);
         $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
         $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);
@@ -121,7 +129,10 @@ class AppServiceProvider extends ServiceProvider
                 'size' => $event->size,
             ]);
         });
-        Event::listen(NotificationSending::class, [TrackNotificationDelivery::class, 'sending']);\n        Event::listen(NotificationSent::class, [TrackNotificationDelivery::class, 'sent']);\n        Event::listen(NotificationFailed::class, [TrackNotificationDelivery::class, 'failed']);\n        Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
+        Event::listen(NotificationSending::class, [TrackNotificationDelivery::class, 'sending']);
+        Event::listen(NotificationSent::class, [TrackNotificationDelivery::class, 'sent']);
+        Event::listen(NotificationFailed::class, [TrackNotificationDelivery::class, 'failed']);
+        Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);
         Event::listen(TicketUpdated::class, SendTicketUpdatedNotifications::class);
         Event::listen(TicketCreated::class, IndexTicketInElasticsearch::class);

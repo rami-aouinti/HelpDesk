@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Automation\Application\AutomationRuleEngine;
 use App\Models\AutomationExecution;
 use App\Models\AutomationRule;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 
 class AutomationRuleController extends Controller
@@ -32,6 +33,20 @@ class AutomationRuleController extends Controller
     {
         $automationRule->update($this->validated($request));
         return back()->with('success', 'Automation rule updated.');
+    }
+
+    public function retry(AutomationExecution $execution, AutomationRuleEngine $engine): RedirectResponse
+    {
+        abort_unless($execution->status === 'failed', 409);
+        $rule = $execution->rule;
+        $ticket = $execution->ticket;
+        abort_unless($rule && $ticket && $rule->is_active, 404);
+
+        $engine->dispatch($execution->trigger, $ticket->fresh() ?? $ticket, [
+            'retry_of_execution' => $execution->id,
+        ]);
+
+        return back()->with('success', 'Automation retry executed. See the new execution in the history.');
     }
 
     public function destroy(AutomationRule $automationRule): RedirectResponse
@@ -67,15 +82,34 @@ class AutomationRuleController extends Controller
         foreach ($data['actions'] as $action) {
             if (($action['type'] ?? '') === 'assign_agent') {
                 validator($action, ['value' => ['required', 'integer', 'exists:users,id']])->validate();
-            }
-            if (($action['type'] ?? '') === 'set_priority') {
+            } elseif (($action['type'] ?? '') === 'set_priority') {
                 validator($action, ['value' => ['required', Rule::in(['low', 'normal', 'high', 'urgent'])]])->validate();
-            }
-            if (($action['type'] ?? '') === 'add_tag') {
+            } elseif (($action['type'] ?? '') === 'add_tag') {
                 validator($action, ['value' => ['required', 'string', 'max:60']])->validate();
             }
         }
 
         return $data;
+    }
+
+    private function validateConditionGroup(array $group): void
+    {
+        validator($group, [
+            'logic' => ['required', Rule::in(['and', 'or'])],
+            'rules' => ['required', 'array', 'min:1', 'max:20'],
+        ])->validate();
+
+        foreach ($group['rules'] as $condition) {
+            if (isset($condition['rules']) && is_array($condition['rules'])) {
+                $this->validateConditionGroup($condition);
+                continue;
+            }
+
+            validator($condition, [
+                'field' => ['required', Rule::in(['status', 'priority', 'team_id', 'assigned_to', 'user_id'])],
+                'operator' => ['required', Rule::in(['equals', 'not_equals', 'in', 'contains', 'greater_than', 'less_than'])],
+                'value' => ['present'],
+            ])->validate();
+        }
     }
 }

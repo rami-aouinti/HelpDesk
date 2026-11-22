@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Events\TicketCreated;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;
+use App\ServiceDesk\Application\Contracts\TicketMessageRepository;
+use App\ServiceDesk\Application\Contracts\TicketMessageCreatedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketAssignmentPermission;
 use App\ServiceDesk\Application\Contracts\TicketClaimedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketTeamMembership;
@@ -14,9 +16,11 @@ use App\ServiceDesk\Application\Contracts\TicketWorkflowPermission;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
 use App\ServiceDesk\Domain\Repositories\TicketRepository;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketCreatedPublisher;
+use App\ServiceDesk\Infrastructure\Events\LaravelTicketMessageCreatedPublisher;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketClaimedPublisher;
 use App\ServiceDesk\Infrastructure\Events\LaravelTicketUpdatedPublisher;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketRepository;
+use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketMessageRepository;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketAssignmentPermission;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketTeamMembership;
 use App\ServiceDesk\Infrastructure\Persistence\Eloquent\EloquentTicketProjectAccess;
@@ -48,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);
+        $this->app->bind(TicketMessageRepository::class, EloquentTicketMessageRepository::class);
+        $this->app->bind(TicketMessageCreatedPublisher::class, LaravelTicketMessageCreatedPublisher::class);
         $this->app->bind(TicketAssignmentPermission::class, EloquentTicketAssignmentPermission::class);
         $this->app->bind(TicketCreatedPublisher::class, LaravelTicketCreatedPublisher::class);
         $this->app->bind(TicketClaimedPublisher::class, LaravelTicketClaimedPublisher::class);

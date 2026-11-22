@@ -13,6 +13,31 @@ A Laravel-based support desk for managing customer requests, team workflows and 
 - **Notifications:** in-app notifications, email notifications and user notification preferences.
 - **REST API:** Sanctum bearer tokens, ticket resources, conversation endpoints and OpenAPI documentation.
 
+## Demo data
+
+The database seeders create a connected demo workspace for exploring the application:
+
+- 31 demo accounts: administrators, support agents and customers.
+- 5 support teams with agent memberships.
+- 8 projects with budgets, dates, statuses and project members.
+- 60 realistic support tickets distributed across teams and customers.
+- 5 sprints with tickets assigned to the sprint-based Kanban workflow.
+- Ticket history records for the initial sample tickets.
+
+Run the seeders after migrations:
+
+```bash
+docker compose exec app php artisan db:seed
+```
+
+To rebuild the local database and recreate the complete demo dataset (this deletes existing local database data):
+
+```bash
+docker compose exec app php artisan migrate:fresh --seed
+```
+
+Demo accounts use the configured `HELPDESK_DEMO_PASSWORD` value (default: `password`). The admin, default agent and default customer emails are configurable through the corresponding `HELPDESK_*` variables in `.env`. Additional demo users use the `@helpdesk.test` domain.
+
 ## Elasticsearch search
 
 The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted. Laravel jobs are processed by a dedicated Redis-backed queue worker.

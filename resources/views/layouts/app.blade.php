@@ -89,10 +89,36 @@
                     request()->routeIs('projects.index') => 'projects',
                     request()->routeIs('tickets.index') => 'tickets',
                     request()->routeIs('sprints.index') => 'sprints',
+                    request()->routeIs('kanban.index') => 'kanban',
                     default => null,
                 };
             @endphp
-            @if ($topbarPage)
+            @if ($topbarPage === 'kanban')
+                @php
+                    $kanbanSprints = \\App\\Models\\Sprint::query()
+                        ->orderByDesc('start_date')
+                        ->orderByDesc('id')
+                        ->get(['id', 'name']);
+                    $selectedKanbanSprint = (int) request()->query('sprint', $kanbanSprints->first()?->id ?? 0);
+                @endphp
+                <div class="topbar-page-tools kanban-topbar-tools">
+                    <label class="kanban-topbar-select" for="kanban-topbar-sprint">
+                        <span class="sr-only">Select sprint</span>
+                        <select id="kanban-topbar-sprint" aria-label="Select sprint" onchange="Livewire.dispatch('kanban-select-sprint', { sprintId: Number(this.value) })" @disabled($kanbanSprints->isEmpty())>
+                            @forelse ($kanbanSprints as $kanbanOption)
+                                <option value="{{ $kanbanOption->id }}" @selected($selectedKanbanSprint === $kanbanOption->id)>{{ $kanbanOption->name }}</option>
+                            @empty
+                                <option value="">No sprints</option>
+                            @endforelse
+                        </select>
+                    </label>
+                    <label class="kanban-topbar-filter">
+                        <input type="checkbox" aria-label="Only my assigned tickets" @checked(request()->boolean('onlyMine')) onchange="Livewire.dispatch('kanban-toggle-mine', { onlyMine: this.checked })" @disabled($kanbanSprints->isEmpty())>
+                        <span>Only my assigned tickets</span>
+                    </label>
+                    <a href="{{ route('sprints.index') }}" class="btn btn-secondary">Manage sprints</a>
+                </div>
+            @elseif ($topbarPage)
                 <div class="topbar-page-tools">
                     <label class="topbar-search" for="topbar-page-search">
                         <span aria-hidden="true">⌕</span>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Insights\Application\Contracts;
 
 use App\Insights\Application\DTO\ReportCsvRow;

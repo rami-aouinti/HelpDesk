@@ -292,10 +292,6 @@ class TicketController extends Controller
             $data !== []
             && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []
         ) {
-        if (
-            $data !== []
-            && array_diff(array_keys($data), ['estimated_minutes', 'elapsed_minutes']) === []
-        ) {
             $effortHandler->handle(new UpdateTicketEffortCommand(
                 ticketId: (int) $ticket->getKey(),
                 actorId: (int) $request->user()->getKey(),

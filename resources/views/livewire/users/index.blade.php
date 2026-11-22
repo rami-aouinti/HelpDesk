@@ -2,7 +2,7 @@
     @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
     @if ($errors->any()) <div class="alert alert-error">{{ $errors->first() }}</div> @endif
 
-    <div class="page-header"><div><span class="eyebrow">PEOPLE & ACCESS</span><h1>Users</h1><p>Manage accounts, roles and workspace access.</p></div>@can("create", \\App\\Models\\User::class)<button type="button" class="btn btn-primary" wire:click="create">＋ Add user</button>@endcan</div>
+    <div class="page-header"><div><span class="eyebrow">PEOPLE & ACCESS</span><h1>Users</h1><p>Manage accounts, roles and workspace access.</p></div>@can('create', \\App\\Models\\User::class)<button type="button" class="btn btn-primary" wire:click="create">＋ Add user</button>@endcan</div>
 
     <section class="content-card data-table-card">
         <div class="table-toolbar">

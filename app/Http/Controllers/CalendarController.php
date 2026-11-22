@@ -43,7 +43,7 @@ class CalendarController extends Controller
                 'end' => $event->ends_at?->toIso8601String(),
                 'allDay' => $event->all_day,
                 'type' => $event->type,
-                'visibility' => $event->visibility,
+                'visibility' => $event->visibility,\n                'team_id' => $event->team_id,
                 'location' => $event->location,
                 'creator' => $event->creator?->name,
                 'ticket' => $event->ticket ? ['id' => $event->ticket->id, 'subject' => $event->ticket->subject] : null,

@@ -105,8 +105,10 @@
 .reports-page{display:grid;gap:16px}.reports-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.reports-heading h1{margin:0}.reports-heading p,.report-note,.report-empty{color:var(--hd-muted)}.reports-actions{display:flex;gap:8px}.reports-tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--hd-border);padding-bottom:10px}.reports-tabs a{padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--hd-muted)}.reports-tabs a.active{background:var(--hd-surface);color:var(--hd-ink);font-weight:700}.reports-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.reports-filters label{display:grid;gap:5px;flex:1;min-width:130px}.reports-filters input,.reports-filters select{min-height:40px;padding:7px;border:1px solid var(--hd-border);border-radius:8px;background:var(--hd-surface);color:var(--hd-ink)}.report-document-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:8px 0 14px}.report-document-heading h2{margin:3px 0}.report-document-heading p{margin:0;color:var(--hd-muted)}.report-eyebrow{font-size:10px;letter-spacing:1.5px;font-weight:800;color:var(--hd-muted)}.report-period{font-size:12px;color:var(--hd-muted)}.reports-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.reports-kpis article{display:grid;gap:7px}.reports-kpis span,.reports-kpis small{color:var(--hd-muted)}.reports-kpis strong{font-size:27px;color:var(--hd-ink)}.reports-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.report-chart{padding:18px}.report-chart h3,.report-section h3{margin-top:0}.chart-row{display:grid;grid-template-columns:minmax(85px,1fr) 2fr 32px;align-items:center;gap:10px;margin:13px 0;font-size:13px}.chart-row b{text-align:right;font-variant-numeric:tabular-nums}.chart-track{height:9px;background:var(--hd-border);border-radius:20px;overflow:hidden}.chart-track i{display:block;height:100%;border-radius:20px;background:var(--hd-accent,#4f7cff)}.report-section{margin:14px 0;padding:18px}.table-responsive{overflow-x:auto}.report-note{font-size:12px;margin-top:18px}.reports-chart-grid-secondary .report-section{margin:0}@media(max-width:800px){.reports-kpis{grid-template-columns:repeat(2,1fr)}.reports-heading{align-items:flex-start;flex-direction:column}.reports-chart-grid{grid-template-columns:1fr}}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"
+        onerror="this.onerror=null;this.src='https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js'"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"
+        onerror="this.onerror=null;this.src='https://unpkg.com/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js'"></script>
 <script>
 (() => {
     const button = document.getElementById('report-pdf');
@@ -160,13 +162,17 @@
     }
 
     button.addEventListener('click', () => {
-        if (!window.jspdf?.jsPDF || typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
-            window.alert('The PDF library could not be loaded. Please check your internet connection and try again.');
+        if (!window.jspdf?.jsPDF) {
+            window.alert('jsPDF could not be loaded. Please check whether your network blocks jsDelivr and unpkg, then reload the page.');
             return;
         }
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+        if (typeof pdf.autoTable !== 'function') {
+            window.alert('The PDF table plugin could not be loaded. Please reload the page and check whether your network blocks jsDelivr and unpkg.');
+            return;
+        }
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 14;

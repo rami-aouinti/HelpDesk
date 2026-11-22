@@ -146,6 +146,7 @@
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="email_notifications_enabled" value="0">
+                <input type="hidden" name="in_app_notifications_enabled" value="0">
                 <label class="preference-option" for="email_notifications_enabled">
                     <span class="preference-copy">
                         <strong>Email notifications</strong>
@@ -153,7 +154,14 @@
                     </span>
                     <input id="email_notifications_enabled" type="checkbox" name="email_notifications_enabled" value="1" @checked(old('email_notifications_enabled', $user->email_notifications_enabled ?? true))>
                 </label>
-                <p class="profile-preference-note">In-app notifications remain available in the top bar. This setting only controls notification emails.</p>
+                <label class="preference-option" for="in_app_notifications_enabled">
+                    <span class="preference-copy">
+                        <strong>In-app notifications</strong>
+                        <small>Show ticket and SLA updates in your HelpDesk notification inbox.</small>
+                    </span>
+                    <input id="in_app_notifications_enabled" type="checkbox" name="in_app_notifications_enabled" value="1" @checked(old('in_app_notifications_enabled', $user->in_app_notifications_enabled ?? true))>
+                </label>
+                <p class="profile-preference-note">You can control email and in-app notifications independently.</p>
                 <div class="profile-form-actions">
                     <button type="submit" class="btn btn-primary">Save preferences</button>
                 </div>

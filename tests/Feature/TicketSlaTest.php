@@ -30,7 +30,7 @@ class TicketSlaTest extends TestCase
         $agent = User::query()->where('email', 'agent@helpdesk.test')->firstOrFail();
         $now = Carbon::parse('2026-11-22 12:00:00');
 
-        $ticket = Ticket::query()->create([
+        $ticket = Ticket::query()->forceCreate([
             'subject' => 'Urgent SLA test ticket',
             'description' => 'Verify the urgent SLA warning is sent once.',
             'status' => 'open',
@@ -62,7 +62,7 @@ class TicketSlaTest extends TestCase
         $agent = User::query()->where('email', 'agent@helpdesk.test')->firstOrFail();
         $createdAt = Carbon::parse('2026-11-22 10:00:00');
 
-        $ticket = Ticket::query()->create([
+        $ticket = Ticket::query()->forceCreate([
             'subject' => 'Overdue SLA test ticket',
             'description' => 'Verify the first response breach is recorded.',
             'status' => 'open',

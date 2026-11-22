@@ -56,7 +56,10 @@
             @can('knowledge-base.manage')
                 <a href="{{ route('knowledge-base.admin.index') }}" class="nav-link {{ request()->routeIs('knowledge-base.admin.*') ? 'active' : '' }}"><span class="nav-icon">✎</span><span>Manage Articles</span></a>
             @endcan
-            @if (auth()->user()->hasAnyRole(['customer', 'agent', 'admin']))\n                <a href="{{ route('live-chat.index') }}" class="nav-link {{ request()->routeIs('live-chat.*') ? 'active' : '' }}"><span class="nav-icon">◉</span><span>Live Chat</span></a>\n            @endif\n            <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
+            @if (auth()->user()->hasAnyRole(['customer', 'agent', 'admin']))
+                <a href="{{ route('live-chat.index') }}" class="nav-link {{ request()->routeIs('live-chat.*') ? 'active' : '' }}"><span class="nav-icon">◉</span><span>Live Chat</span></a>
+            @endif
+            <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                 <span class="nav-icon">▤</span><span>Tickets</span>
             </a>
             <a href="{{ route('notifications.index') }}" class="nav-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}">

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\KnowledgeBaseArticle;
@@ -29,7 +31,7 @@ class CustomerPortalController extends Controller
 
         $articles = KnowledgeBaseArticle::query()->published()->latest('published_at')->limit(4)->get();
 
-        return view('customer-portal.index', compact('tickets', 'stats', 'articles'));
+        return view('customer-portal.index', ['tickets' => $tickets, 'stats' => $stats, 'articles' => $articles]);
     }
 
     public function satisfaction(Request $request, Ticket $ticket): RedirectResponse

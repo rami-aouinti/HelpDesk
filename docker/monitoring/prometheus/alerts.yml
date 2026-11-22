@@ -30,6 +30,24 @@ groups:
           summary: "PostgreSQL metrics exporter is unavailable"
           description: "Prometheus cannot scrape PostgreSQL exporter."
 
+      - alert: RedisQueueExporterDown
+        expr: up{job="redis-queue"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis queue exporter is unavailable"
+          description: "Prometheus cannot scrape metrics for the dedicated Redis queue."
+
+      - alert: RedisQueueUnavailable
+        expr: redis_up{job="redis-queue"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis queue is unavailable"
+          description: "The Redis queue exporter cannot reach the Redis queue service."
+
       - alert: ContainerHighCpu
         expr: sum by (name) (rate(container_cpu_usage_seconds_total{name=~".+"}[5m])) > 0.85
         for: 10m
@@ -50,15 +68,6 @@ groups:
 
   - name: helpdesk-queue
     rules:
-      - alert: HelpDeskQueueBacklog
-        expr: helpdesk_queue_pending_pending_jobs > 100
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "HelpDesk queue backlog is growing"
-          description: "There are more than 100 pending jobs for 5 minutes."
-
       - alert: HelpDeskFailedJobs
         expr: helpdesk_queue_failed_failed_jobs > 0
         for: 1m

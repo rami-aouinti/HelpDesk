@@ -78,7 +78,7 @@
                     <option value="">Select a team</option>
                     @foreach ($calendarTeams as $team)<option value="{{ $team->id }}">{{ $team->name }}</option>@endforeach
                 </select>
-            </label>
+            </label>@endif
             <label>Related ticket (optional)
                 <input name="ticket_id" type="number" min="1" placeholder="Ticket ID">
             </label>

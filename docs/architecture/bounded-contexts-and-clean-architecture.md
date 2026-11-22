@@ -87,3 +87,5 @@ The Eloquent repository uses conditional updates (`WHERE ... IS NULL`) to initia
 ## Insights read side
 
 The reports page is the first Insights query slice. The HTTP controller validates filter input and delegates to `BuildReportHandler`; the application query is represented by `BuildReportQuery`. The `ReportReadRepository` port isolates report-specific read access, while `EloquentReportReadRepository` owns SQL aggregation, joins and Eloquent option lists. This is intentionally a read-model boundary: report queries may use optimized SQL and do not need to load ServiceDesk aggregates. CSV export remains on the legacy controller path for a later extraction.
+
+The Insights CSV export follows the same read-side boundary. `ExportReportCsvQuery` and `ExportReportCsvHandler` delegate to `ReportCsvExportRepository`; the Eloquent adapter streams database rows with a cursor and maps them to the framework-independent `ReportCsvRow` DTO. The HTTP layer writes the CSV response incrementally, preserving low memory usage for large exports.

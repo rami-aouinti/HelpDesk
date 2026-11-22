@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Api\V1;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusCommand;
+use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
+use App\ServiceDesk\Domain\Enums\TicketStatus;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\CacheApiGetResponse;
 use App\Http\Requests\StoreTicketMessageRequest;
@@ -27,7 +31,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rule;\nuse Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -137,12 +141,27 @@ class TicketController extends Controller
         UpdateTicketRequest $request,
         Ticket $ticket,
         TicketService $ticketService,
+        ChangeTicketStatusHandler $statusHandler,
     ): TicketResource {
-        $updatedTicket = $ticketService->update(
-            $ticket,
-            $request->validated(),
-            $request->user()->id,
-        );
+        $data = $request->validated();
+
+        if (array_keys($data) === ['status']) {
+            try {
+                $statusHandler->handle(new ChangeTicketStatusCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    status: TicketStatus::from($data['status']),
+                ));
+            } catch (InvalidTicketTransition $exception) {
+                throw ValidationException::withMessages([
+                    'status' => $exception->getMessage(),
+                ]);
+            }
+
+            $updatedTicket = $ticket->fresh();
+        } else {
+            $updatedTicket = $ticketService->update($ticket, $data, $request->user()->id);
+        }
 
         return new TicketResource($updatedTicket->load(['customer', 'assignedAgent', 'team', 'project', 'sprint' => $this->sprintWithProgress()]));
     }

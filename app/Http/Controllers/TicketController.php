@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Events\TicketMessageCreated;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketHandler;
+use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusCommand;
+use App\ServiceDesk\Application\Commands\ChangeTicketStatus\ChangeTicketStatusHandler;
 use App\ServiceDesk\Domain\Enums\TicketPriority;
+use App\ServiceDesk\Domain\Enums\TicketStatus;
+use App\ServiceDesk\Domain\Exceptions\InvalidTicketTransition;
+use Illuminate\Validation\ValidationException;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
@@ -215,7 +220,25 @@ class TicketController extends Controller
         Ticket $ticket,
         TicketService $ticketService
     ): RedirectResponse {
-        $ticketService->update($ticket, $request->validated(), $request->user()->id);
+        $data = $request->validated();
+
+        // Status changes now use the ServiceDesk command handler.
+        // Other update fields remain on the legacy workflow during migration.
+        if (array_keys($data) === ['status']) {
+            try {
+                app(ChangeTicketStatusHandler::class)->handle(new ChangeTicketStatusCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                    status: TicketStatus::from($data['status']),
+                ));
+            } catch (InvalidTicketTransition $exception) {
+                throw ValidationException::withMessages([
+                    'status' => $exception->getMessage(),
+                ]);
+            }
+        } else {
+            $ticketService->update($ticket, $data, $request->user()->id);
+        }
 
         return redirect()
             ->route('tickets.show', $ticket)

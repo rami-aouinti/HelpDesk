@@ -14,6 +14,8 @@ final readonly class CreateTicketCommand
         public TicketPriority $priority,
         public ?int $projectId,
         public int $customerId,
+        public ?int $teamId = null,
+        public ?int $assignedAgentId = null,
     ) {
     }
 }

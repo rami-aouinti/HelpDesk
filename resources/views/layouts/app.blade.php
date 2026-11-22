@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'HelpDesk')</title>
+    <title>@yield('title', 'HelpDesk | Support Workspace')</title>
+    <meta name="description" content="@yield('meta-description', 'HelpDesk brings your support workspace together. Manage tickets, teams, projects and customer conversations in one place.')">
+    <meta name="application-name" content="HelpDesk">
+    <meta name="theme-color" content="#111827">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="HelpDesk">
+    <meta property="og:title" content="@yield('title', 'HelpDesk | Support Workspace')">
+    <meta property="og:description" content="@yield('meta-description', 'Manage support tickets, teams and projects with HelpDesk.')">
+    <link rel="icon" type="image/png" href="{{ asset('helpdesk.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('helpdesk.png') }}">
     <script>
         (function () {
             try {
@@ -17,7 +26,7 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261122-1">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261122-2">
     <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-10">
     @livewireStyles
 </head>
@@ -25,7 +34,7 @@
 <div class="app-shell">
     <aside class="sidebar">
         <a href="{{ route('dashboard') }}" class="brand" aria-label="HelpDesk dashboard">
-            <span class="brand-icon">H</span>
+            <img class="brand-logo" src="{{ asset('logo.png') }}" alt="HelpDesk logo" width="42" height="42">
             <span>HelpDesk</span>
         </a>
 

@@ -58,9 +58,11 @@ Platform is not a dumping ground for business features. Business-specific rules 
 7. Migrate status changes through `ChangeTicketStatusCommand` and its domain transition graph. The HTTP controller delegates status-only updates to the command handler; assignment-only updates are handled by `AssignTicketToAgentCommand`.
 8. Migrate priority-only changes through `ChangeTicketPriorityCommand`; the handler locks and saves the aggregate, records history and publishes the existing update side effects.
 9. Migrate team-only assignment through `AssignTicketToTeamCommand`; preserve the assigned-agent/team membership invariant and record the change in ticket history.
-10. Migrate project linking through `LinkTicketToProjectCommand`; enforce project membership (or `projects.view.all`), support unlinking, and record the change in ticket history. Mixed updates, agent unassignment and effort-tracking fields remain on the legacy workflow for now. Migrate those remaining ticket update fields and conversations incrementally.
-11. Introduce Insights read models and Communications adapters where they provide clear value.
-12. Move remaining contexts gradually; avoid a big-bang rewrite.
+10. Migrate project linking through `LinkTicketToProjectCommand`; enforce project membership (or `projects.view.all`), support unlinking, and record the change in ticket history.
+11. Migrate agent unassignment through `UnassignTicketFromAgentCommand`; keep the team association, record the old/new agent in history, and publish the existing update side effects. Only administrators may unassign.
+12. Migrate mixed ticket updates and effort-tracking fields incrementally, then move conversations and attachments behind dedicated use cases.
+13. Introduce Insights read models and Communications adapters where they provide clear value.
+14. Move remaining contexts gradually; avoid a big-bang rewrite.
 
 ## Naming and placement
 

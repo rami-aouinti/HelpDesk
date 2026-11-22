@@ -31,13 +31,13 @@ final class ProcessTicketSlaHandler
     {
         $ticket = $this->tickets->findForProcessing($ticketId);
 
-        if (! $ticket instanceof \App\ServiceDesk\Application\DTO\TicketSlaSnapshot) {
+        if (!$ticket instanceof \App\ServiceDesk\Application\DTO\TicketSlaSnapshot) {
             return;
         }
 
         $policy = $this->policies->forPriority($ticket->priority);
 
-        if (! $policy instanceof \App\ServiceDesk\Domain\ValueObjects\SlaPolicy) {
+        if (!$policy instanceof \App\ServiceDesk\Domain\ValueObjects\SlaPolicy) {
             return;
         }
 

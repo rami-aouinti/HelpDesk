@@ -7,7 +7,6 @@ namespace App\ServiceDesk\Application\Commands\UpdateTicketEffort;
 use App\ServiceDesk\Application\Contracts\TicketHistoryRecorder;
 use App\ServiceDesk\Application\Contracts\TicketUpdatedPublisher;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
-use App\ServiceDesk\Domain\Entities\Ticket;
 use App\ServiceDesk\Domain\Events\TicketWasUpdated;
 use App\ServiceDesk\Domain\Repositories\TicketRepository;
 

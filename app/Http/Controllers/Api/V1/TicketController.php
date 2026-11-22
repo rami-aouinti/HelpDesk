@@ -378,7 +378,7 @@ class TicketController extends Controller
             originalName: $attachment->original_name,
             mimeType: $attachment->mime_type,
         ));
-        abort_if(!$download instanceof \\App\\ServiceDesk\\Application\\Queries\\DownloadTicketAttachment\\TicketAttachmentDownload, 404);
+        abort_if(! $download instanceof \App\ServiceDesk\Application\Queries\DownloadTicketAttachment\TicketAttachmentDownload, 404);
 
         return response()->streamDownload(
             static function () use ($download): void {

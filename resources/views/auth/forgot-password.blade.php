@@ -1,5 +1,8 @@
 @extends('layouts.guest')
 
+@section('title', 'Password recovery | HelpDesk')
+@section('meta-description', 'Request a secure password reset link to regain access to your HelpDesk account.')
+
 @section('content')
     <h1 class="mb-2 text-2xl font-semibold">Reset your password</h1>
     <p class="mb-6 text-sm text-slate-500">We'll email you a password reset link.</p>

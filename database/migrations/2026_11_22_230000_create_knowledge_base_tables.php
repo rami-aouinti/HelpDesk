@@ -37,7 +37,7 @@ return new class extends Migration {
             $table->timestamp('published_at')->nullable()->index();
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
-            $table->fullText(['title', 'excerpt', 'content']);
+            $table->index(['status', 'published_at']);
         });
         Schema::create('knowledge_base_article_tag', function (Blueprint $table): void {
             $table->foreignId('article_id')->constrained('knowledge_base_articles')->cascadeOnDelete();

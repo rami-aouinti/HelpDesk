@@ -35,6 +35,20 @@ class Index extends Component
 
     public ?int $selectedUserId = null;
 
+    public ?int $editingUserId = null;
+
+    public bool $showForm = false;
+
+    public string $name = '';
+
+    public string $email = '';
+
+    public string $userRole = 'agent';
+
+    public string $password = '';
+
+    public string $passwordConfirmation = '';
+
     public function mount(): void
     {
         Gate::authorize('viewAny', User::class);
@@ -71,6 +85,61 @@ class Index extends Component
     {
         $this->reset(['search', 'role', 'status']);
         $this->resetPage();
+    }
+
+    public function create(): void
+    {
+        Gate::authorize('create', User::class);
+        $this->resetUserForm();
+        $this->showForm = true;
+    }
+
+    public function edit(int $userId): void
+    {
+        $user = User::query()->with('roles')->findOrFail($userId);
+        Gate::authorize('update', $user);
+        $this->editingUserId = $user->id;
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->userRole = $user->roles->first()?->name ?? 'agent';
+        $this->showForm = true;
+    }
+
+    public function saveUser(UserManagementService $users): void
+    {
+        $this->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->editingUserId)],
+            'userRole' => ['required', Rule::in(['admin', 'agent', 'customer'])],
+            'password' => [$this->editingUserId ? 'nullable' : 'required', 'string', 'min:12', 'same:passwordConfirmation'],
+            'passwordConfirmation' => [$this->password !== '' ? 'required' : 'nullable', 'string'],
+        ]);
+
+        $data = ['name' => $this->name, 'email' => $this->email, 'role' => $this->userRole, 'password' => $this->password];
+        if ($this->editingUserId) {
+            $user = User::query()->findOrFail($this->editingUserId);
+            Gate::authorize('update', $user);
+            $users->update($user, $data);
+            session()->flash('success', 'User updated successfully.');
+        } else {
+            Gate::authorize('create', User::class);
+            $users->create($data);
+            session()->flash('success', 'User created successfully. Verification email sent.');
+        }
+
+        $this->resetUserForm();
+    }
+
+    public function cancelUserForm(): void
+    {
+        $this->resetUserForm();
+    }
+
+    private function resetUserForm(): void
+    {
+        $this->reset(['editingUserId', 'showForm', 'name', 'email', 'userRole', 'password', 'passwordConfirmation']);
+        $this->userRole = 'agent';
+        $this->resetValidation();
     }
 
     public function showUser(int $userId): void

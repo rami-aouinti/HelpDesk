@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Providers;
-
 use App\Communications\Application\Contracts\NotificationDeliveryRepository;
 use App\Communications\Application\Contracts\NotificationDeliveryReadRepository;
 use App\Communications\Application\Contracts\NotificationInboxRepository;
@@ -9,14 +8,12 @@ use App\Communications\Infrastructure\Events\TrackNotificationDelivery;
 use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationDeliveryRepository;
 use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationDeliveryReadRepository;
 use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationInboxRepository;
-
 use App\Insights\Application\Contracts\DashboardReadRepository;
 use App\Insights\Application\Contracts\ReportReadRepository;
 use App\Insights\Application\Contracts\ReportCsvExportRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentDashboardReadRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportReadRepository;
 use App\Insights\Infrastructure\Persistence\Eloquent\EloquentReportCsvExportRepository;
-
 use App\Events\TicketCreated;
 use App\Events\TicketSlaAlertPublished;
 use App\ServiceDesk\Application\Contracts\TicketCreatedPublisher;

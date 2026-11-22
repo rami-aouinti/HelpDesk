@@ -10,7 +10,7 @@ A Laravel-based support desk for managing customer requests, team workflows and 
 - **Conversations:** public replies, staff-only internal notes and private attachments with authorization checks.
 - **Project planning:** projects, team membership, budgets, time tracking, documents and sprints.
 - **Kanban:** sprint-based board with role-aware ticket movement.
-- **Notifications:** in-app notifications, email notifications and user notification preferences.
+- **Notifications:** in-app notifications, email notifications and user notification preferences.\n- **Background jobs:** Redis-backed Laravel Horizon workers, queue balancing, retries and a protected monitoring dashboard.
 - **REST API:** Sanctum bearer tokens, ticket resources, conversation endpoints and OpenAPI documentation.
 
 ## Demo data
@@ -40,7 +40,7 @@ Demo accounts use the configured `HELPDESK_DEMO_PASSWORD` value (default: `passw
 
 ## Elasticsearch search
 
-The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted. Laravel jobs are processed by a dedicated Redis-backed queue worker.
+The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted. Laravel jobs are processed by Laravel Horizon using the dedicated Redis queue service. The Horizon dashboard is available at `/horizon` and is restricted to administrators outside local development.
 
 Start Elasticsearch and Kibana:
 

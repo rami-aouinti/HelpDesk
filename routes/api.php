@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\TokenController;
 use App\Http\Controllers\Api\V1\TicketController as V1TicketController;
+use App\Http\Controllers\Api\V1\UserSearchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::middleware(['auth:sanctum', 'active', 'verified', 'throttle:api'])->group
         Route::post('/tokens', [TokenController::class, 'store'])->name('tokens.store');
         Route::delete('/tokens/current', [TokenController::class, 'destroy'])->name('tokens.destroy');
         Route::get('/user', fn (Request $request) => $request->user())->name('user');
+        Route::get('/users/search', UserSearchController::class)->name('users.search');
         Route::get('/tickets', [V1TicketController::class, 'index'])->middleware('cache.api.get')->name('tickets.index');
         Route::post('/tickets', [V1TicketController::class, 'store'])->name('tickets.store');
         Route::get('/tickets/{ticket}', [V1TicketController::class, 'show'])->middleware('cache.api.get')->name('tickets.show');

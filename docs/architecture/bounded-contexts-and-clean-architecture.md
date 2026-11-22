@@ -105,3 +105,8 @@ Ticket activity delivery uses the framework-independent `NotificationChannelPoli
 ### Communications delivery tracking
 
 Laravel's notification lifecycle events are observed by the Communications infrastructure adapter. Each recipient/channel pair is stored in `notification_deliveries`, keyed by the Laravel notification identifier, recipient morph identity and channel. Attempts increment when Laravel begins a channel delivery; successful and failed channel events update the status and timestamps. The tracker records the latest exception message (bounded to 4,000 characters) without replacing Laravel's queue retry policy. A retry moves the delivery back to pending and increments its attempt count; a later success marks it sent. This is operational history, not a second queue or retry engine.
+
+
+### Notification delivery operations
+
+The admin delivery history is a read-side projection over `notification_deliveries`. The Application query/handler applies validated status, channel, text and date filters; the Infrastructure read repository performs pagination and aggregate counts. Access is protected by the `communications.deliveries.view` permission, granted to administrators by `RolePermissionSeeder`. The page exposes recipient, notification type, channel, status, attempt count, last attempt and bounded error details. It is intentionally read-only: retries remain controlled by Laravel's queue worker rather than an operator-triggered resend that could duplicate an email.

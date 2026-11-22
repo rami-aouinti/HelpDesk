@@ -90,7 +90,7 @@ class DashboardController extends Controller
             'priorityBreakdown' => $priorityBreakdown,
             'recentTickets' => $recentTickets,
             'recentActivity' => $recentActivity,
-            'dashboardAudience' => $dashboardAudience,
+            'dashboardAudience' => $dashboardAudience,\n            'calendarTeams' => $user->teams()->orderBy('name')->get(['teams.id', 'teams.name']),
         ]);
     }
 }

@@ -1,0 +1,12 @@
+@extends('layouts.app')
+@section('title', 'Help Centre')
+@section('page-title', 'Help Centre')
+@section('content')
+<div class="page-header"><div><h1>How can we help?</h1><p>Find answers, guides and practical solutions from our support team.</p></div>@can('knowledge-base.manage')<a class="btn btn-secondary" href="{{ route('knowledge-base.admin.index') }}">Manage articles</a>@endcan</div>
+<form method="GET" class="content-card" style="margin-bottom:22px"><div class="form-group" style="margin:0"><label for="help-search">Search the help centre</label><div style="display:flex;gap:10px"><input id="help-search" name="search" value="{{ request('search') }}" placeholder="Search for an answer..."><button class="btn btn-primary">Search</button></div></div></form>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:24px">@foreach($categories as $category)<a href="{{ route('knowledge-base.index',['category'=>$category->slug]) }}" class="content-card" style="text-decoration:none;border-top:3px solid {{ $category->color }}"><strong>{{ $category->name }}</strong><p>{{ $category->published_articles_count }} articles</p></a>@endforeach</div>
+<div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(220px,1fr);gap:22px">
+<section class="content-card"><h2>Helpful articles</h2>@forelse($articles as $article)<a href="{{ route('knowledge-base.show',$article) }}" style="display:block;padding:16px 0;text-decoration:none;border-bottom:1px solid var(--border-color,#e5e7eb)"><strong>{{ $article->title }}</strong><p>{{ $article->excerpt ?: Str::limit(strip_tags($article->content),150) }}</p><small>{{ $article->category?->name ?? 'General' }} · {{ $article->published_at?->format('M j, Y') }}</small></a>@empty<p>No articles match your search. Try another keyword or contact support.</p>@endforelse<div style="margin-top:18px">{{ $articles->links() }}</div></section>
+<aside class="content-card"><h2>Popular articles</h2>@forelse($popularArticles as $article)<p><a href="{{ route('knowledge-base.show',$article) }}">{{ $article->title }}</a></p>@empty<p>Popular articles will appear here as users read the help centre.</p>@endforelse<hr><h3>Still need help?</h3><p>Our support team is ready to help.</p>@can('tickets.create')<a class="btn btn-primary" href="{{ route('tickets.create') }}">Create a ticket</a>@endcan</aside>
+</div>
+@endsection

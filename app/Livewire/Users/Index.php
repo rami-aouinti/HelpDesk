@@ -102,7 +102,8 @@ class Index extends Component
         $this->editingUserId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->userRole = $user->roles->first()?->name ?? 'agent';
+        $firstRole = $user->roles->first();
+        $this->userRole = $firstRole instanceof Role ? $firstRole->name : 'agent';
         $this->showForm = true;
     }
 

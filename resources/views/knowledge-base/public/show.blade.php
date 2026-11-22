@@ -1,0 +1,9 @@
+@extends('layouts.app')
+@section('title', $article->title)
+@section('page-title', 'Help Centre')
+@section('content')
+<div class="page-header"><div><a href="{{ route('knowledge-base.index') }}">← Help Centre</a><p>{{ $article->category?->name ?? 'General' }} · Updated {{ $article->updated_at->format('M j, Y') }} · {{ number_format($article->view_count) }} views</p><h1>{{ $article->title }}</h1>@if($article->excerpt)<p>{{ $article->excerpt }}</p>@endif<div style="display:flex;gap:7px;flex-wrap:wrap">@foreach($article->tags as $tag)<span class="status-badge">{{ $tag->name }}</span>@endforeach</div></div>@can('knowledge-base.manage')<a class="btn btn-secondary" href="{{ route('knowledge-base.admin.edit',$article) }}">Edit article</a>@endcan</div>
+<article class="content-card" style="max-width:900px;margin:0 auto">@if($article->cover_image_path)<img src="{{ Storage::disk('public')->url($article->cover_image_path) }}" alt="" style="width:100%;max-height:360px;object-fit:cover;border-radius:12px;margin-bottom:24px">@endif<div class="knowledge-article-content">{!! Illuminate\Support\Str::markdown($article->content,['html_input'=>'strip','allow_unsafe_links'=>false]) !!}</div>
+@if($article->attachments->isNotEmpty())<hr><h3>Attachments</h3><ul>@foreach($article->attachments as $attachment)<li><a href="{{ route('knowledge-base.attachments.download',$attachment) }}">{{ $attachment->original_name }}</a> <small>({{ number_format($attachment->size/1024,1) }} KB)</small></li>@endforeach</ul>@endif</article>
+@if($related->isNotEmpty())<section style="max-width:900px;margin:28px auto"><h2>Related articles</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">@foreach($related as $item)<a class="content-card" href="{{ route('knowledge-base.show',$item) }}" style="text-decoration:none"><strong>{{ $item->title }}</strong><p>{{ Str::limit($item->excerpt,100) }}</p></a>@endforeach</div></section>@endif
+@endsection

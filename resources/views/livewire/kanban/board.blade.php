@@ -74,5 +74,76 @@
 
     <style>
         .kanban-page{min-width:0}.kanban-toolbar{padding:22px 24px;margin-bottom:18px}.kanban-heading{display:flex;align-items:center;justify-content:space-between;gap:24px}.kanban-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--muted,#64748b)}.kanban-heading h2{margin:5px 0;font-size:22px}.kanban-heading p{margin:0;color:var(--muted,#64748b);font-size:12px}.kanban-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.kanban-select-label,.kanban-move-label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--muted,#64748b)}.kanban-select-label select,.kanban-move-label select{max-width:220px;padding:8px 10px;border:1px solid var(--border,#dbe1ea);border-radius:8px;background:var(--surface,#fff);color:var(--text,#111827);font-size:12px}.kanban-mine-toggle{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--border,#dbe1ea);border-radius:8px;font-size:12px}.kanban-summary{display:flex;align-items:center;gap:9px;margin-top:18px}.kanban-summary-progress{height:6px;max-width:320px;flex:1;border-radius:99px;background:var(--surface-muted,#e5e7eb);overflow:hidden}.kanban-summary-progress span{display:block;height:100%;background:var(--primary,#4f46e5)}.kanban-summary strong{font-size:12px}.kanban-summary small{color:var(--muted,#64748b);font-size:11px}.kanban-board{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:13px;align-items:start;overflow-x:auto;padding-bottom:12px}.kanban-column{min-height:360px;padding:12px;border:1px solid var(--border,#e2e8f0);border-radius:13px;background:var(--surface-muted,#f8fafc)}.kanban-column-header{display:flex;align-items:center;justify-content:space-between;padding:3px 2px 12px}.kanban-column-header>div{display:flex;align-items:center;gap:8px}.kanban-column-header h3{margin:0;font-size:12px;font-weight:800}.kanban-count{min-width:23px;padding:3px 7px;border-radius:99px;background:var(--surface,#fff);text-align:center;font-size:10px;font-weight:800}.kanban-column-dot{width:8px;height:8px;border-radius:50%;background:#64748b}.dot-in_progress{background:#3b82f6}.dot-waiting_for_customer{background:#d97706}.dot-resolved{background:#8b5cf6}.dot-closed{background:#16a34a}.kanban-card-list{display:flex;flex-direction:column;gap:9px;min-height:300px}.kanban-ticket{padding:12px;border:1px solid var(--border,#e2e8f0);border-radius:10px;background:var(--surface,#fff);box-shadow:0 1px 2px #0f172a0a}.kanban-ticket[draggable=true]{cursor:grab}.kanban-ticket[draggable=true]:active{cursor:grabbing}.kanban-ticket-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.kanban-ticket-id{font-size:10px;font-weight:800;color:var(--muted,#64748b)}.kanban-priority{padding:3px 7px;border-radius:99px;font-size:9px;font-weight:800;background:#e2e8f0;color:#334155}.priority-urgent{background:#fee2e2;color:#b91c1c}.priority-high{background:#ffedd5;color:#9a3412}.priority-low{background:#dcfce7;color:#166534}.kanban-ticket-title{display:block;color:var(--text,#111827);font-size:12px;font-weight:800;text-decoration:none}.kanban-ticket-title:hover{color:var(--primary,#4f46e5)}.kanban-ticket-description{margin:6px 0 10px;color:var(--muted,#64748b);font-size:10px;line-height:1.5}.kanban-ticket-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border,#edf0f4);color:var(--muted,#64748b);font-size:9px}.kanban-move-label{margin-top:10px}.kanban-move-label select{width:100%;max-width:none;padding:6px;font-size:10px}.kanban-drag-hint,.kanban-readonly-hint{display:block;margin-top:8px;color:var(--muted,#94a3b8);font-size:9px}.kanban-readonly-hint{color:#b45309}.kanban-column-empty{display:grid;min-height:110px;place-items:center;border:1px dashed var(--border,#cbd5e1);border-radius:9px;color:var(--muted,#94a3b8);font-size:10px}.kanban-backlog{padding:16px 18px;margin-bottom:16px}.kanban-backlog-heading{display:flex;align-items:center;justify-content:space-between}.kanban-backlog-heading h3{margin:4px 0;font-size:14px}.kanban-backlog-heading p{margin:0;color:var(--muted,#64748b);font-size:11px}.kanban-backlog-list{display:flex;gap:10px;overflow-x:auto;padding-top:14px}.kanban-backlog-ticket{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:260px;padding:11px 12px;border:1px solid var(--border,#e2e8f0);border-radius:9px;background:var(--surface,#fff)}.kanban-backlog-ticket a{display:block;margin:3px 0;color:var(--text,#111827);font-size:11px;font-weight:800;text-decoration:none}.kanban-backlog-ticket small{display:block;color:var(--muted,#64748b);font-size:9px}.kanban-backlog-ticket .btn{white-space:nowrap;font-size:10px;padding:6px 9px}.kanban-backlog-empty{margin:14px 0 0;color:var(--muted,#64748b);font-size:11px}.kanban-permission-note{margin:8px 2px;color:var(--muted,#64748b);font-size:11px}.kanban-empty{text-align:center;padding:64px 20px}.kanban-empty-icon{font-size:42px;color:var(--muted,#94a3b8)}.kanban-empty h3{margin:10px 0 5px}.kanban-empty p{margin:0 0 18px;color:var(--muted,#64748b);font-size:13px}.kanban-loading{opacity:.55;pointer-events:none}@media(max-width:900px){.kanban-heading{align-items:flex-start;flex-direction:column}.kanban-board{grid-template-columns:repeat(5,minmax(235px,1fr))}}
+    
+        /* Kanban cards: respect the selected application theme. */
+        html[data-theme="dark"] .kanban-column {
+            background: #172235;
+            border-color: var(--hd-border, #303b50);
+        }
+        html[data-theme="dark"] .kanban-ticket,
+        html[data-theme="dark"] .kanban-backlog-ticket {
+            background: var(--hd-surface, #1d2738);
+            border-color: var(--hd-border, #303b50);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .16);
+        }
+        html[data-theme="dark"] .kanban-ticket-title,
+        html[data-theme="dark"] .kanban-backlog-ticket a,
+        html[data-theme="dark"] .kanban-column-header h3,
+        html[data-theme="dark"] .kanban-backlog-heading h3 {
+            color: var(--hd-ink, #e8edf7);
+        }
+        html[data-theme="dark"] .kanban-ticket-description,
+        html[data-theme="dark"] .kanban-ticket-meta,
+        html[data-theme="dark"] .kanban-backlog-heading p,
+        html[data-theme="dark"] .kanban-backlog-ticket small,
+        html[data-theme="dark"] .kanban-permission-note {
+            color: var(--hd-muted, #9aa7bc);
+        }
+        html[data-theme="dark"] .kanban-ticket-meta {
+            border-top-color: var(--hd-border, #303b50);
+        }
+        html[data-theme="dark"] .kanban-count {
+            color: var(--hd-ink, #e8edf7);
+            background: #29364c;
+        }
+        html[data-theme="dark"] .kanban-priority {
+            background: #344155;
+            color: #dbe5f4;
+        }
+        html[data-theme="dark"] .kanban-priority.priority-urgent {
+            background: #512b38;
+            color: #fecdd3;
+        }
+        html[data-theme="dark"] .kanban-priority.priority-high {
+            background: #513a27;
+            color: #fed7aa;
+        }
+        html[data-theme="dark"] .kanban-priority.priority-low {
+            background: #1d493b;
+            color: #bbf7d0;
+        }
+        html[data-theme="dark"] .kanban-move-label,
+        html[data-theme="dark"] .kanban-select-label {
+            color: var(--hd-muted, #9aa7bc);
+        }
+        html[data-theme="dark"] .kanban-move-label select,
+        html[data-theme="dark"] .kanban-select-label select {
+            color: var(--hd-ink, #e8edf7);
+            background: #172235;
+            border-color: var(--hd-border, #303b50);
+            color-scheme: dark;
+        }
+        html[data-theme="dark"] .kanban-column-empty {
+            border-color: #46536a;
+            color: #9aa7bc;
+        }
+        html[data-theme="dark"] .kanban-readonly-hint {
+            color: #fbbf24;
+        }
+        html[data-theme="dark"] .kanban-ticket[draggable="true"]:hover,
+        html[data-theme="dark"] .kanban-backlog-ticket:hover {
+            border-color: color-mix(in srgb, var(--hd-primary, #818cf8) 55%, var(--hd-border, #303b50));
+        }
+
     </style>
 </div>

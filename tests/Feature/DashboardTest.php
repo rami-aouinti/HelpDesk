@@ -40,7 +40,7 @@ class DashboardTest extends TestCase
         ]);
 
         $this->actingAs($agent)
-            ->get(route('portal.home'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertSee($ticket->subject);
     }
@@ -63,7 +63,7 @@ class DashboardTest extends TestCase
         ]);
 
         $this->actingAs($customer)
-            ->get(route('dashboard'))
+            ->get(route('portal.home'))
             ->assertOk()
             ->assertDontSee($ticket->subject);
     }

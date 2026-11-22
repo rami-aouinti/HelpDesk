@@ -184,7 +184,7 @@ class TicketController extends Controller
                     actorId: (int) $request->user()->getKey(),
                     changes: $data,
                 ));
-            } catch (TicketAssignmentRejected|TicketProjectLinkRejected|InvalidTicketTransition|InvalidTicketData $exception) {
+            } catch (TicketAssignmentRejected | TicketProjectLinkRejected | InvalidTicketTransition | InvalidTicketData $exception) {
                 $field = match (true) {
                     $exception instanceof TicketAssignmentRejected,
                     $exception instanceof TicketProjectLinkRejected => $exception->field,

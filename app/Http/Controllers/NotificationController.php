@@ -2,35 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Communications\Application\Queries\GetNotificationInbox\GetNotificationInboxHandler;
+use App\Communications\Application\Queries\GetNotificationInbox\GetNotificationInboxQuery;
+use App\Communications\Application\Queries\GetRecentNotifications\GetRecentNotificationsHandler;
+use App\Communications\Application\Queries\GetRecentNotifications\GetRecentNotificationsQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
 
 class NotificationController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, GetNotificationInboxHandler $handler): View
     {
-        $query = $request->user()->notifications()->latest();
-
-        if ($request->query('filter') === 'unread') {
-            $query->whereNull('read_at');
-        }
-
-        $notifications = $query->paginate(15)->withQueryString();
+        $filter = $request->query('filter') === 'unread' ? 'unread' : 'all';
+        $data = $handler->handle(new GetNotificationInboxQuery(
+            userId: (int) $request->user()->id,
+            unreadOnly: $filter === 'unread',
+        ));
 
         return view('notifications.index', [
-            'notifications' => $notifications,
-            'unreadCount' => $request->user()->unreadNotifications()->count(),
-            'filter' => $request->query('filter') === 'unread' ? 'unread' : 'all',
+            'notifications' => $data['notifications'],
+            'unreadCount' => $data['unread_count'],
+            'filter' => $filter,
         ]);
     }
 
-    public function recent(Request $request): JsonResponse
+    public function recent(Request $request, GetRecentNotificationsHandler $handler): JsonResponse
     {
-        $user = $request->user();
+        $data = $handler->handle(new GetRecentNotificationsQuery(
+            userId: (int) $request->user()->id,
+        ));
 
         return response()->json([
-            'unread_count' => $user->unreadNotifications()->count(),
-            'notifications' => $user->notifications()->latest()->limit(8)->get()->map(
+            'unread_count' => $data['unread_count'],
+            'notifications' => $data['notifications']->map(
                 fn ($notification): array => [
                     'id' => $notification->id,
                     'title' => $notification->data['title'] ?? 'HelpDesk notification',

@@ -53,7 +53,7 @@
         <div class="sidebar-bottom">
             <div class="nav-label">ADMINISTRATION</div>
             <nav class="sidebar-nav sidebar-admin-nav" aria-label="Administration">
-                @can('viewAny', \\App\\Models\\User::class)
+                @can('viewAny', \App\Models\User::class)
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <span class="nav-icon">♙</span><span>Users</span>
                     </a>

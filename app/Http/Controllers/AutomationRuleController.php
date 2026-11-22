@@ -23,8 +23,16 @@ class AutomationRuleController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $data['created_by'] = $request->user()->id;
-        AutomationRule::query()->create($data);
+        $rule = new AutomationRule([
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'trigger' => $data['trigger'],
+            'conditions' => $data['conditions'],
+            'actions' => $data['actions'],
+            'is_active' => $data['is_active'] ?? true,
+            'created_by' => $request->user()->id,
+        ]);
+        $rule->save();
 
         return back()->with('success', 'Automation rule created.');
     }
@@ -40,7 +48,9 @@ class AutomationRuleController extends Controller
         abort_unless($execution->status === 'failed', 409);
         $rule = $execution->rule;
         $ticket = $execution->ticket;
-        abort_unless($rule && $ticket && $rule->is_active, 404);
+        if (! $rule instanceof AutomationRule || ! $ticket instanceof \\App\\Models\\Ticket || ! $rule->is_active) {
+            abort(404);
+        }
 
         $engine->retry($rule, $ticket->fresh() ?? $ticket, [
             'retry_of_execution' => $execution->id,
@@ -61,6 +71,16 @@ class AutomationRuleController extends Controller
         return back()->with('success', 'Automation rule status updated.');
     }
 
+    /**
+     * @return array{
+     *     name: string,
+     *     description?: string|null,
+     *     trigger: string,
+     *     conditions: array<string, mixed>,
+     *     actions: list<array<string, mixed>>,
+     *     is_active?: bool|int|string
+     * }
+     */
     private function validated(Request $request): array
     {
         $data = $request->validate([

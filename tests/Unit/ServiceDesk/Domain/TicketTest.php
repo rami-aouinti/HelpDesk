@@ -129,6 +129,60 @@ final class TicketTest extends TestCase
     }
 
     #[Test]
+    public function it_allows_only_valid_agent_status_transitions(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 102,
+            subject: 'Printer offline',
+            description: 'The printer is unreachable.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::OPEN,
+        );
+
+        $ticket->changeStatus(TicketStatus::IN_PROGRESS);
+
+        self::assertSame(TicketStatus::IN_PROGRESS, $ticket->status());
+    }
+
+    #[Test]
+    public function it_rejects_invalid_agent_status_transitions(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 103,
+            subject: 'Resolved request',
+            description: 'The issue has been resolved.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::RESOLVED,
+        );
+
+        $this->expectException(InvalidTicketTransition::class);
+
+        $ticket->changeStatus(TicketStatus::IN_PROGRESS);
+    }
+
+    #[Test]
+    public function an_administrator_can_override_the_status_workflow(): void
+    {
+        $ticket = Ticket::reconstitute(
+            id: 104,
+            subject: 'Closed request',
+            description: 'The request was closed.',
+            priority: TicketPriority::NORMAL,
+            projectId: null,
+            customerId: 34,
+            status: TicketStatus::CLOSED,
+        );
+
+        $ticket->changeStatus(TicketStatus::OPEN, mayOverrideWorkflow: true);
+
+        self::assertSame(TicketStatus::OPEN, $ticket->status());
+    }
+
+    #[Test]
     public function it_rejects_an_empty_subject(): void
     {
         $this->expectException(InvalidTicketData::class);

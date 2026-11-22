@@ -274,7 +274,6 @@ class TicketController extends Controller
                     $exception->field => $exception->getMessage(),
                 ]);
             }
-        // Assignment-only updates use the dedicated ServiceDesk command.
         } elseif (
             array_key_exists('assigned_to', $data)
             && $data['assigned_to'] !== null

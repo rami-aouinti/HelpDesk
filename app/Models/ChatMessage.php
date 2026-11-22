@@ -9,6 +9,13 @@ class ChatMessage extends Model
 {
     protected $fillable = ['conversation_id', 'user_id', 'body'];
 
-    public function conversation(): BelongsTo { return $this->belongsTo(ChatConversation::class, 'conversation_id'); }
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(ChatConversation::class, 'conversation_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

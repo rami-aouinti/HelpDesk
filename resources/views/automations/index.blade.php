@@ -16,12 +16,34 @@
         <label>Trigger<select name="trigger"><option value="ticket.created">Ticket created</option><option value="ticket.priority_changed">Priority changed</option><option value="ticket.sla_breached">SLA breached</option></select></label>
         <label class="form-full">Description<textarea name="description" rows="2"></textarea></label>
         <label>Condition logic<select name="conditions[logic]"><option value="and">All conditions (AND)</option><option value="or">Any condition (OR)</option></select></label>
-        <label>Field<select name="conditions[rules][0][field]"><option value="priority">Priority</option><option value="status">Status</option><option value="team_id">Team ID</option><option value="assigned_to">Assigned agent ID</option><option value="user_id">Customer ID</option></select></label>
-        <label>Operator<select name="conditions[rules][0][operator]"><option value="equals">Equals</option><option value="not_equals">Does not equal</option><option value="in">Is in list</option><option value="contains">Contains</option></select></label>
-        <label>Value<input name="conditions[rules][0][value]" required placeholder="urgent"></label>
-        <label>Action<select name="actions[0][type]"><option value="assign_agent">Assign agent</option><option value="set_priority">Change priority</option><option value="add_tag">Add tag</option><option value="notify_assignee">Notify assignee</option></select></label>
-        <label>Action value<input name="actions[0][value]" placeholder="Agent ID / priority / tag"></label>
-        <label class="form-full">Notification message (optional)<input name="actions[0][message]" maxlength="500"></label>
+        <div class="form-full"><strong>Conditions</strong><div id="automation-condition-rows" class="form-grid">
+            <div class="automation-condition-row" style="display:contents">
+                <label>Field<select name="conditions[rules][0][field]"><option value="priority">Priority</option><option value="status">Status</option><option value="team_id">Team ID</option><option value="assigned_to">Assigned agent ID</option><option value="user_id">Customer ID</option></select></label>
+                <label>Operator<select name="conditions[rules][0][operator]"><option value="equals">Equals</option><option value="not_equals">Does not equal</option><option value="in">Is in list</option><option value="contains">Contains</option><option value="greater_than">Greater than</option><option value="less_than">Less than</option></select></label>
+                <label>Value<input name="conditions[rules][0][value]" required placeholder="urgent"></label>
+            </div></div><button type="button" id="add-automation-condition" class="btn btn-secondary">＋ Add condition</button></div>
+        <div class="form-full"><strong>Actions</strong><div id="automation-action-rows" class="form-grid">
+            <div style="display:contents"><label>Action<select name="actions[0][type]"><option value="assign_agent">Assign agent</option><option value="set_priority">Change priority</option><option value="add_tag">Add tag</option><option value="notify_assignee">Notify assignee</option></select></label>
+            <label>Action value<input name="actions[0][value]" placeholder="Agent ID / priority / tag"></label>
+            <label>Notification message<input name="actions[0][message]" maxlength="500"></label></div>
+        </div><button type="button" id="add-automation-action" class="btn btn-secondary">＋ Add action</button></div>
+        <script>
+document.addEventListener('DOMContentLoaded',function(){
+ const conditionRows=document.getElementById('automation-condition-rows');
+ const actionRows=document.getElementById('automation-action-rows');
+ document.getElementById('add-automation-condition')?.addEventListener('click',function(){
+  const index=conditionRows.querySelectorAll('.automation-condition-row').length;
+  const row=document.createElement('div');row.className='automation-condition-row';row.style.display='contents';
+  row.innerHTML='<label>Field<select name="conditions[rules]['+index+'][field]"><option value="priority">Priority</option><option value="status">Status</option><option value="team_id">Team ID</option><option value="assigned_to">Assigned agent ID</option><option value="user_id">Customer ID</option></select></label><label>Operator<select name="conditions[rules]['+index+'][operator]"><option value="equals">Equals</option><option value="not_equals">Does not equal</option><option value="in">Is in list</option><option value="contains">Contains</option><option value="greater_than">Greater than</option><option value="less_than">Less than</option></select></label><label>Value<input name="conditions[rules]['+index+'][value]" required></label>';
+  conditionRows.append(row);
+ });
+ document.getElementById('add-automation-action')?.addEventListener('click',function(){
+  const index=actionRows.children.length;const row=document.createElement('div');row.style.display='contents';
+  row.innerHTML='<label>Action<select name="actions['+index+'][type]"><option value="assign_agent">Assign agent</option><option value="set_priority">Change priority</option><option value="add_tag">Add tag</option><option value="notify_assignee">Notify assignee</option></select></label><label>Action value<input name="actions['+index+'][value]"></label><label>Notification message<input name="actions['+index+'][message]" maxlength="500"></label>';
+  actionRows.append(row);
+ });
+});
+</script>
         <label class="form-full"><input type="checkbox" name="is_active" value="1" checked> Active</label>
         <div class="form-full"><button class="btn btn-primary" type="submit">Create rule</button></div>
     </form>
@@ -43,7 +65,7 @@
     <h2>Execution history</h2>
     <div style="overflow:auto"><table class="table"><thead><tr><th>Rule</th><th>Ticket</th><th>Trigger</th><th>Status</th><th>Started</th><th>Error</th></tr></thead><tbody>
     @forelse ($executions as $execution)
-        <tr><td>{{ $execution->rule?->name ?? 'Deleted rule' }}</td><td>{{ $execution->ticket?->subject ?? '—' }}</td><td>{{ $execution->trigger }}</td><td><span class="badge">{{ $execution->status }}</span></td><td>{{ $execution->started_at?->format('Y-m-d H:i:s') }}</td><td>{{ $execution->error }}</td></tr>
+        <tr><td>{{ $execution->rule?->name ?? 'Deleted rule' }}</td><td>{{ $execution->ticket?->subject ?? '—' }}</td><td>{{ $execution->trigger }}</td><td><span class="badge">{{ $execution->status }}</span></td><td>{{ $execution->started_at?->format('Y-m-d H:i:s') }}</td><td>{{ $execution->error }} @if ($execution->status === 'failed')<form method="POST" action="{{ route('automations.executions.retry', $execution) }}" style="display:inline">@csrf<button class="btn btn-secondary" type="submit">Retry</button></form>@endif</td></tr>
     @empty <tr><td colspan="6">No executions yet.</td></tr> @endforelse
     </tbody></table></div>
 </div>

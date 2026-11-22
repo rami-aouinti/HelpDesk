@@ -28,6 +28,16 @@ class IndexUserInElasticsearch implements ShouldQueue
     {
     }
 
+    /**
+     * Tags this job so Horizon can monitor user indexing separately.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return ['user-search-indexing'];
+    }
+
     public function handle(): void
     {
         if (! config('services.elasticsearch.enabled') || config('app.env') === 'testing') {

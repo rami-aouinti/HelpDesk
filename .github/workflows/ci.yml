@@ -27,6 +27,7 @@ jobs:
           HELPDESK_IMAGE=ghcr.io/rami-aouinti/helpdesk:ci HELPDESK_NGINX_IMAGE=ghcr.io/rami-aouinti/helpdesk-nginx:ci docker compose --env-file .env -f compose.production.yaml config --quiet
           bash -n scripts/backup.sh scripts/restore.sh scripts/deploy-production.sh
           node --check k6/helpdesk-smoke.js
+          node --check k6/helpdesk-load.js
           python -c 'import json; [json.loads(line) for line in open("docker/monitoring/kibana/helpdesk-operations.ndjson", encoding="utf-8") if line.strip()]'
           docker run --rm --entrypoint /bin/promtool -v "$PWD/docker/monitoring/prometheus:/etc/prometheus:ro" prom/prometheus:v3.2.1 check config /etc/prometheus/prometheus.yml
           docker run --rm --entrypoint /bin/amtool -v "$PWD/docker/monitoring/alertmanager:/etc/alertmanager:ro" prom/alertmanager:v0.28.1 check-config /etc/alertmanager/alertmanager.yml

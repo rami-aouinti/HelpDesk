@@ -70,7 +70,8 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::middleware('can:automation.manage')->group(function (): void {
         Route::get('/automations', [AutomationRuleController::class, 'index'])->name('automations.index');
         Route::post('/automations', [AutomationRuleController::class, 'store'])->name('automations.store');
-        Route::patch('/automations/{automationRule}/toggle', [AutomationRuleController::class, 'toggle'])->name('automations.toggle');\n        Route::post('/automation-executions/{execution}/retry', [AutomationRuleController::class, 'retry'])->name('automations.executions.retry');
+        Route::patch('/automations/{automationRule}/toggle', [AutomationRuleController::class, 'toggle'])->name('automations.toggle');
+        Route::post('/automation-executions/{execution}/retry', [AutomationRuleController::class, 'retry'])->name('automations.executions.retry');
         Route::delete('/automations/{automationRule}', [AutomationRuleController::class, 'destroy'])->name('automations.destroy');
     });
 

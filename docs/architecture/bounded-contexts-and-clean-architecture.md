@@ -100,3 +100,8 @@ The notification inbox and recent-notification feed are Communications query sli
 ### Communications delivery preferences
 
 Ticket activity delivery uses the framework-independent `NotificationChannelPolicy` to evaluate the user's independent in-app and email preferences. The Laravel notification maps those decisions to the database and mail transports. SLA alerts follow the in-app preference and remain database-only. Preferences are stored on the user profile; legacy accounts default to both channels enabled. Channel policy tests are isolated from Laravel and Eloquent.
+
+
+### Communications delivery tracking
+
+Laravel's notification lifecycle events are observed by the Communications infrastructure adapter. Each recipient/channel pair is stored in `notification_deliveries`, keyed by the Laravel notification identifier, recipient morph identity and channel. Attempts increment when Laravel begins a channel delivery; successful and failed channel events update the status and timestamps. The tracker records the latest exception message (bounded to 4,000 characters) without replacing Laravel's queue retry policy. A retry moves the delivery back to pending and increments its attempt count; a later success marks it sent. This is operational history, not a second queue or retry engine.

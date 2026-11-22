@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
-    command: php artisan queue:work redis --queue=notifications,default --sleep=3 --tries=5 --timeout=90 --max-time=3600
+    command: php artisan queue:work --queue=notifications,default --sleep=3 --tries=5 --timeout=90 --max-time=3600
     env_file:
       - .env
     volumes:

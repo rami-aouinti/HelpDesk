@@ -62,13 +62,7 @@ class AutomationRuleController extends Controller
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        foreach ($data['conditions']['rules'] as $condition) {
-            validator($condition, [
-                'field' => ['required', Rule::in(['status', 'priority', 'team_id', 'assigned_to', 'user_id'])],
-                'operator' => ['required', Rule::in(['equals', 'not_equals', 'in', 'contains', 'greater_than', 'less_than'])],
-                'value' => ['present'],
-            ])->validate();
-        }
+        $this->validateConditionGroup($data['conditions']);
 
         foreach ($data['actions'] as $action) {
             if (($action['type'] ?? '') === 'assign_agent') {

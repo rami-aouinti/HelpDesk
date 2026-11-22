@@ -10,6 +10,7 @@ use App\Notifications\TicketActivityNotification;
 use Illuminate\Queue\Events\QueueBusy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Horizon\Contracts\TagRepository;
 use Laravel\Horizon\Tags;
 use Mockery;
@@ -45,6 +46,24 @@ class QueueMonitoringTest extends TestCase
         $this->artisan('horizon:monitor-tags')
             ->expectsOutput('Horizon monitoring tags registered: ticket-notifications, ticket-search-indexing, user-search-indexing.')
             ->assertExitCode(0);
+    }
+
+    public function test_scheduler_checks_both_redis_queues_and_registers_horizon_tags(): void
+    {
+        $commands = collect(app(Schedule::class)->events())
+            ->pluck('command')
+            ->filter()
+            ->values();
+
+        $this->assertTrue($commands->contains(
+            fn (string $command): bool => str_contains($command, 'queue:monitor redis:default,redis:notifications --max=100'),
+        ));
+        $this->assertTrue($commands->contains(
+            fn (string $command): bool => str_contains($command, 'horizon:monitor-tags'),
+        ));
+        $this->assertTrue($commands->contains(
+            fn (string $command): bool => str_contains($command, 'horizon:snapshot'),
+        ));
     }
 
     public function test_search_indexing_jobs_expose_stable_horizon_monitoring_tags(): void

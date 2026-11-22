@@ -12,6 +12,7 @@ use App\Listeners\IndexTicketInElasticsearch;
 use App\Models\User;
 use App\Observers\UserObserver;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Events\QueueBusy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -47,6 +48,14 @@ class AppServiceProvider extends ServiceProvider
         });
         Queue::exceptionOccurred(function (\Illuminate\Queue\Events\JobExceptionOccurred $event): void {
             Log::error('queue.job.failed', ['event' => 'queue.job.failed', 'job' => $event->job->resolveName(), 'queue' => $event->job->getQueue(), 'connection' => $event->connectionName, 'attempt' => $event->job->attempts(), 'exception' => $event->exception::class]);
+        });
+        Event::listen(QueueBusy::class, function (QueueBusy $event): void {
+            Log::warning('queue.backlog.threshold_exceeded', [
+                'event' => 'queue.backlog.threshold_exceeded',
+                'connection' => $event->connection,
+                'queue' => $event->queue,
+                'size' => $event->size,
+            ]);
         });
         Event::listen(TicketCreated::class, SendTicketCreatedNotifications::class);
         Event::listen(TicketMessageCreated::class, SendTicketMessageNotifications::class);

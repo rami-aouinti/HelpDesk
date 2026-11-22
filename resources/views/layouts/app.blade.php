@@ -17,7 +17,7 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261121-10">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=20261122-1">
     <link rel="stylesheet" href="{{ asset('css/theme-system.css') }}?v=20261121-10">
     @livewireStyles
 </head>
@@ -31,11 +31,6 @@
 
         <div class="nav-label">WORKSPACE</div>
         <nav class="sidebar-nav">
-            @can('viewAny', \App\Models\User::class)
-                <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                    <span class="nav-icon">♙</span><span>Users</span>
-                </a>
-            @endcan
             @can('viewAny', \App\Models\Project::class)
                 <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}"><span class="nav-icon">▣</span><span>Projects</span></a>
             @endcan
@@ -54,6 +49,20 @@
                 @endif
             @endcan
         </nav>
+
+        <div class="sidebar-bottom">
+            <div class="nav-label">ADMINISTRATION</div>
+            <nav class="sidebar-nav sidebar-admin-nav" aria-label="Administration">
+                @can('viewAny', \\App\\Models\\User::class)
+                    <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                        <span class="nav-icon">♙</span><span>Users</span>
+                    </a>
+                @endcan
+                <a href="{{ route('appearance.edit') }}" class="nav-link {{ request()->routeIs('appearance.*') ? 'active' : '' }}">
+                    <span class="nav-icon">⚙</span><span>Settings</span>
+                </a>
+            </nav>
+        </div>
     </aside>
 
     <main class="main-content">
@@ -104,6 +113,7 @@
                 </div>
             @endif
 
+            <div class="topbar-right">
             <div class="topbar-actions">
                 <details class="notification-menu" id="notification-menu"
                     data-feed-url="{{ route('notifications.recent') }}"
@@ -153,6 +163,7 @@
                     </form>
                 </div>
             </details>
+            </div>
         </header>
 
         <section class="page-content">

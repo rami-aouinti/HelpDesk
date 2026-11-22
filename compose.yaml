@@ -18,6 +18,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      redis-queue:
+        condition: service_healthy
     networks:
       - helpdesk
 
@@ -40,7 +42,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
-    command: php artisan queue:work database --queue=notifications,default --sleep=3 --tries=3 --timeout=90
+    command: php artisan queue:work redis --queue=notifications,default --sleep=3 --tries=5 --timeout=90 --max-time=3600
     env_file:
       - .env
     volumes:
@@ -49,7 +51,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      redis-queue:
         condition: service_healthy
       app:
         condition: service_started
@@ -89,6 +91,20 @@ services:
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - helpdesk_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - helpdesk
+
+  redis-queue:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - helpdesk_redis_queue:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -302,6 +318,7 @@ services:
 volumes:
   helpdesk_postgres:
   helpdesk_redis:
+  helpdesk_redis_queue:
   helpdesk_elasticsearch:
   helpdesk_filebeat:
   helpdesk_vendor:

@@ -57,6 +57,33 @@ CREATE_TICKETS=true k6 run k6/helpdesk-load.js
 
 This creates one test ticket every five iterations per VU. It writes to the configured database and can enqueue notifications/indexing jobs. Use a disposable local/staging environment, never production without an approved test window, and clean up generated tickets/jobs afterward.
 
+### PHP-FPM worker capacity
+
+The PHP-FPM pool is tuned in the `php-base` stage of the root `Dockerfile`, so the settings are versioned and baked into the application image. The current local/staging profile uses:
+
+- `pm = dynamic`
+- `pm.max_children = 8` (maximum simultaneous PHP requests handled by this FPM pool)
+- `pm.start_servers = 2`
+- `pm.min_spare_servers = 2`
+- `pm.max_spare_servers = 4`
+- `pm.max_requests` remains at the upstream image default; do not change it without evidence of worker memory growth.
+
+After changing the Dockerfile, rebuild and recreate only the app service:
+
+```bash
+docker compose build app
+docker compose up -d --no-deps app
+```
+
+Validate the effective configuration and check the container logs for pool saturation:
+
+```bash
+docker compose exec app sh -lc '/usr/local/sbin/php-fpm -tt 2>&1 | grep -E "pm =|pm.max_children|pm.start_servers|pm.min_spare_servers|pm.max_spare_servers|pm.max_requests"'
+docker compose logs --since=10m app
+```
+
+Look for the warning `server reached pm.max_children setting`. If it returns, do not raise the limit blindly: measure worker RSS, Docker/WSL available memory, and CPU pressure first. More workers increase memory usage, and they do not fix slow SQL, Elasticsearch contention, or CPU saturation. Re-run the same k6 profile after each controlled change and compare p95/p99, error rate, worker saturation and resource usage. These values are a conservative developer/staging starting point, not a production capacity guarantee.
+
 ### Read the results
 
 k6 prints request rates, failures, checks, response-time percentiles and the custom ticket list/detail/create timings. During the run, watch the application and workers:

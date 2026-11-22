@@ -64,12 +64,23 @@ final class AutomationRuleEngine
         }
     }
 
+    /**
+     * @param array<string, mixed> $group
+     */
     private function matches(array $group, Ticket $ticket): bool
     {
         $logic = strtolower((string) ($group['logic'] ?? 'and'));
         $results = [];
+        $rules = $group['rules'] ?? null;
 
-        foreach (($group['rules'] ?? []) as $rule) {
+        if (! is_array($rules) || $rules === []) {
+            return true;
+        }
+
+        foreach ($rules as $rule) {
+            if (! is_array($rule)) {
+                continue;
+            }
             if (isset($rule['rules']) && is_array($rule['rules'])) {
                 $results[] = $this->matches($rule, $ticket);
                 continue;

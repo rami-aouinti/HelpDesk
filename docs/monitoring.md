@@ -55,7 +55,7 @@ The Grafana dashboard **HelpDesk - Infrastructure & Availability** is provisione
 - PostgreSQL exporter availability, connections, database statistics and failed job count.
 - Dedicated Redis queue availability, memory and keyspace metrics through Redis Exporter.
 - Queue backlog threshold checks every minute via Laravel's `queue:monitor` for `redis:default` and `redis:notifications`; threshold breaches are emitted as structured `queue.backlog.threshold_exceeded` logs for Grafana/Loki. Pending job counts are not read from PostgreSQL because jobs are stored in Redis.
-- Horizon's **Monitoring** tab tracks tagged jobs, not worker supervisors. HelpDesk registers `ticket-search-indexing` and `user-search-indexing` automatically through `horizon:monitor-tags`; the scheduled command re-registers them after the Horizon Redis data is recreated. These tags appear in the Monitoring tab when matching jobs have run.
+- Horizon's **Monitoring** tab tracks tagged jobs, not worker supervisors. HelpDesk registers `ticket-notifications`, `ticket-search-indexing` and `user-search-indexing` automatically through `horizon:monitor-tags`; the scheduled command re-registers them after the Horizon Redis data is recreated. These tags appear in the Monitoring tab when matching jobs have run.
 - Container stdout/stderr logs through Docker discovery, Alloy and Loki.
 
 Laravel's example environment sets `LOG_STACK=stderr`, so Laravel logs are emitted to the container output and collected by Alloy. Keep this setting if you want application logs in Grafana Explore.

@@ -9,13 +9,15 @@ use App\ServiceDesk\Application\Contracts\TicketMessageRepository;
 
 final class EloquentTicketMessageRepository implements TicketMessageRepository
 {
-    public function create(int $ticketId, int $authorId, string $body, bool $isInternal): TicketMessage
+    public function create(int $ticketId, int $authorId, string $body, bool $isInternal): int
     {
-        return TicketMessage::query()->create([
+        $message = TicketMessage::query()->create([
             'ticket_id' => $ticketId,
             'user_id' => $authorId,
             'body' => $body !== '' ? $body : 'Shared attachments.',
             'is_internal' => $isInternal,
         ]);
+
+        return (int) $message->getKey();
     }
 }

@@ -14,26 +14,11 @@ class RolePermissionSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
-            'tickets.view',
-            'tickets.view.all',
-            'tickets.create',
-            'tickets.update',
-            'tickets.manage',
-            'users.view',
-            'users.create',
-            'users.update',
-            'users.deactivate',
-            'teams.view',
-            'teams.create',
-            'teams.update',
-            'teams.delete',
-            'projects.view',
-            'projects.view.all',
-            'projects.create',
-            'projects.update',
-            'projects.delete',
-            'reports.view',
-            'knowledge-base.manage',
+            'tickets.view', 'tickets.view.all', 'tickets.create', 'tickets.update', 'tickets.manage',
+            'users.view', 'users.create', 'users.update', 'users.deactivate',
+            'teams.view', 'teams.create', 'teams.update', 'teams.delete',
+            'projects.view', 'projects.view.all', 'projects.create', 'projects.update', 'projects.delete',
+            'reports.view', 'knowledge-base.manage', 'automation.manage',
         ];
 
         foreach ($permissions as $permission) {
@@ -45,15 +30,7 @@ class RolePermissionSeeder extends Seeder
         $customer = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
 
         $admin->syncPermissions(Permission::query()->where('guard_name', 'web')->get());
-        $agent->syncPermissions([
-            'tickets.view',
-            'tickets.update',
-            'projects.view',
-        ]);
-        $customer->syncPermissions([
-            'tickets.view',
-            'tickets.create',
-            'projects.view',
-        ]);
+        $agent->syncPermissions(['tickets.view', 'tickets.update', 'projects.view']);
+        $customer->syncPermissions(['tickets.view', 'tickets.create', 'projects.view']);
     }
 }

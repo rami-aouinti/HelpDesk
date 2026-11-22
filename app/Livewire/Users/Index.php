@@ -187,6 +187,7 @@ class Index extends Component
         return view('livewire.users.index', [
             'selectedUser' => $selectedUser,
             'users' => $users,
+            'canCreateUser' => auth()->user()->can('create', User::class),
             'roles' => Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name'),
         ]);
     }

@@ -75,3 +75,9 @@ The existing Eloquent models and HTTP controllers are legacy/framework-facing co
 - Application tests: handlers with repository/clock/event contracts.
 - Infrastructure integration tests: Eloquent mappings, transactions and database constraints.
 - Presentation feature tests: HTTP authorization, validation, response contracts and end-to-end behavior.
+
+## SLA domain rules
+SLA policy targets are represented by the ServiceDesk domain value object `SlaPolicy`. Deadline evaluation is handled by the pure domain service `SlaDeadlineEvaluator`, which decides whether no action, a warning or a breach is due. It accepts date-time values and does not depend on Carbon, Eloquent, Laravel configuration or notification APIs.
+
+The existing `TicketSlaService` currently acts as an orchestration adapter: it reads configured priority targets, initializes persisted deadlines, discovers the first public staff reply, asks the domain evaluator for the deadline decision, stores warning/breach timestamps and sends notifications. This keeps the existing behavior while moving the decision rules into a framework-independent domain service. The next migration can extract persistence and notification ports without changing the SLA rules.
+

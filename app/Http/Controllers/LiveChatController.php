@@ -94,9 +94,13 @@ class LiveChatController extends Controller
     {
         abort_unless($request->user()->hasAnyRole(['agent', 'admin']), 403);
         abort_unless($conversation->status === 'open', 409);
-        abort_if($conversation->agent_id !== null && $conversation->agent_id !== $request->user()->id, 409, 'Another agent already owns this conversation.');
 
-        $conversation->forceFill(['agent_id' => $request->user()->id])->save();
+        DB::transaction(function () use ($request, $conversation): void {
+            $locked = ChatConversation::query()->lockForUpdate()->findOrFail($conversation->id);
+            abort_if($locked->agent_id !== null && $locked->agent_id !== $request->user()->id, 409, 'Another agent already owns this conversation.');
+            $locked->forceFill(['agent_id' => $request->user()->id])->save();
+        });
+
         return response()->json(['success' => true]);
     }
 
@@ -128,6 +132,7 @@ class LiveChatController extends Controller
     public function convert(Request $request, ChatConversation $conversation): RedirectResponse
     {
         abort_unless($request->user()->hasAnyRole(['agent', 'admin']), 403);
+        $this->authorizeConversation($request, $conversation);
         abort_unless($conversation->status === 'open', 409);
         abort_if($conversation->converted_ticket_id !== null, 409);
 
@@ -135,13 +140,18 @@ class LiveChatController extends Controller
             $transcript = $conversation->messages()->with('user')->get()
                 ->map(fn (ChatMessage $message) => '[' . $message->created_at->format('Y-m-d H:i') . '] ' . $message->user->name . ': ' . $message->body)
                 ->implode("\n");
+            $assignedAgentId = $conversation->agent_id;
+            if ($assignedAgentId === null && $request->user()->hasRole('agent')) {
+                $assignedAgentId = $request->user()->id;
+            }
+
             $ticket = Ticket::query()->create([
                 'subject' => $conversation->subject ?: 'Live chat conversation #' . $conversation->id,
                 'description' => "Conversation converted from Live Chat.\n\n" . $transcript,
                 'status' => 'open',
                 'priority' => 'normal',
                 'user_id' => $conversation->customer_id,
-                'assigned_to' => $conversation->agent_id ?: $request->user()->id,
+                'assigned_to' => $assignedAgentId,
             ]);
             $conversation->forceFill(['status' => 'converted', 'converted_ticket_id' => $ticket->id])->save();
             return $ticket;

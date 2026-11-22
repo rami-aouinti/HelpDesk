@@ -41,7 +41,11 @@ class IndexUserInElasticsearch implements ShouldQueue
 
         $user = User::query()->with('roles')->find($this->userId);
         if (! $user) {
-            Http::timeout(5)->delete($endpoint . '/helpdesk-users/_doc/' . $this->userId)->throw();
+            $response = Http::timeout(5)->delete($endpoint . '/helpdesk-users/_doc/' . $this->userId);
+            if (! $response->successful() && $response->status() !== 404) {
+                $response->throw();
+            }
+
             return;
         }
 

@@ -9,6 +9,8 @@ use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProject
 use App\ServiceDesk\Application\Commands\LinkTicketToProject\LinkTicketToProjectHandler;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentCommand;
 use App\ServiceDesk\Application\Commands\AssignTicketToAgent\AssignTicketToAgentHandler;
+use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentCommand;
+use App\ServiceDesk\Application\Commands\UnassignTicketFromAgent\UnassignTicketFromAgentHandler;
 use App\ServiceDesk\Domain\Exceptions\TicketAssignmentRejected;
 use App\ServiceDesk\Domain\Exceptions\TicketProjectLinkRejected;
 use App\ServiceDesk\Application\Commands\CreateTicket\CreateTicketCommand;
@@ -157,6 +159,7 @@ class TicketController extends Controller
         AssignTicketToTeamHandler $teamAssignmentHandler,
         AssignTicketToAgentHandler $assignmentHandler,
         LinkTicketToProjectHandler $projectLinkHandler,
+        UnassignTicketFromAgentHandler $unassignmentHandler,
     ): TicketResource {
         $data = $request->validated();
 
@@ -168,6 +171,19 @@ class TicketController extends Controller
                     projectId: $data['project_id'] === null ? null : (int) $data['project_id'],
                 ));
             } catch (TicketProjectLinkRejected $exception) {
+                throw ValidationException::withMessages([
+                    $exception->field => $exception->getMessage(),
+                ]);
+            }
+
+            $updatedTicket = $ticket->fresh();
+        } elseif (array_keys($data) === ['assigned_to'] && $data['assigned_to'] === null) {
+            try {
+                $unassignmentHandler->handle(new UnassignTicketFromAgentCommand(
+                    ticketId: (int) $ticket->getKey(),
+                    actorId: (int) $request->user()->getKey(),
+                ));
+            } catch (TicketAssignmentRejected $exception) {
                 throw ValidationException::withMessages([
                     $exception->field => $exception->getMessage(),
                 ]);

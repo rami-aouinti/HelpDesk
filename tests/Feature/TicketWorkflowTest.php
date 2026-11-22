@@ -33,7 +33,7 @@ class TicketWorkflowTest extends TestCase
                 'description' => 'The password reset page does not work for me.',
                 'priority' => 'high',
             ])
-            ->assertRedirect(route('tickets.index'));
+            ->assertRedirect(route('portal.home'));
 
         $ticket = Ticket::where('subject', 'Cannot access my account')
             ->where('user_id', $customer->id)

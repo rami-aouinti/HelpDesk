@@ -4,10 +4,7 @@
 
     @if ($showForm)
         <section class="content-card sprint-form-card hd-modal-panel" role="dialog" aria-modal="true" aria-labelledby="sprint-form-title">
-            <div class="sprint-form-heading">
-                <div><span class="sprint-eyebrow">SPRINT PLANNING</span><h2 id="sprint-form-title">{{ $sprintId ? 'Edit sprint' : 'Create sprint' }}</h2></div>
-                <button type="button" class="btn btn-secondary" wire:click="cancel">Close</button>
-            </div>
+            <div class="hd-modal-heading"><div><span class="hd-eyebrow">SPRINT PLANNING</span><h2 id="sprint-form-title">{{ $sprintId ? 'Edit sprint' : 'Create sprint' }}</h2></div><button type="button" class="hd-modal-close" wire:click="cancel" aria-label="Close">×</button></div>
             <form wire:submit="save" class="sprint-form">
                 <div class="form-group">
                     <label for="sprint-name">Sprint name</label>

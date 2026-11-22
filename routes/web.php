@@ -52,9 +52,12 @@ Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
 
     Route::view('/teams', 'teams.index')->name('teams.index');
+    Route::get('/teams/{team}', [WorkspaceDetailController::class, 'team'])->name('teams.show');
     Route::view('/sprints', 'sprints.index')->name('sprints.index');
+    Route::get('/sprints/{sprint}', [WorkspaceDetailController::class, 'sprint'])->name('sprints.show');
     Route::view('/kanban', 'kanban.index')->name('kanban.index');
     Route::view('/projects', 'projects.index')->name('projects.index');
+    Route::get('/projects/{project}', [WorkspaceDetailController::class, 'project'])->name('projects.show');
     Route::get('/projects/{project}/cover', [ProjectDocumentController::class, 'cover'])->name('projects.cover');
     Route::get('/project-documents/{document}/download', [ProjectDocumentController::class, 'download'])->name('projects.documents.download');
 

@@ -43,10 +43,6 @@ final class Ticket
             throw new InvalidTicketData('A team identifier must be positive.');
         }
 
-        if ($this->assignedAgentId !== null && ($this->assignedAgentId < 1 || $this->teamId === null)) {
-            throw new InvalidTicketData('An assigned agent requires a valid team.');
-        }
-
         $this->assertValidEffort($this->estimatedMinutes);
         $this->assertValidEffort($this->elapsedMinutes);
     }
@@ -60,6 +56,14 @@ final class Ticket
         ?int $teamId = null,
         ?int $assignedAgentId = null,
     ): self {
+        if ($teamId !== null && $teamId < 1) {
+            throw new InvalidTicketData('A team identifier must be positive.');
+        }
+
+        if ($assignedAgentId !== null && ($assignedAgentId < 1 || $teamId === null)) {
+            throw new InvalidTicketData('An assigned agent requires a valid team.');
+        }
+
         return new self(
             id: null,
             subject: trim($subject),

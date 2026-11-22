@@ -28,6 +28,7 @@ final class ConfigSlaPolicyProvider implements SlaPolicyProvider
             firstResponseMinutes: (int) $targets['first_response'],
             resolutionMinutes: (int) $targets['resolution'],
             warningMinutes: (int) $this->config->get('helpdesk.sla.warning_minutes', 60),
+            resolvedStatuses: (array) $this->config->get('helpdesk.sla.resolved_statuses', ['resolved', 'closed']),
         );
     }
 }

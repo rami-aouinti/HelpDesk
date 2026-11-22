@@ -22,7 +22,7 @@ final class EloquentDashboardReadRepository implements DashboardReadRepository
                 $tickets->where('user_id', $scope['user_id']);
             } elseif ($scope['is_agent']) {
                 $teamIds = Team::query()
-                    ->whereHas('users', fn ($users) => $users->whereKey($scope['user_id']))
+                    ->whereHas('members', fn ($members) => $members->whereKey($scope['user_id']))
                     ->pluck('teams.id');
 
                 $tickets->where(function ($query) use ($teamIds): void {
@@ -86,7 +86,7 @@ final class EloquentDashboardReadRepository implements DashboardReadRepository
         $calendarTeams = $scope['is_admin']
             ? Team::query()->orderBy('name')->get(['id', 'name'])
             : Team::query()
-                ->whereHas('users', fn ($users) => $users->whereKey($scope['user_id']))
+                ->whereHas('members', fn ($members) => $members->whereKey($scope['user_id']))
                 ->orderBy('name')
                 ->get(['id', 'name']);
 

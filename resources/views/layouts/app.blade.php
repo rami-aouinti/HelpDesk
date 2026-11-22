@@ -170,7 +170,7 @@
                         <div class="notification-list" id="notification-list" aria-live="polite">
                             <div class="notification-loading">Loading notifications…</div>
                         </div>
-                        <a class="notification-view-all" href="{{ route('tickets.index') }}">Go to tickets</a>
+                        <a class="notification-view-all" href="{{ route('notifications.index') }}">View all notifications</a>
                     </div>
                 </details>
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">

@@ -77,7 +77,13 @@ class NotificationInboxTest extends TestCase
 
         Notification::sendNow($agent, new TicketActivityNotification($ticket, 'Unread update', 'This update is unread.'));
         Notification::sendNow($agent, new TicketActivityNotification($ticket, 'Read update', 'This update is already read.'));
-        $agent->notifications()->where('data->title', 'Read update')->firstOrFail()->markAsRead();
+        $readNotification = $agent->notifications()
+            ->latest()
+            ->get()
+            ->first(fn ($notification): bool => ($notification->data['title'] ?? null) === 'Read update');
+
+        $this->assertNotNull($readNotification);
+        $readNotification->markAsRead();
         Notification::sendNow($customer, new TicketActivityNotification($ticket, 'Private update', 'This belongs to the customer.'));
 
         $this->actingAs($agent)
@@ -117,6 +123,7 @@ class NotificationInboxTest extends TestCase
 
         $this->assertSame(0, $agent->unreadNotifications()->count());
     }
+
     public function test_user_cannot_mark_another_users_notification_as_read(): void
     {
         $agent = User::where('email', 'agent@helpdesk.test')->firstOrFail();
@@ -144,5 +151,4 @@ class NotificationInboxTest extends TestCase
 
         $this->assertNull($customer->notifications()->findOrFail($notification->id)->read_at);
     }
-
 }

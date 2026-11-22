@@ -155,7 +155,7 @@
                                 <td>
                                     <span class="dashboard-customer">
                                         @if ($ticket->customer?->profile_photo_path)
-                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::url($ticket->customer->profile_photo_path) }}" alt="">
+                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \Illuminate\Support\Facades\Storage::url($ticket->customer->profile_photo_path) }}" alt="">
                                         @else
                                             <span class="dashboard-mini-avatar" aria-hidden="true">{{ strtoupper(substr($ticket->customer?->name ?? 'NA', 0, 2)) }}</span>
                                         @endif
@@ -165,7 +165,7 @@
                                 <td>
                                     <span class="dashboard-customer">
                                         @if ($ticket->assignedAgent?->profile_photo_path)
-                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \\Illuminate\\Support\\Facades\\Storage::url($ticket->assignedAgent->profile_photo_path) }}" alt="">
+                                            <img class="dashboard-mini-avatar hd-avatar-photo" src="{{ \Illuminate\Support\Facades\Storage::url($ticket->assignedAgent->profile_photo_path) }}" alt="">
                                         @else
                                             <span class="dashboard-mini-avatar" aria-hidden="true">{{ strtoupper(substr($ticket->assignedAgent?->name ?? '—', 0, 2)) }}</span>
                                         @endif

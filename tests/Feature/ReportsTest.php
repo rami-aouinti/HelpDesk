@@ -24,7 +24,7 @@ class ReportsTest extends TestCase
         $customerId = User::where('email', 'customer@helpdesk.test')->value('id');
         Ticket::create(['subject'=>'Analytics sample','description'=>'Sample','status'=>'resolved','priority'=>'urgent','user_id'=>$customerId]);
 
-        $this->actingAs($admin)->get(route('reports.index'))->assertOk()->assertSee('Reports &amp; Analytics');
+        $this->actingAs($admin)->get(route('reports.index'))->assertOk()->assertSee('Reports & Analytics');
         $this->actingAs($admin)->get(route('reports.csv'))->assertOk()->assertHeader('content-type','text/csv; charset=UTF-8');
     }
 

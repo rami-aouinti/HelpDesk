@@ -90,3 +90,8 @@ The reports page is the first Insights query slice. The HTTP controller validate
 The Insights CSV export follows the same read-side boundary. `ExportReportCsvQuery` and `ExportReportCsvHandler` delegate to `ReportCsvExportRepository`; the Eloquent adapter streams database rows with a cursor and maps them to the framework-independent `ReportCsvRow` DTO. The HTTP layer writes the CSV response incrementally, preserving low memory usage for large exports.
 
 The dashboard overview now follows the same pattern. `GetDashboardOverviewQuery` carries the authenticated user's visibility scope, `GetDashboardOverviewHandler` builds the presentation-ready overview, and `DashboardReadRepository` isolates ticket statistics, recent activity, recent tickets and calendar team options. `EloquentDashboardReadRepository` retains the existing customer, agent/team and project-membership restrictions. The controller only translates the authenticated user into the query and passes the result to the existing Blade view.
+
+
+## Communications read side
+
+The notification inbox and recent-notification feed are the first Communications query slices. `GetNotificationInboxQuery` and `GetRecentNotificationsQuery` carry the authenticated user identifier and read preferences; their handlers delegate to the `NotificationInboxRepository` port. `EloquentNotificationInboxRepository` owns database-notification queries and pagination. The HTTP controller remains responsible for translating the results into the existing Blade and JSON response contracts. Notification mutations remain in the presentation layer for the next migration slice.

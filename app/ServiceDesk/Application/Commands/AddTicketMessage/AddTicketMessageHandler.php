@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\ServiceDesk\Application\Commands\AddTicketMessage;
 
-use App\Models\TicketMessage;
 use App\ServiceDesk\Application\Contracts\TicketMessageCreatedPublisher;
 use App\ServiceDesk\Application\Contracts\TicketMessageRepository;
 use App\ServiceDesk\Application\Contracts\TransactionManager;
@@ -18,17 +17,17 @@ final class AddTicketMessageHandler
     ) {
     }
 
-    public function handle(AddTicketMessageCommand $command): TicketMessage
+    public function handle(AddTicketMessageCommand $command): int
     {
-        $message = $this->transactions->run(fn (): TicketMessage => $this->messages->create(
+        $messageId = $this->transactions->run(fn (): int => $this->messages->create(
             $command->ticketId,
             $command->authorId,
             trim($command->body),
             $command->isInternal,
         ));
 
-        $this->publisher->publish($message);
+        $this->publisher->publish($messageId);
 
-        return $message;
+        return $messageId;
     }
 }

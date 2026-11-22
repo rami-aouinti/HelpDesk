@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Communications\Application\Contracts\NotificationInboxRepository;
+use App\Communications\Infrastructure\Persistence\Eloquent\EloquentNotificationInboxRepository;
+
 use App\Insights\Application\Contracts\DashboardReadRepository;
 use App\Insights\Application\Contracts\ReportReadRepository;
 use App\Insights\Application\Contracts\ReportCsvExportRepository;
@@ -68,7 +71,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(NotificationInboxRepository::class, EloquentNotificationInboxRepository::class);\n        $this->app->bind(DashboardReadRepository::class, EloquentDashboardReadRepository::class);
+        $this->app->bind(NotificationInboxRepository::class, EloquentNotificationInboxRepository::class);
+        $this->app->bind(DashboardReadRepository::class, EloquentDashboardReadRepository::class);
         $this->app->bind(ReportReadRepository::class, EloquentReportReadRepository::class);
         $this->app->bind(ReportCsvExportRepository::class, EloquentReportCsvExportRepository::class);
         $this->app->bind(TicketRepository::class, EloquentTicketRepository::class);

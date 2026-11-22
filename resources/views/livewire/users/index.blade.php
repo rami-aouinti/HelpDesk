@@ -44,7 +44,7 @@
                         <td><span class="status {{ $user->is_active ? 'status-resolved' : 'status-in_progress' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></td>
                         <td>{{ $user->created_at->format('d M Y') }}</td>
                         <td class="actions">
-                            <button type="button" class="btn btn-secondary" wire:click="showUser({{ $user->id }})">Show</button>
+                            <a class="btn btn-secondary" href="{{ route('users.show', $user) }}">Show</a>
                             @can('update', $user)
                                 <a class="btn btn-secondary" href="{{ route('users.edit', $user) }}">Edit</a>
                             @endcan

@@ -48,3 +48,25 @@ body:has(.hd-modal-panel:not(.hd-detail-modal)):not(:has(.hd-modal-backdrop))::b
 .hd-avatar-photo{display:inline-block;object-fit:cover;overflow:hidden;border-radius:50%;background:var(--surface-muted,#e5e7eb)}
 .ticket-message-avatar img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 .hd-history-actor{display:inline-flex;align-items:center;gap:7px;margin-top:8px}
+
+/* Ticket conversation and audit trail refinements */
+.ticket-message{display:flex;align-items:flex-start;gap:14px;padding:18px;border:1px solid var(--border,#e5e7eb);border-radius:16px;background:var(--surface,#fff)}
+.ticket-message-internal{border-color:rgba(245,158,11,.45);background:rgba(245,158,11,.055)}
+.ticket-message-avatar{display:grid;place-items:center;flex:none;width:42px;height:42px;overflow:hidden;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:12px;font-weight:800}
+.ticket-message-avatar img{width:100%;height:100%;object-fit:cover}
+.ticket-message-content{flex:1;min-width:0}
+.ticket-message-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
+.ticket-message-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ticket-message-author{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ticket-history-item{display:flex;gap:14px;position:relative;padding:13px 0}
+.ticket-history-marker{width:10px;height:10px;flex:none;margin:5px 0 0 4px;border:2px solid var(--primary,#6366f1);border-radius:50%;background:var(--surface,#fff);box-shadow:0 0 0 4px rgba(99,102,241,.1)}
+.ticket-history-content{flex:1;min-width:0;padding:0 0 13px;border-bottom:1px solid var(--border,#e5e7eb)}
+.ticket-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ticket-history-heading time,.ticket-message-meta time{color:var(--muted,#64748b);font-size:11px}
+.ticket-history-content>p{margin:7px 0;color:var(--muted,#64748b);font-size:13px}
+.ticket-history-content>p strong{color:var(--text,#111827)}
+.ticket-history-arrow{padding:0 7px;color:var(--primary,#6366f1);font-weight:800}
+.ticket-history-content>small{color:var(--muted,#64748b);font-size:11px}
+.ticket-attachment{transition:border-color .15s ease,background .15s ease}
+.ticket-attachment:hover{border-color:var(--primary,#6366f1);background:rgba(99,102,241,.05)}
+@media(max-width:640px){.ticket-message{padding:13px;gap:10px}.ticket-message-avatar{width:35px;height:35px}.ticket-message-meta{display:grid;gap:5px}}

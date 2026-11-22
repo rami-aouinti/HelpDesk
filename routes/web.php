@@ -20,7 +20,7 @@ Route::get('/api/openapi.yaml', function () {
 })->name('api.openapi');
 
 Route::middleware(['auth', 'active', 'verified'])->group(function (): void {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');\n    Route::get('/calendar/events', [CalendarController::class, 'feed'])->name('calendar.feed');\n    Route::post('/calendar/events', [CalendarController::class, 'store'])->name('calendar.events.store');\n    Route::patch('/calendar/events/{event}', [CalendarController::class, 'update'])->name('calendar.events.update');\n    Route::delete('/calendar/events/{event}', [CalendarController::class, 'destroy'])->name('calendar.events.destroy');
     Route::middleware('can:reports.view')->group(function (): void {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/export/csv', [ReportController::class, 'csv'])->name('reports.csv');

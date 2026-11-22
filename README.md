@@ -13,6 +13,31 @@ A Laravel-based support desk for managing customer requests, team workflows and 
 - **Notifications:** in-app notifications, email notifications and user notification preferences.
 - **REST API:** Sanctum bearer tokens, ticket resources, conversation endpoints and OpenAPI documentation.
 
+## Elasticsearch search
+
+The optional `monitoring` Docker profile starts Elasticsearch and Kibana. HelpDesk indexes ticket documents asynchronously and can search tickets through Elasticsearch, with SQL fallback when Elasticsearch is unavailable. User documents are indexed asynchronously as users are created, updated, or deleted.
+
+Start Elasticsearch and Kibana:
+
+```bash
+docker compose --profile monitoring up -d elasticsearch kibana
+```
+
+Rebuild the user search index for existing accounts (the queue worker processes the dispatched jobs):
+
+```bash
+docker compose exec app php artisan elasticsearch:reindex-users
+```
+
+The permission-protected API endpoint is:
+
+```http
+GET /api/v1/users/search?q=customer
+Authorization: Bearer <sanctum-token>
+```
+
+Only users with the `users.view` permission can search accounts. The response contains basic account details and role names; passwords and authentication secrets are never indexed. Elasticsearch is configured through `ELASTICSEARCH_ENABLED` and `ELASTICSEARCH_URL` in `.env`.
+
 ## Requirements
 
 - Docker Engine and Docker Compose plugin
